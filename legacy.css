@@ -23,7 +23,7 @@ body{background:var(--bg) !important;font-family:'Inter',system-ui,sans-serif}
   --text:#1d1f23 !important; --text-dim:#5c616a !important; --text-faint:#6a6f77 !important;
   --track:rgba(242,177,52,.28) !important; --glow-1:rgba(242,177,52,.10) !important; --glow-2:rgba(193,68,60,.03) !important;
   --void:#f4f1ea; --panel:#ffffff; --panel-2:#f0ece3; --panel-3:#e8e3d8; --line:#d9d3c5; --muted:#5c616a;
-  --modal-text:#3a3d43; --dial-b:#e8e3d8; --accent-ink:#8a5d00;
+  --modal-text:#3a3d43; --dial-b:#e8e3d8; --accent-ink:#f2b134;
   color-scheme:light;
 }
 :root[data-theme="light"] .bpm-number{text-shadow:none !important}
