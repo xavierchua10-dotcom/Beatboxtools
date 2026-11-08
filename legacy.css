@@ -11,24 +11,38 @@
   --f-head:'Oswald','Arial Narrow',system-ui,sans-serif;
   --f-mono:'JetBrains Mono',ui-monospace,monospace;
   color-scheme:dark;
+  --panel-3:#2a2f38; --modal-text:#cfcbc2; --dial-b:#1a1d22; --accent-ink:#f2b134;
 }
-body{background:#14161a !important;font-family:'Inter',system-ui,sans-serif}
-.app{background:#14161a !important}
-@media (min-width:480px){.app{border-color:#2e333b !important;box-shadow:none !important}}
+body{background:var(--bg) !important;font-family:'Inter',system-ui,sans-serif}
+.app{background:var(--bg) !important}
+@media (min-width:480px){.app{border-color:var(--line) !important;box-shadow:none !important}}
+
+/* light mode: same gold, light surfaces */
+:root[data-theme="light"]{
+  --bg:#f4f1ea !important; --bg-panel:#ffffff !important; --panel-edge:#d9d3c5 !important;
+  --text:#1d1f23 !important; --text-dim:#5c616a !important; --text-faint:#6a6f77 !important;
+  --track:rgba(242,177,52,.28) !important; --glow-1:rgba(242,177,52,.10) !important; --glow-2:rgba(193,68,60,.03) !important;
+  --void:#f4f1ea; --panel:#ffffff; --panel-2:#f0ece3; --panel-3:#e8e3d8; --line:#d9d3c5; --muted:#5c616a;
+  --modal-text:#3a3d43; --dial-b:#e8e3d8; --accent-ink:#8a5d00;
+  color-scheme:light;
+}
+:root[data-theme="light"] .bpm-number{text-shadow:none !important}
+:root[data-theme="light"] .ring-fill{filter:none !important}
+:root[data-theme="light"] .dial-core{box-shadow:0 0 18px 2px rgba(242,177,52,.22),inset 0 0 12px rgba(242,177,52,.06) !important}
 
 /* titles */
-.title-main{background:none !important;-webkit-text-fill-color:currentColor;color:#e9e6df !important;font:700 22px/1.15 var(--f-head) !important;letter-spacing:.08em !important;text-transform:uppercase}
-.title-sub,.titleblock .by{color:#82878f !important;font:400 11px var(--f-mono) !important;letter-spacing:.2em !important}
+.title-main{background:none !important;-webkit-text-fill-color:currentColor;color:var(--text) !important;font:700 22px/1.15 var(--f-head) !important;letter-spacing:.08em !important;text-transform:uppercase}
+.title-sub,.titleblock .by{color:var(--text-faint) !important;font:400 11px var(--f-mono) !important;letter-spacing:.2em !important}
 .titleblock h1{font:700 clamp(1.4rem,6vw,1.7rem)/1.15 var(--f-head) !important;letter-spacing:.08em !important}
 
 /* metronome: drop the colour-theme picker, move the info button into its place */
 .settings-btn,#settingsPanel{display:none !important}
 .support-btn{left:24px !important}
-.settings-btn,.support-btn,.feedback-btn,.bpm-step{background:#242830 !important;border-color:#2e333b !important}
+.settings-btn,.support-btn,.feedback-btn,.bpm-step{background:var(--panel-2) !important;border-color:var(--line) !important}
 .support-btn,.feedback-btn{border-radius:8px !important}
 .live-dot{box-shadow:0 0 8px 2px rgba(193,68,60,.7) !important}
 .ring-fill{filter:drop-shadow(0 0 6px rgba(242,177,52,.6)) !important}
-.dial-core{background:radial-gradient(circle at 50% 35%,#242830,#1a1d22 75%) !important;border-color:rgba(242,177,52,.2) !important;box-shadow:0 0 28px 5px rgba(242,177,52,.14),inset 0 0 18px rgba(242,177,52,.05) !important}
+.dial-core{background:radial-gradient(circle at 50% 35%,var(--panel-2),var(--dial-b) 75%) !important;border-color:rgba(242,177,52,.2) !important;box-shadow:0 0 28px 5px rgba(242,177,52,.14),inset 0 0 18px rgba(242,177,52,.05) !important}
 .dial-core.tick{box-shadow:0 0 0 1px rgba(242,177,52,.3),0 0 22px 4px rgba(242,177,52,.25) !important}
 .dial-core.beat{box-shadow:0 0 0 1px rgba(242,177,52,.4),0 0 40px 8px rgba(242,177,52,.35) !important}
 .dial-core.accent{box-shadow:0 0 0 1px rgba(193,68,60,.55),0 0 44px 10px rgba(193,68,60,.45) !important}
@@ -38,12 +52,12 @@ body{background:#14161a !important;font-family:'Inter',system-ui,sans-serif}
 .led.active.accent{box-shadow:0 0 8px 1px rgba(193,68,60,.7) !important}
 input[type="range"]::-webkit-slider-thumb,input[type="range"]::-moz-range-thumb{box-shadow:0 0 0 4px rgba(242,177,52,.15) !important}
 .tap-btn,.play-btn{font-family:var(--f-head) !important;font-weight:700 !important;text-transform:uppercase;letter-spacing:.06em !important;border-radius:10px !important}
-.tap-btn{background:#242830 !important;border:1px solid #2e333b !important;font-size:14px !important}
+.tap-btn{background:var(--panel-2) !important;border:1px solid var(--line) !important;font-size:14px !important}
 .play-btn{background:#f2b134 !important;color:#1c1500 !important;box-shadow:none !important;font-size:16px !important}
 .play-btn.playing{background:#c1443c !important;color:#fff !important}
-select{background:#2a2f38 !important;border-color:#2e333b !important}
-.feedback-link:hover{color:#e9e6df !important}
-.overlay-card{background:#1c1f24 !important;border-radius:14px !important}
+select{background:var(--panel-3) !important;border-color:var(--line) !important}
+.feedback-link:hover{color:var(--text) !important}
+.overlay-card{background:var(--panel) !important;border-radius:14px !important}
 
 /* battle */
 body .shell{font-family:'Inter',system-ui,sans-serif}
@@ -55,12 +69,12 @@ body{background-image:none}
 .pill,.buzzbtn,.donate-tab,.modal .close-btn,.help-btn{font-family:var(--f-head) !important;letter-spacing:.05em;text-transform:uppercase}
 .pill{border-radius:8px !important;font-weight:600 !important}
 .pill.active,.donate-tab.active{background:#f2b134 !important;border-color:#f2b134 !important;color:#1c1500 !important}
-.buzzbtn.active{border-color:#f2b134 !important;color:#f2b134 !important;background:rgba(242,177,52,.1) !important}
+.buzzbtn.active{border-color:#f2b134 !important;color:var(--accent-ink) !important;background:rgba(242,177,52,.1) !important}
 .time,.modal h2,.btn-main{font-family:var(--f-head) !important;font-weight:700}
 .btn-main{background:#f2b134 !important;color:#1c1500 !important;box-shadow:none !important;border-radius:10px !important;letter-spacing:.06em !important}
 .statepill.live{color:#c1443c}
 .help-btn:focus-visible,button:focus-visible{outline-color:#f2b134 !important}
-.modal p,.modal li{color:#cfcbc2}
+.modal p,.modal li{color:var(--modal-text)}
 
 /* support / help / feedback buttons are removed from the tabs for now */
 .support-btn,.feedback-btn,#supportPanel,#feedbackPanel{display:none !important}
@@ -68,3 +82,4 @@ body{background-image:none}
 .title-block,.titleblock{display:none !important}
 .app{padding-top:20px !important}
 body header{display:none !important}
+.tempo-marking,.bpm-step:hover{color:var(--accent-ink) !important}

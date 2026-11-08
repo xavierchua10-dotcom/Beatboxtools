@@ -1,13 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="theme.js?v=20261108m"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Routine builder by Savior</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="fonts.css?v=20261108j">
-<link rel="stylesheet" href="theme.css?v=20261108j">
+<link rel="stylesheet" href="fonts.css?v=20261108m">
+<link rel="stylesheet" href="theme.css?v=20261108m">
+<link rel="stylesheet" href="themes.css?v=20261108m">
 <style>
   .card{margin-bottom:12px}
   .lab{display:block;margin:0 0 8px;color:var(--text-faint);font:500 12px var(--f-head);letter-spacing:.12em;text-transform:uppercase}
@@ -21,7 +23,7 @@
   .btn.sm{min-height:42px;padding:9px 12px;font-size:12px;flex:none}
   .btn.wide{width:100%}
   details.tpl{margin-top:10px}
-  details.tpl summary{color:var(--accent);font:600 12px var(--f-head);letter-spacing:.08em;text-transform:uppercase;cursor:pointer;padding:6px 0}
+  details.tpl summary{color:var(--accent-ink);font:600 12px var(--f-head);letter-spacing:.08em;text-transform:uppercase;cursor:pointer;padding:6px 0}
   details.tpl .row{margin-top:6px}
   .meter{margin-top:14px}
   .bar{height:10px;background:var(--panel-3);border-radius:6px;overflow:hidden}
@@ -31,7 +33,7 @@
   .meter.over #meterText{color:var(--accent-2)}
   .sec{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px}
   .sec-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
-  .idx{flex:none;width:26px;height:26px;border-radius:8px;display:grid;place-items:center;background:rgba(var(--accent-rgb),.12);border:1px solid var(--accent-dim);color:var(--accent);font:700 12px var(--f-mono)}
+  .idx{flex:none;width:26px;height:26px;border-radius:8px;display:grid;place-items:center;background:rgba(var(--accent-rgb),.12);border:1px solid var(--accent-dim);color:var(--accent-ink);font:700 12px var(--f-mono)}
   .range{flex:none;color:var(--text-dim);font:400 12px var(--f-mono)}
   .sec-body{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
   .stepper{display:flex;align-items:center;gap:4px}
@@ -57,7 +59,7 @@
   .reh-name{color:var(--text-faint);font:500 12px var(--f-head);letter-spacing:.12em;text-transform:uppercase;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .reh-mid{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px;min-height:0}
   .reh-label{margin:0;font:700 34px/1.1 var(--f-head);letter-spacing:.06em;text-transform:uppercase;max-width:100%;overflow-wrap:anywhere}
-  .reh-time{margin:0;font:700 128px/1 var(--f-head);color:var(--accent)}
+  .reh-time{margin:0;font:700 128px/1 var(--f-head);color:var(--accent-ink)}
   .reh-time.urgent{color:var(--accent-2)}
   .reh-notes{margin:6px 0 0;color:var(--text-dim);font-size:15px;line-height:1.4;max-width:90%;white-space:pre-wrap;overflow-wrap:anywhere}
   .reh-meta{display:flex;justify-content:space-between;gap:12px;margin:10px 0 16px;color:var(--text-dim);font:400 13px var(--f-mono)}
@@ -134,7 +136,7 @@
   </div>
 </section>
 
-<script src="confirm.js?v=20261108j"></script>
+<script src="confirm.js?v=20261108m"></script>
 <script>
 (function () {
   'use strict';

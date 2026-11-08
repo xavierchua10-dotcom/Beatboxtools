@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="theme.js?v=20261108m"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#14161a">
 <title>Settings</title>
-<link rel="stylesheet" href="fonts.css?v=20261108j">
-<link rel="stylesheet" href="theme.css?v=20261108j">
+<link rel="stylesheet" href="fonts.css?v=20261108m">
+<link rel="stylesheet" href="theme.css?v=20261108m">
+<link rel="stylesheet" href="themes.css?v=20261108m">
 <style>
   .app{padding-top:16px}
   .card{margin-bottom:10px;padding:0}
@@ -31,7 +33,19 @@
 <body>
 <main class="app">
 
-  <span class="section-label" style="margin-top:0">Recording</span>
+  <span class="section-label" style="margin-top:0">Appearance</span>
+  <section class="card">
+    <div class="set col">
+      <span class="tx"><b>Theme</b><small>Auto follows your phone. The gold stays the same.</small></span>
+      <div class="chips" id="thm" role="group" aria-label="Theme">
+        <button class="chip" type="button" data-t="dark" aria-pressed="false">DARK</button>
+        <button class="chip" type="button" data-t="light" aria-pressed="false">LIGHT</button>
+        <button class="chip" type="button" data-t="system" aria-pressed="false">AUTO</button>
+      </div>
+    </div>
+  </section>
+
+  <span class="section-label">Recording</span>
   <section class="card">
     <label class="set">
       <span class="tx"><b>Raw audio</b><small>No echo cancelling, noise reduction or auto gain. Keeps your beatbox sounds as they are.</small></span>
@@ -78,7 +92,7 @@
 
   <p class="about">BEATBOX TOOLS · BY SAVIOR<br>Everything saves on this device. Clearing site data removes it.</p>
 </main>
-<script src="confirm.js?v=20261108j"></script>
+<script src="confirm.js?v=20261108m"></script>
 <script>
 (function () {
   var $ = function (s) { return document.querySelector(s); };
@@ -101,6 +115,17 @@
     $('#beeps').checked = st.beeps; $('#vib').checked = st.vibrate;
     try { $('#raw').checked = localStorage.getItem(RAW_KEY) !== '0'; } catch (e) {}
   }
+  function paintTheme() {
+    var cur = window.SaviorTheme ? SaviorTheme.get() : 'dark';
+    Array.prototype.forEach.call(document.querySelectorAll('#thm .chip'), function (c) {
+      var on = c.getAttribute('data-t') === cur; c.classList.toggle('on', on); c.setAttribute('aria-pressed', on);
+    });
+  }
+  $('#thm').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-t]'); if (!b) return;
+    SaviorTheme.set(b.getAttribute('data-t')); paintTheme();
+  });
+  paintTheme();
   Array.prototype.forEach.call(document.querySelectorAll('#ci .chip'), function (c) {
     c.addEventListener('click', function () { st.countIn = Number(c.getAttribute('data-v')); save(); paint(); });
   });

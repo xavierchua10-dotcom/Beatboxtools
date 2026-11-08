@@ -1,24 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="theme.js?v=20261108m"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#14161a">
 <title>Tuner</title>
-<link rel="stylesheet" href="fonts.css?v=20261108j">
-<link rel="stylesheet" href="theme.css?v=20261108j">
-<link rel="stylesheet" href="tools.css?v=20261108j">
+<link rel="stylesheet" href="fonts.css?v=20261108m">
+<link rel="stylesheet" href="theme.css?v=20261108m">
+<link rel="stylesheet" href="tools.css?v=20261108m">
+<link rel="stylesheet" href="themes.css?v=20261108m">
 <style>
   .head{text-align:center;margin-top:2px}
   .note-big{font:700 92px/1 var(--f-head);margin-top:6px;transition:color .2s}
-  .note-big sup{font-size:44px;color:var(--accent);vertical-align:top;line-height:1.5}
+  .note-big sup{font-size:44px;color:var(--accent-ink);vertical-align:top;line-height:1.5}
   .note-big small{font-size:34px;color:var(--text-faint)}
   .note-big.off{color:var(--text-faint)}
   .note-big.in{color:var(--success)}
   .gauge{width:100%;max-width:340px;display:block;margin:12px auto 0}
   #needle{transition:transform .08s linear;transform-origin:50px 56px}
   .cents{text-align:center;margin:2px 0 12px;min-height:26px}
-  .cents b{font:700 20px var(--f-mono);color:var(--accent)}
+  .cents b{font:700 20px var(--f-mono);color:var(--accent-ink)}
   @media (prefers-reduced-motion:reduce){#needle{transition:none}}
 </style>
 </head>
@@ -27,14 +29,14 @@
   <div class="head"><div class="cap" id="state" style="letter-spacing:.2em">Tap start</div>
     <div class="note-big off" id="note" aria-live="off">–</div>
     <div class="mono dim" id="hz" style="font-size:15px;margin-top:4px">&nbsp;</div></div>
-  <svg class="gauge" viewBox="0 0 100 62" aria-hidden="true"><g id="ticks"></g><g id="needle"><line x1="50" y1="56" x2="50" y2="18" stroke="#f2b134" stroke-width="2" stroke-linecap="round"/></g><circle cx="50" cy="56" r="3" fill="#f2b134"/><text x="6" y="60" font-size="5" fill="#82878f" font-family="monospace">♭ −50</text><text x="94" y="60" font-size="5" fill="#82878f" font-family="monospace" text-anchor="end">+50 ♯</text></svg>
+  <svg class="gauge" viewBox="0 0 100 62" aria-hidden="true"><g id="ticks"></g><g id="needle"><line x1="50" y1="56" x2="50" y2="18" stroke="#f2b134" stroke-width="2" stroke-linecap="round"/></g><circle cx="50" cy="56" r="3" fill="#f2b134"/><text x="6" y="60" font-size="5" style="fill:var(--text-faint)" font-family="monospace">♭ −50</text><text x="94" y="60" font-size="5" style="fill:var(--text-faint)" font-family="monospace" text-anchor="end">+50 ♯</text></svg>
   <div class="cents" id="cents" aria-live="polite"><span class="dim" style="font-size:12px">Hum, sing or play a note</span></div>
   <div class="card" style="padding:10px 12px"><div class="row sp cap" style="margin-bottom:6px"><span>Last 5 sec</span><span>Hold steady</span></div>
-    <svg viewBox="0 0 100 60" preserveAspectRatio="none" style="width:100%;height:66px;display:block" aria-hidden="true"><rect x="0" y="27" width="100" height="6" fill="rgba(95,184,106,.10)"/><line x1="0" y1="30" x2="100" y2="30" stroke="#5fb86a" stroke-width=".6" stroke-dasharray="2 2" vector-effect="non-scaling-stroke"/><polyline id="trace" points="" fill="none" stroke="#f2b134" stroke-width="1.5" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg></div>
+    <svg viewBox="0 0 100 60" preserveAspectRatio="none" style="width:100%;height:66px;display:block" aria-hidden="true"><rect x="0" y="27" width="100" height="6" style="fill:var(--success);fill-opacity:.12"/><line x1="0" y1="30" x2="100" y2="30" style="stroke:var(--success)" stroke-width=".6" stroke-dasharray="2 2" vector-effect="non-scaling-stroke"/><polyline id="trace" points="" fill="none" stroke="#f2b134" stroke-width="1.5" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg></div>
   <div class="btns"><button class="btn primary" id="listen" type="button">Start listening</button><button class="btn" id="ref" type="button">Play A 440</button></div>
   <p class="msg" id="msg" role="status" aria-live="polite"></p>
 </div>
-<script src="tools.js?v=20261108j"></script>
+<script src="tools.js?v=20261108m"></script>
 <script>
 (function () {
   var $ = Tools.$, NAMES = ['C', 'D♭', 'D', 'E♭', 'E', 'F', 'G♭', 'G', 'A♭', 'A', 'B♭', 'B'];
@@ -44,7 +46,7 @@
   var ticks = '';
   for (var a = -60; a <= 60; a += 10) {
     var r = a * Math.PI / 180, big = a % 30 === 0, r2 = big ? 46 : 43;
-    ticks += '<line x1="' + (50 + 40 * Math.sin(r)).toFixed(1) + '" y1="' + (56 - 40 * Math.cos(r)).toFixed(1) + '" x2="' + (50 + r2 * Math.sin(r)).toFixed(1) + '" y2="' + (56 - r2 * Math.cos(r)).toFixed(1) + '" stroke="' + (a === 0 ? '#5fb86a' : '#4a5058') + '" stroke-width="' + (big ? 1.4 : .8) + '"/>';
+    ticks += '<line x1="' + (50 + 40 * Math.sin(r)).toFixed(1) + '" y1="' + (56 - 40 * Math.cos(r)).toFixed(1) + '" x2="' + (50 + r2 * Math.sin(r)).toFixed(1) + '" y2="' + (56 - r2 * Math.cos(r)).toFixed(1) + '" style="stroke:' + (a === 0 ? 'var(--success)' : 'var(--line-strong)') + '" stroke-width="' + (big ? 1.4 : .8) + '"/>';
   }
   $('#ticks').innerHTML = ticks;
   function say(t, err) { var m = $('#msg'); m.textContent = t; m.classList.toggle('err', !!err); }

@@ -20,7 +20,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 
 /* page heading, same on every tab */
 .page-title{margin:2px 0 16px;text-align:center;font:700 22px/1.15 var(--f-head);letter-spacing:.08em;text-transform:uppercase;color:var(--text)}
-.page-title span{color:var(--accent)}
+.page-title span{color:var(--accent-ink)}
 .page-tag{margin:2px 0 18px;text-align:center;color:var(--text-faint);font:400 11px var(--f-mono);letter-spacing:.2em;text-transform:lowercase}
 
 .section-label{display:block;margin:20px 0 8px;font:500 12px var(--f-head);letter-spacing:.12em;text-transform:uppercase;color:var(--text-faint)}
@@ -45,7 +45,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   padding:6px 12px;min-height:34px;font:600 11px var(--f-mono);letter-spacing:.08em;
   transition:border-color .15s,color .15s,background .15s;
 }
-.chip.on{border-color:var(--accent);color:var(--accent);background:rgba(var(--accent-rgb),.1)}
+.chip.on{border-color:var(--accent);color:var(--accent-ink);background:rgba(var(--accent-rgb),.1)}
 
 /* inputs */
 input[type=text],input[type=number],select,textarea{

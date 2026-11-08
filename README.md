@@ -16,7 +16,7 @@ Savior's beatbox practice tools in one app, with a bottom tab bar.
   - **Freestyle prompts** (`prompts.html`): random theme, sound and rule with locks and a round timer.
   - **Practice log** (`log.html`): minutes today, streak, weekly chart and a split by tool. The shell counts time while a tool is open or running; data stays on the device (`savior-practice-v1`).
   A gold dot on the Tools tab shows while the metronome, a battle round, the loop pad, the pattern grid, the timing check or a prompt timer is running.
-- **Settings** (gear in the top bar, opens full screen, `settings.html`): raw audio switch, rehearsal count-in (none, 3, 5 or 10 sec), beeps and vibration on or off, an Install button, how many voice notes and routines are saved, and delete all voice notes.
+- **Settings** (gear in the top bar, opens full screen, `settings.html`): theme (Dark, Light or Auto; the gold stays the same, see `themes.css` and `theme.js`), raw audio switch, rehearsal count-in (none, 3, 5 or 10 sec), beeps and vibration on or off, an Install button, how many voice notes and routines are saved, and delete all voice notes.
 
 It is an installable app (`manifest.webmanifest`, `sw.js`): install it from the browser menu (Install app / Add to Home screen) and it opens full screen with no browser bar. Settings has an Install button when the browser offers one. The service worker is network first, so updates always win and the cache only helps offline.
 

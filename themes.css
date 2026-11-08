@@ -1,0 +1,12 @@
+/* Light mode. The gold accent (#f2b134), the red and the on-gold text stay exactly the same in both themes. Loaded after each page's own tokens. */
+:root{
+  --accent-ink:var(--accent,#f2b134); /* gold used for small text; darker on light so it stays readable */
+  --line-strong:#3a4049; --step-dim:#5a6068; --success-line:#2f5a35; --cap:#f7d58a; --scrim:rgba(8,9,11,.68);
+}
+:root[data-theme="light"]{
+  color-scheme:light;
+  --bg:#f4f1ea; --panel:#ffffff; --panel-2:#f0ece3; --panel-3:#e8e3d8; --line:#d9d3c5;
+  --text:#1d1f23; --text-dim:#5c616a; --text-faint:#6a6f77;
+  --accent-dim:#c9992f; --accent-ink:#8a5d00; --success:#2f8a3c;
+  --line-strong:#c4bdac; --step-dim:#a39d8e; --success-line:#9fcfa6; --cap:#c9992f; --scrim:rgba(40,36,28,.45);
+}
