@@ -16,7 +16,7 @@ Savior's beatbox practice tools in one app, with a bottom tab bar.
   - **Freestyle prompts** (`prompts.html`): random theme, sound and rule with locks and a round timer.
   - **Practice log** (`log.html`): minutes today, streak, weekly chart and a split by tool. The shell counts time while a tool is open or running; data stays on the device (`savior-practice-v1`).
   A gold dot on the Tools tab shows while the metronome, a battle round, the loop pad, the pattern grid, the timing check or a prompt timer is running.
-- Back button: every tab switch and every opened tool or Settings screen is one step, Record is the bottom step, and only Back from Record quits. Tapping the Record tab jumps straight back to the bottom (`nav()` and `goTab()` in `index.html`).
+- Back button works like a normal phone app: it closes a popup first, then a tool or Settings screen, then goes from any tab to Record. On Record the first Back shows "Press back again to quit" and a second Back within 2 sec leaves the app (`popstate` handler in `index.html`).
 - Tabs slide left or right when you switch (`.stage.slide` in `index.html`; off with reduced motion).
 - **Settings** (gear in the top bar, opens full screen, `settings.html`): theme (Dark, Light or Auto) and accent colour (Default gold #f2b134, Orange, Rose, Mint, Blue, Violet, Cyan; stored in `savior-accent`, defined in `themes.css`, applied by `theme.js`), raw audio switch, rehearsal count-in (none, 3, 5 or 10 sec), beeps and vibration on or off, an Install button, how many voice notes and routines are saved, and delete all voice notes.
 

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<script src="theme.js?v=20261108r"></script>
+<script src="theme.js?v=20261108s"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#14161a">
@@ -15,8 +15,8 @@
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-<link rel="stylesheet" href="fonts.css?v=20261108r">
-<link rel="stylesheet" href="themes.css?v=20261108r">
+<link rel="stylesheet" href="fonts.css?v=20261108s">
+<link rel="stylesheet" href="themes.css?v=20261108s">
 <style>
   :root{
     color-scheme:dark;
@@ -116,6 +116,9 @@
   .tool .run{display:none;position:absolute;top:10px;right:10px;font:600 10px var(--f-head);letter-spacing:.1em;text-transform:uppercase;color:var(--accent-ink);border:1px solid var(--accent-dim);border-radius:6px;padding:2px 6px;background:var(--panel)}
   .tool.live .run{display:block}
 
+  .exit-toast{position:fixed;left:50%;bottom:calc(var(--safe-bottom) + 84px);transform:translate(-50%,12px);z-index:2147482000;background:var(--panel-3,#2a2f38);color:var(--text);border:1px solid var(--line-strong,#3a4049);border-radius:999px;padding:10px 18px;font:600 12px var(--f-head);letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;box-shadow:0 8px 24px rgba(0,0,0,.3)}
+  .exit-toast.show{opacity:1;transform:translate(-50%,0)}
+  @media (prefers-reduced-motion:reduce){.exit-toast{transition:none}}
   @media (prefers-reduced-motion:reduce){.tab-indicator,.ov,.stage.slide .view,.stage.slide .view.on{transition:none}nav button.recording::after,nav button.live::after{animation:none}}
 </style>
 </head>
@@ -132,10 +135,12 @@
     </div>
   </header>
 
+  <div class="exit-toast" id="exitToast" role="status" aria-live="polite">Press back again to quit</div>
+
   <main class="stage" id="stage">
-    <iframe id="v-voice" class="view" src="voice.html?v=20261108r" title="Voice note recorder" role="tabpanel" allow="autoplay; screen-wake-lock; microphone"></iframe>
-    <iframe id="v-history" class="view" src="history.html?v=20261108r" title="Voice note history" role="tabpanel" allow="autoplay"></iframe>
-    <iframe id="v-routine" class="view" src="routine.html?v=20261108r" title="Routine builder" role="tabpanel" allow="autoplay; screen-wake-lock"></iframe>
+    <iframe id="v-voice" class="view" src="voice.html?v=20261108s" title="Voice note recorder" role="tabpanel" allow="autoplay; screen-wake-lock; microphone"></iframe>
+    <iframe id="v-history" class="view" src="history.html?v=20261108s" title="Voice note history" role="tabpanel" allow="autoplay"></iframe>
+    <iframe id="v-routine" class="view" src="routine.html?v=20261108s" title="Routine builder" role="tabpanel" allow="autoplay; screen-wake-lock"></iframe>
     <div id="v-tools" class="view" role="tabpanel" aria-label="Tools">
       <div class="tools">
         <h1>Practice <span>tools</span></h1>
@@ -218,22 +223,22 @@
       <h2 id="ovTitle"><span>Settings</span></h2>
     </div>
     <div class="ov-body">
-      <iframe id="v-settings" class="pane" src="settings.html?v=20261108r" title="Settings"></iframe>
-      <iframe id="v-metronome" class="pane" src="metronome.html?v=20261108r" title="Metronome" allow="autoplay; screen-wake-lock"></iframe>
-      <iframe id="v-battle" class="pane" src="battle.html?v=20261108r" title="Battle round timer" allow="autoplay; screen-wake-lock"></iframe>
-      <iframe id="v-log" class="pane" data-src="log.html?v=20261108r" title="Practice log"></iframe>
-      <iframe id="v-loop" class="pane" data-src="loop.html?v=20261108r" title="Loop pad" allow="autoplay; microphone"></iframe>
-      <iframe id="v-pattern" class="pane" data-src="pattern.html?v=20261108r" title="Pattern grid" allow="autoplay"></iframe>
-      <iframe id="v-timing" class="pane" data-src="timing.html?v=20261108r" title="Timing check" allow="autoplay"></iframe>
-      <iframe id="v-ladder" class="pane" data-src="ladder.html?v=20261108r" title="BPM ladder"></iframe>
-      <iframe id="v-tuner" class="pane" data-src="tuner.html?v=20261108r" title="Tuner" allow="autoplay; microphone"></iframe>
-      <iframe id="v-spectrum" class="pane" data-src="spectrum.html?v=20261108r" title="Mic spectrum" allow="microphone"></iframe>
-      <iframe id="v-prompts" class="pane" data-src="prompts.html?v=20261108r" title="Freestyle prompts" allow="autoplay"></iframe>
+      <iframe id="v-settings" class="pane" src="settings.html?v=20261108s" title="Settings"></iframe>
+      <iframe id="v-metronome" class="pane" src="metronome.html?v=20261108s" title="Metronome" allow="autoplay; screen-wake-lock"></iframe>
+      <iframe id="v-battle" class="pane" src="battle.html?v=20261108s" title="Battle round timer" allow="autoplay; screen-wake-lock"></iframe>
+      <iframe id="v-log" class="pane" data-src="log.html?v=20261108s" title="Practice log"></iframe>
+      <iframe id="v-loop" class="pane" data-src="loop.html?v=20261108s" title="Loop pad" allow="autoplay; microphone"></iframe>
+      <iframe id="v-pattern" class="pane" data-src="pattern.html?v=20261108s" title="Pattern grid" allow="autoplay"></iframe>
+      <iframe id="v-timing" class="pane" data-src="timing.html?v=20261108s" title="Timing check" allow="autoplay"></iframe>
+      <iframe id="v-ladder" class="pane" data-src="ladder.html?v=20261108s" title="BPM ladder"></iframe>
+      <iframe id="v-tuner" class="pane" data-src="tuner.html?v=20261108s" title="Tuner" allow="autoplay; microphone"></iframe>
+      <iframe id="v-spectrum" class="pane" data-src="spectrum.html?v=20261108s" title="Mic spectrum" allow="microphone"></iframe>
+      <iframe id="v-prompts" class="pane" data-src="prompts.html?v=20261108s" title="Freestyle prompts" allow="autoplay"></iframe>
     </div>
   </section>
 
-<script src="plog.js?v=20261108r"></script>
-<script src="confirm.js?v=20261108r"></script>
+<script src="plog.js?v=20261108s"></script>
+<script src="confirm.js?v=20261108s"></script>
 <script>
 (function () {
   var IDS = ['voice', 'history', 'routine', 'tools'];
@@ -257,23 +262,29 @@
   function show(win) { try { if (win) win.postMessage({ type: 'shown' }, location.origin); } catch (e) {} }
   function hide(pane) { try { document.getElementById('v-' + pane).contentWindow.postMessage({ type: 'hidden' }, location.origin); } catch (e) {} }
 
-  /* Back button: every tab switch and every opened layer is one history step, and Record is the bottom step.
-     Pressing Back walks back through them, and only Back from Record quits the app. history.state.i counts the steps above Record. */
+  /* Back button, like a normal phone app: Back closes a popup, then a tool or Settings screen, then returns to Record from any other tab.
+     On Record the first Back shows "Press back again to quit" and a second Back within 2 sec leaves the app.
+     The page keeps one spare history step above the first one so there is always something for Back to use up. */
+  var armed = false, armTimer = 0;
   function depth() { var st = history.state; return st && typeof st.i === 'number' ? st.i : 0; }
-  function nav(hash, push) {
-    try {
-      var i = depth();
-      if (push && location.hash !== hash) history.pushState({ i: i + 1 }, '', hash);
-      else history.replaceState({ i: i }, '', hash);
-    } catch (e) {}
+  function nav(hash) {
+    try { if (depth() === 0) history.pushState({ i: 1 }, '', hash); else history.replaceState({ i: 1 }, '', hash); } catch (e) {}
+    if (armed) { armed = false; clearTimeout(armTimer); toast(false); }
   }
-  function goTab(id) {
-    if (id === 'voice' && depth() > 0) { try { history.go(-depth()); return; } catch (e) {} }
-    if (openPane) closeLayer();
-    select(id, false, true);
-  }
+  var toastEl = document.getElementById('exitToast');
+  function toast(on) { toastEl.classList.toggle('show', !!on); }
+  function goTab(id) { if (openPane) closeLayer(); select(id); }
+  window.addEventListener('popstate', function () {
+    if (depth() !== 0) return;
+    if (window.Confirm && Confirm.dismiss && Confirm.dismiss()) { nav('#' + (openPane || current)); return; }
+    if (openPane) { closeLayer(); nav('#' + current); return; }
+    if (current !== IDS[0]) { select(IDS[0]); return; }
+    armed = true; toast(true);
+    clearTimeout(armTimer);
+    armTimer = setTimeout(function () { armed = false; toast(false); nav('#' + current); }, 2000);
+  });
 
-  function select(id, focusTab, push) {
+  function select(id, focusTab) {
     if (IDS.indexOf(id) === -1) id = IDS[0];
     current = id;
     IDS.forEach(function (name) {
@@ -294,7 +305,7 @@
     ind.style.transform = 'translateX(' + (IDS.indexOf(id) * 100) + '%)';
     remember(id);
     if (id === 'tools') logCard();
-    if (!openPane) nav('#' + id, push);
+    if (!openPane) nav('#' + id);
   }
 
   /* full-screen layer: pane is one of PANES */
@@ -320,8 +331,7 @@
     var hash = '#' + pane;
     /* opening from a tap adds one history entry, so the phone's Back button closes the layer */
     try {
-      if (push && !wasOpen) { nav(hash, true); pushed = true; }
-      else nav(hash, false);
+      nav(hash);
     } catch (e) {}
     if (!wasOpen) closeBtn.focus({ preventScroll: true });
   }
@@ -334,7 +344,7 @@
     settingsBtn.setAttribute('aria-expanded', 'false');
     stage.removeAttribute('inert'); tabnav.removeAttribute('inert');
     PANES.forEach(function (p) { document.getElementById('v-' + p).setAttribute('inert', ''); });
-    nav('#' + current, false);
+    nav('#' + current);
     var back = opener && document.contains(opener) ? opener : settingsBtn;
     try { back.focus({ preventScroll: true }); } catch (e) {}
     show(document.getElementById('v-' + current).contentWindow);
@@ -349,7 +359,6 @@
 
   function requestClose() {
     if (!openPane) return;
-    if (pushed) { pushed = false; try { history.back(); return; } catch (e) {} }
     closeLayer();
   }
   settingsBtn.addEventListener('click', function () { openLayer('settings', true); });
@@ -364,11 +373,10 @@
     b.addEventListener('keydown', function (e) {
       if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
       var next = (i + (e.key === 'ArrowRight' ? 1 : -1) + buttons.length) % buttons.length;
-      if (openPane) return; select(buttons[next].getAttribute('data-tab'), true, true);
+      if (openPane) return; select(buttons[next].getAttribute('data-tab'), true);
     });
   });
 
-  window.addEventListener('hashchange', route);
 
   window.addEventListener('message', function (e) {
     if (e.origin !== location.origin) return;
@@ -441,13 +449,10 @@
 
   PANES.forEach(function (p) { document.getElementById('v-' + p).setAttribute('inert', ''); });
   var h0 = location.hash.replace('#', '');
-  var fresh = !(history.state && typeof history.state.i === 'number');
   var tab0 = IDS.indexOf(h0) > -1 ? h0 : (stored() || IDS[0]);
   if (IDS.indexOf(tab0) === -1) tab0 = IDS[0];
-  /* a fresh start gets Record as its bottom history step, so Back from anywhere ends up there first */
-  if (fresh) { try { history.replaceState({ i: 0 }, '', '#' + IDS[0]); } catch (e) {} }
-  if (PANES.indexOf(h0) > -1) { select(tab0, false, fresh); openLayer(h0, fresh); }
-  else select(tab0, false, fresh);
+  if (PANES.indexOf(h0) > -1) { select(tab0); openLayer(h0, true); }
+  else select(tab0);
   requestAnimationFrame(function () { requestAnimationFrame(function () { stage.classList.add("slide"); }); });
 })();
 </script>

@@ -89,5 +89,5 @@
     }
   });
 
-  window.Confirm = { ask: function (o) { return inFrame ? remote(o || {}) : local(o || {}); } };
+  window.Confirm = { dismiss: function () { if (open) { open.close(false); return true; } return false; }, ask: function (o) { return inFrame ? remote(o || {}) : local(o || {}); } };
 })();
