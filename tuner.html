@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<script src="theme.js?v=20261108n"></script>
+<script src="theme.js?v=20261108p"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#14161a">
 <title>Tuner</title>
-<link rel="stylesheet" href="fonts.css?v=20261108n">
-<link rel="stylesheet" href="theme.css?v=20261108n">
-<link rel="stylesheet" href="tools.css?v=20261108n">
-<link rel="stylesheet" href="themes.css?v=20261108n">
+<link rel="stylesheet" href="fonts.css?v=20261108p">
+<link rel="stylesheet" href="theme.css?v=20261108p">
+<link rel="stylesheet" href="tools.css?v=20261108p">
+<link rel="stylesheet" href="themes.css?v=20261108p">
 <style>
   .head{text-align:center;margin-top:2px}
   .note-big{font:700 92px/1 var(--f-head);margin-top:6px;transition:color .2s}
@@ -29,14 +29,14 @@
   <div class="head"><div class="cap" id="state" style="letter-spacing:.2em">Tap start</div>
     <div class="note-big off" id="note" aria-live="off">–</div>
     <div class="mono dim" id="hz" style="font-size:15px;margin-top:4px">&nbsp;</div></div>
-  <svg class="gauge" viewBox="0 0 100 62" aria-hidden="true"><g id="ticks"></g><g id="needle"><line x1="50" y1="56" x2="50" y2="18" stroke="#f2b134" stroke-width="2" stroke-linecap="round"/></g><circle cx="50" cy="56" r="3" fill="#f2b134"/><text x="6" y="60" font-size="5" style="fill:var(--text-faint)" font-family="monospace">♭ −50</text><text x="94" y="60" font-size="5" style="fill:var(--text-faint)" font-family="monospace" text-anchor="end">+50 ♯</text></svg>
+  <svg class="gauge" viewBox="0 0 100 62" aria-hidden="true"><g id="ticks"></g><g id="needle"><line x1="50" y1="56" x2="50" y2="18" stroke-width="2" stroke-linecap="round" style="stroke:var(--accent)"/></g><circle cx="50" cy="56" r="3" style="fill:var(--accent)"/><text x="6" y="60" font-size="5" style="fill:var(--text-faint)" font-family="monospace">♭ −50</text><text x="94" y="60" font-size="5" style="fill:var(--text-faint)" font-family="monospace" text-anchor="end">+50 ♯</text></svg>
   <div class="cents" id="cents" aria-live="polite"><span class="dim" style="font-size:12px">Hum, sing or play a note</span></div>
   <div class="card" style="padding:10px 12px"><div class="row sp cap" style="margin-bottom:6px"><span>Last 5 sec</span><span>Hold steady</span></div>
-    <svg viewBox="0 0 100 60" preserveAspectRatio="none" style="width:100%;height:66px;display:block" aria-hidden="true"><rect x="0" y="27" width="100" height="6" style="fill:var(--success);fill-opacity:.12"/><line x1="0" y1="30" x2="100" y2="30" style="stroke:var(--success)" stroke-width=".6" stroke-dasharray="2 2" vector-effect="non-scaling-stroke"/><polyline id="trace" points="" fill="none" stroke="#f2b134" stroke-width="1.5" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg></div>
+    <svg viewBox="0 0 100 60" preserveAspectRatio="none" style="width:100%;height:66px;display:block" aria-hidden="true"><rect x="0" y="27" width="100" height="6" style="fill:var(--success);fill-opacity:.12"/><line x1="0" y1="30" x2="100" y2="30" style="stroke:var(--success)" stroke-width=".6" stroke-dasharray="2 2" vector-effect="non-scaling-stroke"/><polyline id="trace" points="" fill="none" stroke-width="1.5" stroke-linejoin="round" vector-effect="non-scaling-stroke" style="stroke:var(--accent)"/></svg></div>
   <div class="btns"><button class="btn primary" id="listen" type="button">Start listening</button><button class="btn" id="ref" type="button">Play A 440</button></div>
   <p class="msg" id="msg" role="status" aria-live="polite"></p>
 </div>
-<script src="tools.js?v=20261108n"></script>
+<script src="tools.js?v=20261108p"></script>
 <script>
 (function () {
   var $ = Tools.$, NAMES = ['C', 'D♭', 'D', 'E♭', 'E', 'F', 'G♭', 'G', 'A♭', 'A', 'B♭', 'B'];

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<script src="theme.js?v=20261108n"></script>
+<script src="theme.js?v=20261108p"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#14161a">
@@ -15,8 +15,8 @@
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-<link rel="stylesheet" href="fonts.css?v=20261108n">
-<link rel="stylesheet" href="themes.css?v=20261108n">
+<link rel="stylesheet" href="fonts.css?v=20261108p">
+<link rel="stylesheet" href="themes.css?v=20261108p">
 <style>
   :root{
     color-scheme:dark;
@@ -104,7 +104,7 @@
   .tool:active{background:var(--panel-2);border-color:var(--accent-dim)}
   .tool.wide{margin-bottom:10px;padding:12px 14px}
   .tool.tile{flex-direction:column;align-items:flex-start;gap:10px;padding:12px}
-  .tool .ti{flex:none;width:40px;height:40px;border-radius:10px;background:rgba(242,177,52,.12);border:1px solid var(--accent-dim);color:var(--accent-ink);display:grid;place-items:center}
+  .tool .ti{flex:none;width:40px;height:40px;border-radius:10px;background:rgba(var(--accent-rgb),.12);border:1px solid var(--accent-dim);color:var(--accent-ink);display:grid;place-items:center}
   .tool .ti svg{width:21px;height:21px;fill:currentColor}
   .tool b{display:block;font:600 14px var(--f-head);letter-spacing:.08em;text-transform:uppercase}
   .tool small{display:block;margin-top:2px;color:var(--text-dim);font-size:12px;line-height:1.35}
@@ -129,9 +129,9 @@
   </header>
 
   <main class="stage" id="stage">
-    <iframe id="v-voice" class="view" src="voice.html?v=20261108n" title="Voice note recorder" role="tabpanel" allow="autoplay; screen-wake-lock; microphone"></iframe>
-    <iframe id="v-history" class="view" src="history.html?v=20261108n" title="Voice note history" role="tabpanel" allow="autoplay"></iframe>
-    <iframe id="v-routine" class="view" src="routine.html?v=20261108n" title="Routine builder" role="tabpanel" allow="autoplay; screen-wake-lock"></iframe>
+    <iframe id="v-voice" class="view" src="voice.html?v=20261108p" title="Voice note recorder" role="tabpanel" allow="autoplay; screen-wake-lock; microphone"></iframe>
+    <iframe id="v-history" class="view" src="history.html?v=20261108p" title="Voice note history" role="tabpanel" allow="autoplay"></iframe>
+    <iframe id="v-routine" class="view" src="routine.html?v=20261108p" title="Routine builder" role="tabpanel" allow="autoplay; screen-wake-lock"></iframe>
     <div id="v-tools" class="view" role="tabpanel" aria-label="Tools">
       <div class="tools">
         <h1>Practice <span>tools</span></h1>
@@ -214,22 +214,22 @@
       <h2 id="ovTitle"><span>Settings</span></h2>
     </div>
     <div class="ov-body">
-      <iframe id="v-settings" class="pane" src="settings.html?v=20261108n" title="Settings"></iframe>
-      <iframe id="v-metronome" class="pane" src="metronome.html?v=20261108n" title="Metronome" allow="autoplay; screen-wake-lock"></iframe>
-      <iframe id="v-battle" class="pane" src="battle.html?v=20261108n" title="Battle round timer" allow="autoplay; screen-wake-lock"></iframe>
-      <iframe id="v-log" class="pane" data-src="log.html?v=20261108n" title="Practice log"></iframe>
-      <iframe id="v-loop" class="pane" data-src="loop.html?v=20261108n" title="Loop pad" allow="autoplay; microphone"></iframe>
-      <iframe id="v-pattern" class="pane" data-src="pattern.html?v=20261108n" title="Pattern grid" allow="autoplay"></iframe>
-      <iframe id="v-timing" class="pane" data-src="timing.html?v=20261108n" title="Timing check" allow="autoplay"></iframe>
-      <iframe id="v-ladder" class="pane" data-src="ladder.html?v=20261108n" title="BPM ladder"></iframe>
-      <iframe id="v-tuner" class="pane" data-src="tuner.html?v=20261108n" title="Tuner" allow="autoplay; microphone"></iframe>
-      <iframe id="v-spectrum" class="pane" data-src="spectrum.html?v=20261108n" title="Mic spectrum" allow="microphone"></iframe>
-      <iframe id="v-prompts" class="pane" data-src="prompts.html?v=20261108n" title="Freestyle prompts" allow="autoplay"></iframe>
+      <iframe id="v-settings" class="pane" src="settings.html?v=20261108p" title="Settings"></iframe>
+      <iframe id="v-metronome" class="pane" src="metronome.html?v=20261108p" title="Metronome" allow="autoplay; screen-wake-lock"></iframe>
+      <iframe id="v-battle" class="pane" src="battle.html?v=20261108p" title="Battle round timer" allow="autoplay; screen-wake-lock"></iframe>
+      <iframe id="v-log" class="pane" data-src="log.html?v=20261108p" title="Practice log"></iframe>
+      <iframe id="v-loop" class="pane" data-src="loop.html?v=20261108p" title="Loop pad" allow="autoplay; microphone"></iframe>
+      <iframe id="v-pattern" class="pane" data-src="pattern.html?v=20261108p" title="Pattern grid" allow="autoplay"></iframe>
+      <iframe id="v-timing" class="pane" data-src="timing.html?v=20261108p" title="Timing check" allow="autoplay"></iframe>
+      <iframe id="v-ladder" class="pane" data-src="ladder.html?v=20261108p" title="BPM ladder"></iframe>
+      <iframe id="v-tuner" class="pane" data-src="tuner.html?v=20261108p" title="Tuner" allow="autoplay; microphone"></iframe>
+      <iframe id="v-spectrum" class="pane" data-src="spectrum.html?v=20261108p" title="Mic spectrum" allow="microphone"></iframe>
+      <iframe id="v-prompts" class="pane" data-src="prompts.html?v=20261108p" title="Freestyle prompts" allow="autoplay"></iframe>
     </div>
   </section>
 
-<script src="plog.js?v=20261108n"></script>
-<script src="confirm.js?v=20261108n"></script>
+<script src="plog.js?v=20261108p"></script>
+<script src="confirm.js?v=20261108p"></script>
 <script>
 (function () {
   var IDS = ['voice', 'history', 'routine', 'tools'];

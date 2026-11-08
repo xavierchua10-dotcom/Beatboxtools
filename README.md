@@ -16,7 +16,7 @@ Savior's beatbox practice tools in one app, with a bottom tab bar.
   - **Freestyle prompts** (`prompts.html`): random theme, sound and rule with locks and a round timer.
   - **Practice log** (`log.html`): minutes today, streak, weekly chart and a split by tool. The shell counts time while a tool is open or running; data stays on the device (`savior-practice-v1`).
   A gold dot on the Tools tab shows while the metronome, a battle round, the loop pad, the pattern grid, the timing check or a prompt timer is running.
-- **Settings** (gear in the top bar, opens full screen, `settings.html`): theme (Dark, Light or Auto; the gold stays the same, see `themes.css` and `theme.js`), raw audio switch, rehearsal count-in (none, 3, 5 or 10 sec), beeps and vibration on or off, an Install button, how many voice notes and routines are saved, and delete all voice notes.
+- **Settings** (gear in the top bar, opens full screen, `settings.html`): theme (Dark, Light or Auto) and accent colour (Default gold #f2b134, Orange, Rose, Mint, Blue, Violet, Cyan; stored in `savior-accent`, defined in `themes.css`, applied by `theme.js`), raw audio switch, rehearsal count-in (none, 3, 5 or 10 sec), beeps and vibration on or off, an Install button, how many voice notes and routines are saved, and delete all voice notes.
 
 It is an installable app (`manifest.webmanifest`, `sw.js`): install it from the browser menu (Install app / Add to Home screen) and it opens full screen with no browser bar. Settings has an Install button when the browser offers one. The service worker is network first, so updates always win and the cache only helps offline.
 
@@ -26,4 +26,4 @@ Voice notes are stored in the browser's IndexedDB on the device. They never leav
 
 Open a page directly with `#voice`, `#history`, `#routine`, `#tools`, `#settings`, `#log`, `#loop`, `#pattern`, `#timing`, `#ladder`, `#tuner`, `#spectrum`, `#prompts`, `#metronome` or `#battle` on the end of the link.
 
-The look matches the SaviorFit Logger: near-black background, gold accent, Oswald headings, Inter body, JetBrains Mono numbers (fonts are self-hosted in `fonts/`). `theme.css` styles Record, History and Routine. `legacy.css` re-skins the metronome and battle pages, which come from the former `savior-audio` and `Saviortimer` repos and are otherwise unchanged (the metronome's colour-theme picker is hidden, since the colours are now fixed).
+The look matches the SaviorFit Logger: near-black background, gold accent, Oswald headings, Inter body, JetBrains Mono numbers (fonts are self-hosted in `fonts/`). `theme.css` styles Record, History and Routine. `legacy.css` re-skins the metronome and battle pages, which come from the former `savior-audio` and `Saviortimer` repos and are otherwise unchanged (the metronome's colour-theme picker is hidden, since the app-wide accent colour in Settings replaces it).

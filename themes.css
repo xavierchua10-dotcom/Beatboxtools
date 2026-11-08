@@ -1,12 +1,27 @@
 /* Light mode. The gold accent (#f2b134), the red and the on-gold text stay exactly the same in both themes. Loaded after each page's own tokens. */
 :root{
-  --accent-ink:var(--accent,#f2b134); /* gold used for small text; darker on light so it stays readable */
+  --accent:#f2b134; --accent-rgb:242,177,52; --accent-deep:#b8841f; --accent-soft:#d99a22; --on-accent:#1c1500;
+  --accent-ink:var(--accent); /* gold used for small text; darker on light so it stays readable */
   --line-strong:#3a4049; --step-dim:#5a6068; --success-line:#2f5a35; --cap:#f7d58a; --scrim:rgba(8,9,11,.68);
 }
 :root[data-theme="light"]{
   color-scheme:light;
   --bg:#f4f1ea; --panel:#ffffff; --panel-2:#f0ece3; --panel-3:#e8e3d8; --line:#d9d3c5;
   --text:#1d1f23; --text-dim:#5c616a; --text-faint:#6a6f77;
-  --accent-dim:#c9992f; --accent-ink:#f2b134; --success:#2f8a3c;
+  --accent-dim:#c9992f; --success:#2f8a3c;
   --line-strong:#c4bdac; --step-dim:#a39d8e; --success-line:#9fcfa6; --cap:#c9992f; --scrim:rgba(40,36,28,.45);
 }
+
+/* accent colours picked in Settings. Default (gold) is the base above. */
+:root[data-accent="orange"]{--accent:#ff8a4c; --accent-rgb:255,138,76; --accent-deep:color-mix(in srgb,#ff8a4c 70%,#000); --accent-soft:color-mix(in srgb,#ff8a4c 85%,#000); --accent-dim:color-mix(in srgb,#ff8a4c 45%,#14161a); --on-accent:#10141a}
+:root[data-theme="light"][data-accent="orange"]{--accent-dim:color-mix(in srgb,#ff8a4c 75%,#000)}
+:root[data-accent="rose"]{--accent:#f4709b; --accent-rgb:244,112,155; --accent-deep:color-mix(in srgb,#f4709b 70%,#000); --accent-soft:color-mix(in srgb,#f4709b 85%,#000); --accent-dim:color-mix(in srgb,#f4709b 45%,#14161a); --on-accent:#10141a}
+:root[data-theme="light"][data-accent="rose"]{--accent-dim:color-mix(in srgb,#f4709b 75%,#000)}
+:root[data-accent="mint"]{--accent:#3fcf8e; --accent-rgb:63,207,142; --accent-deep:color-mix(in srgb,#3fcf8e 70%,#000); --accent-soft:color-mix(in srgb,#3fcf8e 85%,#000); --accent-dim:color-mix(in srgb,#3fcf8e 45%,#14161a); --on-accent:#10141a}
+:root[data-theme="light"][data-accent="mint"]{--accent-dim:color-mix(in srgb,#3fcf8e 75%,#000)}
+:root[data-accent="blue"]{--accent:#4da3ff; --accent-rgb:77,163,255; --accent-deep:color-mix(in srgb,#4da3ff 70%,#000); --accent-soft:color-mix(in srgb,#4da3ff 85%,#000); --accent-dim:color-mix(in srgb,#4da3ff 45%,#14161a); --on-accent:#10141a}
+:root[data-theme="light"][data-accent="blue"]{--accent-dim:color-mix(in srgb,#4da3ff 75%,#000)}
+:root[data-accent="violet"]{--accent:#a98bff; --accent-rgb:169,139,255; --accent-deep:color-mix(in srgb,#a98bff 70%,#000); --accent-soft:color-mix(in srgb,#a98bff 85%,#000); --accent-dim:color-mix(in srgb,#a98bff 45%,#14161a); --on-accent:#10141a}
+:root[data-theme="light"][data-accent="violet"]{--accent-dim:color-mix(in srgb,#a98bff 75%,#000)}
+:root[data-accent="cyan"]{--accent:#3cd3e6; --accent-rgb:60,211,230; --accent-deep:color-mix(in srgb,#3cd3e6 70%,#000); --accent-soft:color-mix(in srgb,#3cd3e6 85%,#000); --accent-dim:color-mix(in srgb,#3cd3e6 45%,#14161a); --on-accent:#10141a}
+:root[data-theme="light"][data-accent="cyan"]{--accent-dim:color-mix(in srgb,#3cd3e6 75%,#000)}
