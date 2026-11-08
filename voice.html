@@ -6,8 +6,8 @@
 <title>Voice note by Savior</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="fonts.css?v=20261108i">
-<link rel="stylesheet" href="theme.css?v=20261108i">
+<link rel="stylesheet" href="fonts.css?v=20261108j">
+<link rel="stylesheet" href="theme.css?v=20261108j">
 <style>
   .app{display:flex;flex-direction:column;align-items:center;min-height:100vh;min-height:100dvh}
   .center{flex:1;width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding-bottom:36px}
@@ -87,6 +87,7 @@
   </div>
 </div>
 
+<script src="confirm.js?v=20261108j"></script>
 <script>
 (function () {
   'use strict';
@@ -353,7 +354,9 @@
   }
   $('#shSave').addEventListener('click', saveName);
   $('#shScrim').addEventListener('click', function () { if (!lastBlob) saveName(); });
-  $('#shDiscard').addEventListener('click', discardNote);
+  $('#shDiscard').addEventListener('click', function () {
+    Confirm.ask({ title: 'Delete this recording?', message: 'It will be deleted for good.', confirmLabel: 'Delete' }).then(function (ok) { if (ok) discardNote(); });
+  });
   $('#shName').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); if (lastBlob) $('#shDl').click(); else saveName(); } });
   $('#shDl').addEventListener('click', function () {
     if (!lastBlob) return;
@@ -370,7 +373,10 @@
     else start();
   });
   $('#cancel').addEventListener('click', function () {
-    if (st.rec && st.rec.state !== 'inactive') { st.discard = true; st.rec.stop(); }
+    if (!st.rec || st.rec.state === 'inactive') return;
+    Confirm.ask({ title: 'Discard this recording?', message: 'It will not be saved. Recording keeps going until you choose.', confirmLabel: 'Discard' }).then(function (ok) {
+      if (ok && st.rec && st.rec.state !== 'inactive') { st.discard = true; st.rec.stop(); }
+    });
   });
 })();
 </script>

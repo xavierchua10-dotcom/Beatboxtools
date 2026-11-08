@@ -6,8 +6,8 @@
 <title>Voice history by Savior</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="fonts.css?v=20261108i">
-<link rel="stylesheet" href="theme.css?v=20261108i">
+<link rel="stylesheet" href="fonts.css?v=20261108j">
+<link rel="stylesheet" href="theme.css?v=20261108j">
 <style>
   .sum{margin:-6px 0 14px;text-align:center;color:var(--text-dim);font:400 12px var(--f-mono);min-height:16px}
   .note{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 12px 10px;margin-bottom:10px;transition:border-color .15s}
@@ -48,6 +48,7 @@
   <p id="err" class="err" hidden></p>
 </main>
 
+<script src="confirm.js?v=20261108j"></script>
 <script>
 (function () {
   'use strict';
@@ -223,12 +224,6 @@
     if (t) setTimeout(function () { e.hidden = true; }, 3500);
   }
 
-  function arm(btn, fn) {
-    if (btn.dataset.armed === '1') { clearTimeout(btn._t); btn.dataset.armed = '0'; btn.classList.remove('armed'); fn(); return; }
-    btn.dataset.armed = '1'; btn.classList.add('armed');
-    btn._t = setTimeout(function () { btn.dataset.armed = '0'; btn.classList.remove('armed'); }, 2500);
-  }
-
   $('#list').addEventListener('click', function (e) {
     var wv = e.target.closest('.wv');
     var card = e.target.closest('.note');
@@ -265,7 +260,9 @@
         return navigator.share({ files: [f], title: m.name });
       }).catch(function () {});
     } else if (act === 'del') {
-      arm(b, function () {
+      var dm = metaOf(id);
+      Confirm.ask({ title: 'Delete this note?', message: '\u201c' + (dm ? dm.name : 'This voice note') + '\u201d will be deleted for good.', confirmLabel: 'Delete' }).then(function (ok) {
+        if (!ok) return;
         if (cur && cur.id === id) release();
         delNote(id).then(function () {
           metas = metas.filter(function (x) { return x.id !== id; });

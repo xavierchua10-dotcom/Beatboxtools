@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#14161a">
 <title>BPM ladder</title>
-<link rel="stylesheet" href="fonts.css?v=20261108i">
-<link rel="stylesheet" href="theme.css?v=20261108i">
-<link rel="stylesheet" href="tools.css?v=20261108i">
+<link rel="stylesheet" href="fonts.css?v=20261108j">
+<link rel="stylesheet" href="theme.css?v=20261108j">
+<link rel="stylesheet" href="tools.css?v=20261108j">
 <style>
   .t-name{font:600 15px var(--f-head);letter-spacing:.08em;text-transform:uppercase;background:none;border:0;color:var(--text);padding:0;text-align:left}
   .badge{font:500 10px var(--f-mono);color:var(--success);border:1px solid #2f5a35;border-radius:6px;padding:2px 6px}
@@ -33,7 +33,8 @@
   <button class="btn block add" id="add" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4h2v7h7v2h-7v7h-2v-7H4v-2h7z"/></svg> Add a technique</button>
   <p class="msg" id="msg" role="status" aria-live="polite"></p>
 </div>
-<script src="tools.js?v=20261108i"></script>
+<script src="tools.js?v=20261108j"></script>
+<script src="confirm.js?v=20261108j"></script>
 <script>
 (function () {
   var $ = Tools.$, KEY = 'savior-ladder-v1';
@@ -44,7 +45,7 @@
   ];
   var items = Tools.store.get(KEY, null);
   if (!Array.isArray(items) || !items.length) items = JSON.parse(JSON.stringify(DEF));
-  var drafts = {}, editing = null, confirmDel = null;
+  var drafts = {}, editing = null;
   function save() { Tools.store.set(KEY, items); }
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function draftOf(t) { return drafts[t.id] != null ? drafts[t.id] : (t.best ? t.best : 80); }
@@ -69,7 +70,7 @@
     if (editing === t.id) {
       out += '<div class="edit"><div><label for="n' + t.id + '">Name</label><input type="text" id="n' + t.id + '" data-f="name" maxlength="30" value="' + esc(t.name) + '"></div>' +
         '<div><label for="g' + t.id + '">Goal</label><input type="number" id="g' + t.id + '" data-f="goal" inputmode="numeric" min="20" max="400" value="' + t.goal + '"></div>' +
-        '<div class="full btns" style="margin:0"><button class="btn danger' + (confirmDel === t.id ? ' armed' : '') + '" data-act="del" type="button">' + (confirmDel === t.id ? 'Tap again to delete' : 'Delete') + '</button><button class="btn" data-act="done" type="button">Done</button></div></div>';
+        '<div class="full btns" style="margin:0"><button class="btn danger" data-act="del" type="button">Delete</button><button class="btn" data-act="done" type="button">Done</button></div></div>';
     } else {
       out += '<div class="draft"><button class="chip" data-act="d1" type="button">+1</button><button class="chip" data-act="d5" type="button">+5</button>' +
         '<input type="number" inputmode="numeric" min="20" max="400" data-f="draft" aria-label="BPM to log" value="' + draftOf(t) + '"><button class="btn" data-act="log" type="button">Log new best</button></div>';
@@ -94,11 +95,13 @@
       if (t.best && v <= t.best) { say('Log a BPM above your best of ' + t.best + ', or edit the technique.'); return; }
       t.best = v; t.hist.push({ t: Date.now(), v: v }); delete drafts[t.id]; save(); paint();
       say(t.name + ': new best, ' + v + ' BPM.');
-    } else if (act === 'edit') { editing = t.id; confirmDel = null; paint(); }
-    else if (act === 'done') { editing = null; confirmDel = null; save(); paint(); }
+    } else if (act === 'edit') { editing = t.id; paint(); }
+    else if (act === 'done') { editing = null; save(); paint(); }
     else if (act === 'del') {
-      if (confirmDel !== t.id) { confirmDel = t.id; paint(); return; }
-      items = items.filter(function (x) { return x !== t; }); editing = null; confirmDel = null; save(); paint();
+      Confirm.ask({ title: 'Delete this technique?', message: '\u201c' + t.name + '\u201d and its logged bests will be deleted for good.', confirmLabel: 'Delete' }).then(function (ok) {
+        if (!ok) return;
+        items = items.filter(function (x) { return x !== t; }); editing = null; save(); paint();
+      });
     }
   });
   $('#list').addEventListener('input', function (e) {

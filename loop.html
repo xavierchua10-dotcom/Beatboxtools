@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#14161a">
 <title>Loop pad</title>
-<link rel="stylesheet" href="fonts.css?v=20261108i">
-<link rel="stylesheet" href="theme.css?v=20261108i">
-<link rel="stylesheet" href="tools.css?v=20261108i">
+<link rel="stylesheet" href="fonts.css?v=20261108j">
+<link rel="stylesheet" href="theme.css?v=20261108j">
+<link rel="stylesheet" href="tools.css?v=20261108j">
 <style>
   .ringbox{position:relative;display:grid;place-items:center;margin:2px 0 8px}
   .ringbox svg{width:200px;height:200px}
@@ -59,12 +59,13 @@
   <p class="note" id="hint">Records on the beat after a one bar count-in. Use headphones so the click does not leak into your take. Layers play together, up to 4.</p>
   <p class="msg" id="msg" role="status" aria-live="polite"></p>
 </div>
-<script src="tools.js?v=20261108i"></script>
+<script src="tools.js?v=20261108j"></script>
+<script src="confirm.js?v=20261108j"></script>
 <script>
 (function () {
   var $ = Tools.$, MAXL = 4, CIRC = 2 * Math.PI * 84;
   var bpm = Tools.store.get('savior-loop-bpm', 90), bars = 2, clickOn = true, trim = Tools.store.get('savior-loop-trim', 0);
-  var layers = [], playing = false, gridStart = 0, origin = 0, ci = 0, nextBeat = 0, timer = null, raf = 0, rec = null, armedClear = false;
+  var layers = [], playing = false, gridStart = 0, origin = 0, ci = 0, nextBeat = 0, timer = null, raf = 0, rec = null;
   var ICON_PLAY = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>';
   var ICON_STOP = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="6.5" width="11" height="11" rx="2.5"/></svg>';
   function say(t, err) { var m = $('#msg'); m.textContent = t; m.classList.toggle('err', !!err); }
@@ -185,8 +186,7 @@
     var locked = layers.length > 0;
     Array.prototype.forEach.call($('#bars').children, function (c) { c.disabled = locked && +c.getAttribute('data-b') !== bars; c.classList.toggle('on', +c.getAttribute('data-b') === bars); });
     $('#minus').disabled = $('#plus').disabled = locked;
-    $('#clear').disabled = !layers.length && !armedClear;
-    $('#clear').textContent = armedClear ? 'Sure?' : 'Clear'; $('#clear').classList.toggle('armed', armedClear);
+    $('#clear').disabled = !layers.length;
     $('#hint').hidden = false;
     $('#bpm').textContent = bpm; $('#trim').textContent = (trim > 0 ? '+' : '') + trim;
     $('#clk').setAttribute('aria-pressed', clickOn); $('#clk').classList.toggle('on', clickOn); $('#clk').textContent = clickOn ? 'CLICK ON' : 'CLICK OFF';
@@ -254,15 +254,24 @@
     var b = e.target.closest('[data-a]'); if (!b) return;
     var i = +b.parentNode.getAttribute('data-i'), l = layers[i]; if (!l) return;
     if (b.getAttribute('data-a') === 'mute') { l.muted = !l.muted; l.gain.gain.value = l.muted ? 0 : 1; }
-    else { stopLayer(l); try { l.gain.disconnect(); } catch (x) {} layers.splice(i, 1); if (!layers.length && !rec) say(''); }
+    else {
+      Confirm.ask({ title: 'Delete layer ' + (i + 1) + '?', message: 'This recorded layer will be removed from the loop.', confirmLabel: 'Delete' }).then(function (ok) {
+        var k = layers.indexOf(l); if (!ok || k < 0) return;
+        stopLayer(l); try { l.gain.disconnect(); } catch (x) {} layers.splice(k, 1); if (!layers.length && !rec) say(''); ui();
+      });
+      return;
+    }
     ui();
   });
   $('#rec').addEventListener('click', recordPress);
   $('#pp').addEventListener('click', function () { playing ? stopClock() : startClock(false); });
   $('#save').addEventListener('click', saveMix);
   $('#clear').addEventListener('click', function () {
-    if (!armedClear) { armedClear = true; ui(); setTimeout(function () { armedClear = false; ui(); }, 3000); return; }
-    armedClear = false; cancelRec(); layers.forEach(function (l) { stopLayer(l); try { l.gain.disconnect(); } catch (x) {} }); layers = []; say('Cleared.'); frameIdle(); ui();
+    var n = layers.length; if (!n) return;
+    Confirm.ask({ title: 'Clear all layers?', message: 'All ' + n + (n === 1 ? ' layer' : ' layers') + ' will be deleted for good. Save the mix first if you want to keep it.', confirmLabel: 'Clear all' }).then(function (ok) {
+      if (!ok) return;
+      cancelRec(); layers.forEach(function (l) { stopLayer(l); try { l.gain.disconnect(); } catch (x) {} }); layers = []; say('Cleared.'); frameIdle(); ui();
+    });
   });
   function setBpm(v) {
     if (layers.length) return;

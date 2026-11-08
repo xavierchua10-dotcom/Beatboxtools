@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#14161a">
 <title>Settings</title>
-<link rel="stylesheet" href="fonts.css?v=20261108i">
-<link rel="stylesheet" href="theme.css?v=20261108i">
+<link rel="stylesheet" href="fonts.css?v=20261108j">
+<link rel="stylesheet" href="theme.css?v=20261108j">
 <style>
   .app{padding-top:16px}
   .card{margin-bottom:10px;padding:0}
@@ -78,6 +78,7 @@
 
   <p class="about">BEATBOX TOOLS · BY SAVIOR<br>Everything saves on this device. Clearing site data removes it.</p>
 </main>
+<script src="confirm.js?v=20261108j"></script>
 <script>
 (function () {
   var $ = function (s) { return document.querySelector(s); };
@@ -143,15 +144,10 @@
     $('#routines').textContent = n ? String(n) : 'None yet';
   }
 
-  var armed = false, timer = null;
-  function disarm() { armed = false; var b = $('#wipe'); b.classList.remove('armed'); b.textContent = 'Delete all voice notes'; }
   $('#wipe').addEventListener('click', function () {
-    var b = this;
-    if (!armed) {
-      armed = true; b.classList.add('armed'); b.textContent = 'Tap again to delete everything';
-      clearTimeout(timer); timer = setTimeout(disarm, 3500); return;
-    }
-    clearTimeout(timer); disarm();
+    Confirm.ask({ title: 'Delete all voice notes?', message: 'Every voice note on this device will be deleted for good. This cannot be undone.', confirmLabel: 'Delete all' }).then(function (ok) { if (ok) wipeAll(); });
+  });
+  function wipeAll() {
     openDB().then(function (db) {
       var tx = db.transaction(['meta', 'blob'], 'readwrite');
       tx.objectStore('meta').clear(); tx.objectStore('blob').clear();
@@ -162,7 +158,7 @@
       };
       tx.onerror = function () { db.close(); $('#msg').textContent = 'Could not delete the notes.'; };
     }, function () { $('#msg').textContent = 'Could not delete the notes.'; });
-  });
+  }
 
   /* install: full screen app instead of a browser tab */
   function installUI() {

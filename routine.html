@@ -6,8 +6,8 @@
 <title>Routine builder by Savior</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="fonts.css?v=20261108i">
-<link rel="stylesheet" href="theme.css?v=20261108i">
+<link rel="stylesheet" href="fonts.css?v=20261108j">
+<link rel="stylesheet" href="theme.css?v=20261108j">
 <style>
   .card{margin-bottom:12px}
   .lab{display:block;margin:0 0 8px;color:var(--text-faint);font:500 12px var(--f-head);letter-spacing:.12em;text-transform:uppercase}
@@ -134,6 +134,7 @@
   </div>
 </section>
 
+<script src="confirm.js?v=20261108j"></script>
 <script>
 (function () {
   'use strict';
@@ -216,19 +217,6 @@
     clearTimeout(msgT);
     msgT = setTimeout(function () { $('#msg').textContent = ''; }, 2600);
   }
-  function arm(btn, fn) {
-    if (btn.dataset.armed === '1') {
-      clearTimeout(btn._t); btn.dataset.armed = '0'; btn.classList.remove('armed'); fn(); return;
-    }
-    btn.dataset.armed = '1'; btn.classList.add('armed');
-    var old = btn.textContent;
-    if (btn.textContent) btn.textContent = 'Tap again';
-    btn._t = setTimeout(function () {
-      btn.dataset.armed = '0'; btn.classList.remove('armed');
-      if (old) btn.textContent = old;
-    }, 2500);
-  }
-
   var SEC_HTML =
     '<div class="sec-head"><span class="idx"></span>' +
     '<input class="sname" type="text" maxlength="40" aria-label="Section name">' +
@@ -335,7 +323,11 @@
       r.sections.splice(i + 1, 0, { id: uid(), name: s.name, sec: s.sec, notes: s.notes });
       renderList(); save();
     } else if (act === 'del') {
-      arm(b, function () { r.sections.splice(i, 1); renderList(); save(); });
+      Confirm.ask({ title: 'Delete this section?', message: '\u201c' + (s.name || 'Section ' + (i + 1)) + '\u201d will be removed from this routine.', confirmLabel: 'Delete' }).then(function (ok) {
+        if (!ok) return;
+        var k = r.sections.indexOf(s); if (k < 0) return;
+        r.sections.splice(k, 1); renderList(); save();
+      });
     }
   });
   $('#list').addEventListener('input', function (e) {
@@ -385,8 +377,10 @@
     state.routines.push(c); state.currentId = c.id; renderAll(); save();
   });
   $('#delR').addEventListener('click', function () {
-    arm(this, function () {
-      state.routines = state.routines.filter(function (r) { return r.id !== state.currentId; });
+    var rt = cur(), n = rt.sections.length;
+    Confirm.ask({ title: 'Delete this routine?', message: '\u201c' + (rt.name || 'Routine') + '\u201d and its ' + n + (n === 1 ? ' section' : ' sections') + ' will be deleted for good.', confirmLabel: 'Delete' }).then(function (ok) {
+      if (!ok) return;
+      state.routines = state.routines.filter(function (x) { return x.id !== rt.id; });
       if (!state.routines.length) state.routines.push(TPL.wildcard());
       state.currentId = state.routines[0].id;
       renderAll(); save();
