@@ -6,10 +6,11 @@
 <title>Voice note by Savior</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="fonts.css?v=20261108f">
-<link rel="stylesheet" href="theme.css?v=20261108f">
+<link rel="stylesheet" href="fonts.css?v=20261108g">
+<link rel="stylesheet" href="theme.css?v=20261108g">
 <style>
-  .app{display:flex;flex-direction:column;align-items:center}
+  .app{display:flex;flex-direction:column;align-items:center;min-height:100vh;min-height:100dvh}
+  .center{flex:1;width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding-bottom:36px}
   .status{min-height:22px;margin:0 0 6px;text-align:center;color:var(--text-dim);font-size:14px}
   .status.err{color:var(--accent-2)}
   .time{font:500 52px/1 var(--f-mono);letter-spacing:.02em;margin:4px 0 18px;color:var(--text)}
@@ -32,54 +33,59 @@
   .mic .ic-stop{display:none}
   .mic.rec .ic-mic{display:none}
   .mic.rec .ic-stop{display:block}
-  #cancel{margin-top:22px}
-  .toggle{display:flex;align-items:flex-start;gap:12px;width:100%;margin-top:30px;padding:14px;background:var(--panel);border:1px solid var(--line);border-radius:14px;cursor:pointer}
-  .toggle input{appearance:none;-webkit-appearance:none;flex:none;width:44px;height:26px;border-radius:99px;margin:1px 0 0;
-    background:var(--panel-3);border:1px solid var(--line);position:relative;cursor:pointer;transition:background 160ms ease,border-color 160ms ease}
-  .toggle input::after{content:"";position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:var(--text-dim);transition:transform 160ms ease,background 160ms ease}
-  .toggle input:checked{background:rgba(var(--accent-rgb),.22);border-color:var(--accent)}
-  .toggle input:checked::after{transform:translateX(18px);background:var(--accent)}
-  .toggle b{display:block;font:600 13px var(--f-head);letter-spacing:.06em;text-transform:uppercase}
-  .toggle small{display:block;margin-top:3px;color:var(--text-dim);font-size:12px;line-height:1.45}
-  .saved{width:100%;margin-top:18px;padding:14px;background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--success);border-radius:14px}
-  .saved[hidden]{display:none}
-  .saved .lab{display:block;margin:0 0 8px;color:var(--text-faint);font:500 12px var(--f-head);letter-spacing:.12em;text-transform:uppercase}
-  .saved input{font:600 16px var(--f-body);margin:0}
-  .saved .sub{color:var(--text-dim);font:400 12px var(--f-mono);margin:8px 0 12px;min-height:16px}
-  .saved .sub.ok{color:var(--success)}
-  .saved .row{display:flex;gap:8px;flex-wrap:wrap}
-  .saved .btn.primary{font-size:13px}
+  #cancel{margin-top:36px}
+  .sheet{position:fixed;inset:0;z-index:30;display:flex;align-items:flex-end;justify-content:center}
+  .sheet[hidden]{display:none}
+  .scrim{position:absolute;inset:0;background:rgba(10,11,13,.72);animation:fade .2s ease both}
+  .panel{
+    position:relative;width:100%;max-width:480px;background:var(--panel);border:1px solid var(--line);border-bottom:0;
+    border-radius:20px 20px 0 0;padding:10px 18px calc(18px + env(safe-area-inset-bottom,0px));animation:rise .26s cubic-bezier(.2,.8,.2,1) both;
+  }
+  .grab{width:40px;height:4px;border-radius:2px;background:var(--panel-3);margin:0 auto 14px}
+  .panel h2{margin:0 0 4px;font:700 20px var(--f-head);letter-spacing:.08em;text-transform:uppercase;text-align:center}
+  .panel h2 span{color:var(--accent)}
+  .panel .sub{margin:0 0 14px;text-align:center;color:var(--text-dim);font:400 12px var(--f-mono)}
+  .panel input{font:600 17px var(--f-body);margin:0 0 14px}
+  .panel .row{display:flex;gap:10px}
+  .panel .row .btn{flex:1}
+  .panel .row .btn.danger{flex:0 0 auto}
+  .panel .row .btn.primary{flex:1}
+  .panel .row .btn[hidden]{display:none}
+  @keyframes rise{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
 </style>
 </head>
 <body>
 <main class="app">
   <h1 class="page-title">Voice <span>note</span></h1>
 
-  <p id="status" class="status" role="status" aria-live="polite">Tap the mic to record</p>
-  <div id="time" class="time">0:00.0</div>
-  <div id="wave" class="wave" aria-hidden="true"></div>
+  <div class="center">
+    <p id="status" class="status" role="status" aria-live="polite">Tap the mic to record</p>
+    <div id="time" class="time">0:00.0</div>
+    <div id="wave" class="wave" aria-hidden="true"></div>
 
-  <button id="mic" class="mic" type="button" aria-label="Start recording">
-    <svg class="ic ic-mic" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
-    <svg class="ic ic-stop" viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="6.5" width="11" height="11" rx="2.5" fill="currentColor" stroke="none"/></svg>
-  </button>
-  <button id="cancel" class="btn" type="button" hidden>Cancel and discard</button>
+    <button id="mic" class="mic" type="button" aria-label="Start recording">
+      <svg class="ic ic-mic" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+      <svg class="ic ic-stop" viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="6.5" width="11" height="11" rx="2.5" fill="currentColor" stroke="none"/></svg>
+    </button>
+    <button id="cancel" class="btn" type="button" hidden>Cancel and discard</button>
+  </div>
+</main>
 
-  <div id="saved" class="saved" hidden>
-    <label class="lab" for="savedName">Name this note</label>
-    <input id="savedName" type="text" maxlength="60" autocomplete="off" enterkeyhint="done" spellcheck="false">
-    <div class="sub" id="savedSub"></div>
+<div id="sheet" class="sheet" hidden>
+  <div class="scrim" id="shScrim"></div>
+  <div class="panel" role="dialog" aria-modal="true" aria-labelledby="shTitle">
+    <div class="grab"></div>
+    <h2 id="shTitle">Name your <span>note</span></h2>
+    <p class="sub" id="shSub"></p>
+    <input id="shName" type="text" maxlength="60" autocomplete="off" enterkeyhint="done" spellcheck="false" aria-label="Note name">
     <div class="row">
-      <button id="openHist" class="btn primary" type="button">Open history</button>
-      <button id="dlSaved" class="btn" type="button" hidden>Download</button>
+      <button id="shDiscard" class="btn danger" type="button">Discard</button>
+      <button id="shSave" class="btn primary" type="button">Save</button>
+      <button id="shDl" class="btn primary" type="button" hidden>Download</button>
     </div>
   </div>
-
-  <label class="toggle">
-    <input id="raw" type="checkbox" checked>
-    <span><b>Raw audio</b><small>No echo cancelling, noise reduction or auto gain. Keeps your beatbox sounds as they are.</small></span>
-  </label>
-</main>
+</div>
 
 <script>
 (function () {
@@ -107,11 +113,8 @@
     return Math.floor(s / 60) + ':' + (s % 60 < 10 ? '0' : '') + (s % 60);
   }
 
-  try { if (localStorage.getItem(RAW_KEY) === '0') $('#raw').checked = false; } catch (e) {}
-  window.addEventListener('storage', function (e) { if (e.key === RAW_KEY) $('#raw').checked = e.newValue !== '0'; });
-  $('#raw').addEventListener('change', function () {
-    try { localStorage.setItem(RAW_KEY, this.checked ? '1' : '0'); } catch (e) {}
-  });
+  /* raw audio is a switch in Settings; on by default */
+  function rawOn() { try { return localStorage.getItem(RAW_KEY) !== '0'; } catch (e) { return true; } }
 
   var waveEl = $('#wave'), bars = [];
   for (var i = 0; i < N; i++) { var b = document.createElement('i'); waveEl.appendChild(b); bars.push(b); }
@@ -195,7 +198,6 @@
     $('#cancel').hidden = !on;
     $('#time').classList.toggle('live', on);
     waveEl.classList.toggle('live', on);
-    $('#raw').disabled = on;
   }
 
   function start() {
@@ -207,10 +209,10 @@
       st.ac = new (window.AudioContext || window.webkitAudioContext)();
       if (st.ac.state === 'suspended') st.ac.resume();
     } catch (e) { st.ac = null; }
-    var rawOn = $('#raw').checked;
+    var raw = rawOn();
     status('Asking for the microphone');
     navigator.mediaDevices.getUserMedia({
-      audio: { echoCancellation: !rawOn, noiseSuppression: !rawOn, autoGainControl: !rawOn }
+      audio: { echoCancellation: !raw, noiseSuppression: !raw, autoGainControl: !raw }
     }).then(begin, function (err) {
       cleanup();
       status(err && err.name === 'NotAllowedError'
@@ -239,7 +241,6 @@
     st.t0 = performance.now();
     setRecUI(true);
     status('Recording');
-    $('#saved').hidden = true;
     lock();
     st.timer = setInterval(function () { $('#time').textContent = fmtLive((performance.now() - st.t0) / 1000); }, 100);
     st.sampler = setInterval(function () {
@@ -284,29 +285,30 @@
     };
     st.busy = true;
     status('Saving');
+    /* stored straight away under a default name, so nothing is lost if the app closes; the sheet then names or discards it */
     put(meta, blob).then(function () {
       st.busy = false;
-      status('Saved to history');
-      showSaved(meta, null);
+      status('Name your note');
+      openSheet(meta, null);
       tell({ type: 'saved' });
     }, function () {
       st.busy = false;
       status('Could not save on this browser. Download it instead.', true);
-      showSaved(meta, blob);
+      openSheet(meta, blob);
     });
   }
 
-  var lastBlob = null, lastMeta = null, savedInfo = '';
-  function setSub(t, ok) { var e = $('#savedSub'); e.textContent = t; e.classList.toggle('ok', !!ok); }
-  /* rename the note that was just saved; resolves once it is stored */
-  function commitName() {
-    var inp = $('#savedName'), m = lastMeta;
-    if (!m) return Promise.resolve();
-    var v = inp.value.trim().slice(0, 60);
-    if (!v) { inp.value = m.name; return Promise.resolve(); }
-    if (v === m.name) return Promise.resolve();
-    m.name = v; inp.value = v;
-    if (lastBlob) return Promise.resolve();   /* not stored: the name is only used for the download */
+  function del(id) {
+    return openDB().then(function (db) {
+      return new Promise(function (res, rej) {
+        var tx = db.transaction(['meta', 'blob'], 'readwrite');
+        tx.objectStore('meta').delete(id); tx.objectStore('blob').delete(id);
+        tx.oncomplete = function () { db.close(); res(); };
+        tx.onerror = tx.onabort = function () { db.close(); rej(tx.error); };
+      });
+    });
+  }
+  function putMeta(m) {
     return openDB().then(function (db) {
       return new Promise(function (res, rej) {
         var tx = db.transaction('meta', 'readwrite');
@@ -314,23 +316,54 @@
         tx.oncomplete = function () { db.close(); res(); };
         tx.onerror = tx.onabort = function () { db.close(); rej(tx.error); };
       });
-    }).then(function () {
-      tell({ type: 'saved' });
-      setSub(savedInfo + ' · Name saved', true);
-    }, function () { setSub('Could not rename that note.', false); });
+    });
   }
-  $('#savedName').addEventListener('focus', function () { var i = this; setTimeout(function () { try { i.select(); } catch (e) {} }, 0); });
-  $('#savedName').addEventListener('change', commitName);
-  $('#savedName').addEventListener('keydown', function (e) { if (e.key === 'Enter') this.blur(); });
-  function showSaved(meta, failedBlob) {
-    $('#savedName').value = meta.name;
-    savedInfo = fmt(meta.duration) + ' · ' + Math.max(1, Math.round(meta.size / 1024)) + ' KB';
-    setSub(savedInfo, false);
-    $('#openHist').hidden = !inFrame || !!failedBlob;
-    $('#dlSaved').hidden = !failedBlob;
+
+  var lastBlob = null, lastMeta = null, sheetOpen = false;
+  function openSheet(meta, failedBlob) {
     lastBlob = failedBlob; lastMeta = meta;
-    $('#saved').hidden = false;
+    $('#shName').value = meta.name;
+    $('#shSub').textContent = fmt(meta.duration) + ' · ' + Math.max(1, Math.round(meta.size / 1024)) + ' KB';
+    $('#shSave').hidden = !!failedBlob;
+    $('#shDl').hidden = !failedBlob;
+    $('#sheet').hidden = false; sheetOpen = true;
+    setTimeout(function () { var i = $('#shName'); try { i.focus(); i.select(); } catch (e) {} }, 60);
   }
+  function closeSheet() { $('#sheet').hidden = true; sheetOpen = false; }
+  function chosenName() {
+    var v = $('#shName').value.trim().slice(0, 60);
+    return v || lastMeta.name;
+  }
+  function saveName() {
+    if (!sheetOpen || !lastMeta) return;
+    var m = lastMeta, v = chosenName();
+    closeSheet();
+    if (v === m.name) { status('Saved to history'); return; }
+    m.name = v;
+    putMeta(m).then(function () { status('Saved to history'); tell({ type: 'saved' }); },
+                    function () { status('Saved, but the name could not be changed.', true); });
+  }
+  function discardNote() {
+    if (!sheetOpen || !lastMeta) return;
+    var m = lastMeta, unsaved = !!lastBlob;
+    closeSheet();
+    if (unsaved) { status('Discarded'); return; }
+    del(m.id).then(function () { status('Discarded'); tell({ type: 'saved' }); },
+                   function () { status('Could not discard that note.', true); });
+  }
+  $('#shSave').addEventListener('click', saveName);
+  $('#shScrim').addEventListener('click', function () { if (!lastBlob) saveName(); });
+  $('#shDiscard').addEventListener('click', discardNote);
+  $('#shName').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); if (lastBlob) $('#shDl').click(); else saveName(); } });
+  $('#shDl').addEventListener('click', function () {
+    if (!lastBlob) return;
+    var nm = chosenName();
+    var a = document.createElement('a'), url = URL.createObjectURL(lastBlob);
+    a.href = url; a.download = (nm.replace(/[^a-z0-9 _.-]+/gi, '').trim().replace(/\s+/g, '-').slice(0, 60) || 'voice-note') + '.' + extOf(lastMeta.mime || '');
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+    closeSheet(); status('Downloaded');
+  });
 
   $('#mic').addEventListener('click', function () {
     if (st.rec) { if (st.rec.state !== 'inactive') st.rec.stop(); }
@@ -338,14 +371,6 @@
   });
   $('#cancel').addEventListener('click', function () {
     if (st.rec && st.rec.state !== 'inactive') { st.discard = true; st.rec.stop(); }
-  });
-  $('#openHist').addEventListener('click', function () { commitName().then(function () { tell({ type: 'goto', tab: 'history' }); }); });
-  $('#dlSaved').addEventListener('click', function () {
-    if (!lastBlob) return;
-    var a = document.createElement('a'), url = URL.createObjectURL(lastBlob);
-    a.href = url; a.download = ((lastMeta.name || 'voice-note').replace(/[^a-z0-9 _.-]+/gi, '').trim().replace(/\s+/g, '-').slice(0, 60) || 'voice-note') + '.' + extOf(lastMeta.mime || '');
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
   });
 })();
 </script>

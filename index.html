@@ -9,11 +9,12 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Beatboxtools">
 <title>Beatboxtools</title>
+<link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-<link rel="stylesheet" href="fonts.css?v=20261108f">
+<link rel="stylesheet" href="fonts.css?v=20261108g">
 <style>
   :root{
     color-scheme:dark;
@@ -124,10 +125,10 @@
   </header>
 
   <main class="stage" id="stage">
-    <iframe id="v-voice" class="view" src="voice.html?v=20261108f" title="Voice note recorder" role="tabpanel" allow="autoplay; screen-wake-lock; microphone"></iframe>
-    <iframe id="v-history" class="view" src="history.html?v=20261108f" title="Voice note history" role="tabpanel" allow="autoplay"></iframe>
-    <iframe id="v-routine" class="view" src="routine.html?v=20261108f" title="Routine builder" role="tabpanel" allow="autoplay; screen-wake-lock"></iframe>
-    <iframe id="v-settings" class="view" src="settings.html?v=20261108f" title="Settings" role="tabpanel"></iframe>
+    <iframe id="v-voice" class="view" src="voice.html?v=20261108g" title="Voice note recorder" role="tabpanel" allow="autoplay; screen-wake-lock; microphone"></iframe>
+    <iframe id="v-history" class="view" src="history.html?v=20261108g" title="Voice note history" role="tabpanel" allow="autoplay"></iframe>
+    <iframe id="v-routine" class="view" src="routine.html?v=20261108g" title="Routine builder" role="tabpanel" allow="autoplay; screen-wake-lock"></iframe>
+    <iframe id="v-settings" class="view" src="settings.html?v=20261108g" title="Settings" role="tabpanel"></iframe>
   </main>
 
   <nav aria-label="Beatbox tools" id="tabnav">
@@ -178,8 +179,8 @@
         </button>
         <p class="hint">They keep running when you close this, so you can record or rehearse over the metronome. The gold dot on the grid button tells you something is still going.</p>
       </div>
-      <iframe id="v-metronome" class="pane" src="metronome.html?v=20261108f" title="Metronome" allow="autoplay; screen-wake-lock"></iframe>
-      <iframe id="v-battle" class="pane" src="battle.html?v=20261108f" title="Battle round timer" allow="autoplay; screen-wake-lock"></iframe>
+      <iframe id="v-metronome" class="pane" src="metronome.html?v=20261108g" title="Metronome" allow="autoplay; screen-wake-lock"></iframe>
+      <iframe id="v-battle" class="pane" src="battle.html?v=20261108g" title="Battle round timer" allow="autoplay; screen-wake-lock"></iframe>
     </div>
   </section>
 
@@ -322,6 +323,19 @@
     toolsBtn.classList.toggle('live', met || bat);
   }
   setInterval(poll, 500);
+
+  /* installable app: keep the install prompt for the Settings tab, and register the offline worker */
+  window.addEventListener('beforeinstallprompt', function (e) {
+    e.preventDefault(); window.__installPrompt = e;
+    try { document.getElementById('v-settings').contentWindow.postMessage({ type: 'shown' }, location.origin); } catch (x) {}
+  });
+  window.addEventListener('appinstalled', function () {
+    window.__installPrompt = null;
+    try { document.getElementById('v-settings').contentWindow.postMessage({ type: 'shown' }, location.origin); } catch (x) {}
+  });
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
+  }
 
   TOOLS.forEach(function (p) { document.getElementById('v-' + p).setAttribute('inert', ''); });
   var h0 = location.hash.replace('#', '');
