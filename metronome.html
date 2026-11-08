@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Metronome by Savior</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #09070d;
+    --bg-panel: #131019;
+    --panel-edge: #201a2c;
+    --purple-1: #9163f9;
+    --purple-2: #5b21b6;
+    --magenta: #ff2e88;
+    --text: #f4f2f8;
+    --text-dim: #8d8998;
+    --text-faint: #57515f;
+    --track: rgba(145, 99, 249, 0.14);
+    --glow-1: rgba(145, 99, 249, 0.16);
+    --glow-2: rgba(255, 46, 136, 0.06);
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html { -webkit-tap-highlight-color: transparent; }
+
+  button, a, select, input[type="range"] {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    touch-action: manipulation;
+    outline: none;
+  }
+  button, a, .theme-swatch, .led {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  html, body { margin: 0; height: 100%; background: var(--bg); }
+  body {
+    display: flex; align-items: stretch; justify-content: center;
+    min-height: 100vh; min-height: 100dvh;
+    font-family: 'Inter', sans-serif; color: var(--text);
+    background:
+      radial-gradient(ellipse 700px 500px at 50% -10%, var(--glow-1), transparent 60%),
+      radial-gradient(ellipse 500px 400px at 100% 100%, var(--glow-2), transparent 60%),
+      var(--bg);
+    padding: 0;
+    transition: background 200ms ease;
+  }
+  .app {
+    position: relative;
+    width: 100%; max-width: 480px;
+    margin: 0 auto;
+    min-height: 100vh; min-height: 100dvh;
+    display: flex; flex-direction: column;
+    background: linear-gradient(180deg, var(--bg-panel), #0d0b12);
+    border: none;
+    border-radius: 0;
+    padding: 26px 26px calc(24px + env(safe-area-inset-bottom, 0px));
+    box-shadow: none;
+    animation: appEntrance 560ms var(--ease-smooth) both;
+  }
+  @keyframes appEntrance {
+    from { opacity: 0; transform: translateY(16px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  @media (min-width: 480px) {
+    body { padding: 24px; }
+    .app {
+      align-self: center;
+      min-height: auto;
+      height: auto;
+      aspect-ratio: 3 / 5;
+      max-height: calc(100vh - 48px);
+      max-height: calc(100dvh - 48px);
+      overflow-y: auto;
+      border: 1px solid var(--panel-edge);
+      border-radius: 28px;
+      padding: 26px 26px 28px;
+      box-shadow: 0 30px 80px -20px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.03);
+    }
+  }
+
+  .title-block { text-align: center; margin-top: 36px; margin-bottom: 6px; }
+  .title-main {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 26px;
+    letter-spacing: 0.04em;
+    background: linear-gradient(135deg, var(--purple-1), var(--magenta));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    line-height: 1.15;
+    transition: background 200ms ease;
+  }
+  .title-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: lowercase;
+    color: var(--text-faint);
+    margin-top: 2px;
+  }
+
+  .settings-btn {
+    position: absolute; top: 20px; left: 24px;
+    width: 30px; height: 30px; border-radius: 50%;
+    border: 1px solid var(--panel-edge); background: #171320; color: var(--text-dim);
+    font-size: 15px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: color 150ms ease, border-color 150ms ease, transform 220ms var(--ease-spring);
+  }
+  .settings-btn:hover { color: var(--text); border-color: var(--purple-1); }
+  .settings-btn.active { color: var(--purple-1); border-color: var(--purple-1); transform: rotate(20deg); }
+
+  .settings-panel {
+    display: flex;
+    position: fixed; inset: 0;
+    align-items: center; justify-content: center;
+    background: rgba(5,4,8,0.72);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    z-index: 60; padding: 24px;
+    opacity: 0; visibility: hidden; pointer-events: none;
+    transition: opacity 260ms var(--ease-smooth), visibility 0ms linear 260ms;
+  }
+  .settings-panel.open {
+    opacity: 1; visibility: visible; pointer-events: auto;
+    transition: opacity 260ms var(--ease-smooth), visibility 0ms linear 0ms;
+  }
+  .settings-panel-label {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.14em;
+    color: var(--text-faint); text-transform: uppercase; margin-bottom: 10px;
+  }
+  .theme-swatches { display: flex; justify-content: center; gap: 10px; }
+  .theme-swatch {
+    width: 30px; height: 30px; border-radius: 50%; border: 2px solid transparent;
+    cursor: pointer; box-shadow: 0 0 0 1px rgba(255,255,255,0.06);
+    transition: transform 200ms var(--ease-spring), border-color 150ms ease, box-shadow 150ms ease;
+  }
+  .theme-swatch:hover { transform: scale(1.08); }
+  .theme-swatch.active {
+    border-color: #fff;
+    box-shadow: 0 0 0 3px rgba(255,255,255,0.18), 0 0 10px rgba(255,255,255,0.35);
+  }
+
+  .live-badge {
+    position: absolute; top: 22px; right: 60px;
+    display: flex; align-items: center; gap: 6px;
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.16em;
+    color: var(--magenta);
+    opacity: 0; transform: translateY(-2px);
+    transition: opacity 260ms var(--ease-smooth), transform 260ms var(--ease-spring);
+    pointer-events: none;
+  }
+  .live-badge.on { opacity: 1; transform: translateY(0); }
+  .live-dot {
+    width: 6px; height: 6px; border-radius: 50%; background: var(--magenta);
+    box-shadow: 0 0 8px 2px rgba(255,46,136,0.7);
+    animation: liveBlink 1.1s ease-in-out infinite;
+  }
+  @keyframes liveBlink { 0%,100%{ opacity:1; } 50%{ opacity:0.25; } }
+
+  .device-wrap { display: flex; flex-direction: column; align-items: center; margin: 24px 0 6px; }
+
+  .dial-wrap {
+    position: relative; width: 210px; height: 210px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .ring-svg { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
+  .ring-track { stroke: var(--track); transition: stroke 200ms ease; }
+  .ring-fill {
+    stroke: var(--purple-1);
+    stroke-linecap: round;
+    transition: stroke-dashoffset 80ms linear, stroke 260ms var(--ease-smooth);
+    filter: drop-shadow(0 0 6px rgba(145,99,249,0.7));
+  }
+
+  .dial-core {
+    position: relative; z-index: 2;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    width: 160px; height: 160px; border-radius: 50%;
+    background: radial-gradient(circle at 50% 35%, #17131f, #0e0b13 75%);
+    border: 1px solid rgba(145,99,249,0.2);
+    box-shadow: 0 0 28px 5px rgba(145,99,249,0.28), inset 0 0 18px rgba(145,99,249,0.08);
+    transition: transform 160ms var(--ease-spring), box-shadow 200ms var(--ease-smooth);
+  }
+  .dial-core.tick {
+    box-shadow: 0 0 0 1px rgba(145,99,249,0.3), 0 0 22px 4px rgba(145,99,249,0.35);
+  }
+  .dial-core.beat {
+    transform: scale(1.045);
+    box-shadow: 0 0 0 1px rgba(145,99,249,0.35), 0 0 40px 8px rgba(145,99,249,0.5);
+  }
+  .dial-core.accent {
+    box-shadow: 0 0 0 1px rgba(255,46,136,0.45), 0 0 44px 10px rgba(255,46,136,0.55);
+  }
+  .bpm-number {
+    font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 50px; line-height: 1;
+    font-variant-numeric: tabular-nums; letter-spacing: -0.02em;
+    text-shadow: 0 0 14px rgba(145,99,249,0.55);
+    display: inline-block;
+  }
+  .bpm-number.pop { animation: bpmPop 260ms var(--ease-spring); }
+  @keyframes bpmPop {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.14); }
+    100% { transform: scale(1); }
+  }
+  .bpm-label {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.2em;
+    color: var(--text-faint); margin-top: 5px;
+  }
+  .tempo-marking { font-family: 'Inter', sans-serif; font-size: 11px; color: var(--purple-1); margin-top: 3px; height: 13px; transition: color 200ms ease; }
+
+  .led-row { display: flex; gap: 8px; margin-top: 18px; margin-bottom: 20px; }
+  .led {
+    width: 20px; height: 6px; border-radius: 3px;
+    background: rgba(145,99,249,0.12);
+    border: 1px solid rgba(145,99,249,0.18);
+    transform: scaleY(1);
+    transition: background 90ms var(--ease-smooth), box-shadow 90ms var(--ease-smooth), transform 220ms var(--ease-spring);
+  }
+  .led.active { background: var(--purple-1); box-shadow: 0 0 8px 1px rgba(145,99,249,0.7); transform: scaleY(1.7); }
+  .led.active.accent { background: var(--magenta); box-shadow: 0 0 8px 1px rgba(255,46,136,0.7); }
+
+  .bpm-slider-row { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+  .bpm-step {
+    width: 36px; height: 36px; flex-shrink: 0; border-radius: 50%;
+    border: 1px solid var(--panel-edge); background: #171320; color: var(--text);
+    font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: border-color 150ms ease, color 150ms ease, transform 140ms var(--ease-spring);
+  }
+  .bpm-step:hover { border-color: var(--purple-1); color: var(--purple-1); }
+  .bpm-step:active { transform: scale(0.9); }
+
+  input[type="range"] {
+    -webkit-appearance: none; appearance: none; width: 100%; height: 4px;
+    border-radius: 2px; background: var(--track); outline: none;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%;
+    background: var(--purple-1); box-shadow: 0 0 0 4px rgba(145,99,249,0.15); cursor: pointer;
+    transition: transform 160ms var(--ease-spring), box-shadow 150ms ease;
+  }
+  input[type="range"]:hover::-webkit-slider-thumb { transform: scale(1.15); }
+  input[type="range"]:active::-webkit-slider-thumb { transform: scale(1.25); }
+  input[type="range"]::-moz-range-thumb {
+    width: 16px; height: 16px; border: none; border-radius: 50%;
+    background: var(--purple-1); box-shadow: 0 0 0 4px rgba(145,99,249,0.15); cursor: pointer;
+    transition: transform 160ms var(--ease-spring), box-shadow 150ms ease;
+  }
+  input[type="range"]:hover::-moz-range-thumb { transform: scale(1.15); }
+  input[type="range"]:active::-moz-range-thumb { transform: scale(1.25); }
+
+  .transport { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+  .tap-btn, .play-btn { font-family: 'Inter', sans-serif; font-weight: 600; border: none; cursor: pointer; border-radius: 16px; }
+  .tap-btn {
+    flex: 1; height: 52px; background: #171320; border: 1px solid var(--panel-edge);
+    color: var(--text-dim); font-size: 13px; letter-spacing: 0.08em;
+    transition: color 150ms ease, border-color 150ms ease, transform 140ms var(--ease-spring);
+  }
+  .tap-btn:hover { color: var(--text); border-color: var(--purple-1); }
+  .tap-btn:active { transform: scale(0.96); }
+  .play-btn {
+    flex: 1.4; height: 52px; background: linear-gradient(135deg, var(--purple-1), var(--purple-2));
+    color: white; font-size: 15px; box-shadow: 0 8px 24px -8px rgba(145,99,249,0.6);
+    transition: background 200ms ease, box-shadow 200ms ease, transform 140ms var(--ease-spring);
+  }
+  .play-btn:active { transform: scale(0.96); }
+  .play-btn.playing { background: linear-gradient(135deg, var(--magenta), var(--purple-2)); box-shadow: 0 8px 24px -8px rgba(255,46,136,0.55); }
+
+  .settings-row { display: flex; gap: 10px; margin-bottom: 16px; }
+  .field { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+  .field label {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.14em;
+    color: var(--text-faint); text-transform: uppercase;
+  }
+  select {
+    font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--text);
+    background: #171320; border: 1px solid var(--panel-edge); border-radius: 10px;
+    padding: 9px 10px; outline: none; cursor: pointer;
+  }
+  select:focus-visible, .tap-btn:focus-visible, .play-btn:focus-visible, .bpm-step:focus-visible, .settings-btn:focus-visible, .theme-swatch:focus-visible {
+    outline: 2px solid var(--purple-1); outline-offset: 2px;
+  }
+  .volume-row { display: flex; align-items: center; gap: 10px; }
+  .volume-row span.vlabel { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.14em; color: var(--text-faint); width: 30px; flex-shrink: 0; }
+  .volume-row span.vreadout {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-dim);
+    width: 44px; flex-shrink: 0; text-align: right;
+  }
+  .volume-row span.vreadout.muted { color: var(--magenta); }
+
+  .save-indicator {
+    text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 9px;
+    letter-spacing: 0.1em; color: var(--text-faint); margin-top: 4px; height: 12px;
+    opacity: 0; transition: opacity 200ms ease;
+  }
+  .save-indicator.show { opacity: 1; }
+
+  .feedback-btn {
+    position: absolute; top: 20px; right: 24px;
+    width: 30px; height: 30px; border-radius: 50%;
+    border: 1px solid var(--panel-edge); background: #171320; color: var(--text-dim);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: color 150ms ease, border-color 150ms ease, transform 220ms var(--ease-spring);
+  }
+  .feedback-btn:hover { color: var(--text); border-color: var(--purple-1); }
+  .feedback-btn.active { color: var(--purple-1); border-color: var(--purple-1); transform: scale(1.1); }
+
+  .feedback-panel {
+    display: flex;
+    position: fixed; inset: 0;
+    align-items: center; justify-content: center;
+    background: rgba(5,4,8,0.72);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    z-index: 60; padding: 24px;
+    opacity: 0; visibility: hidden; pointer-events: none;
+    transition: opacity 260ms var(--ease-smooth), visibility 0ms linear 260ms;
+  }
+  .feedback-panel.open {
+    opacity: 1; visibility: visible; pointer-events: auto;
+    transition: opacity 260ms var(--ease-smooth), visibility 0ms linear 0ms;
+  }
+  .feedback-text {
+    font-family: 'Inter', sans-serif; font-size: 11px; color: var(--text-dim); margin-bottom: 10px;
+  }
+  .feedback-links { display: flex; flex-direction: column; gap: 8px; align-items: center; }
+  .feedback-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--purple-1);
+    text-decoration: none; padding: 7px 14px; border: 1px solid var(--panel-edge); border-radius: 10px;
+    background: #171320; transition: border-color 150ms ease, color 150ms ease, transform 140ms var(--ease-spring);
+  }
+  .feedback-link:hover { border-color: var(--purple-1); color: #fff; }
+  .feedback-link:active { transform: scale(0.96); }
+  button.feedback-link { -webkit-appearance: none; appearance: none; }
+
+  .support-btn {
+    position: absolute; top: 20px; left: 60px;
+    width: 30px; height: 30px; border-radius: 50%;
+    border: 1px solid var(--panel-edge); background: #171320; color: var(--text-dim);
+    font-size: 14px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: color 150ms ease, border-color 150ms ease, transform 220ms var(--ease-spring);
+  }
+  .support-btn:hover { color: var(--text); border-color: var(--purple-1); }
+  .support-btn.active { color: var(--purple-1); border-color: var(--purple-1); transform: scale(1.1); }
+
+  .support-panel {
+    display: flex;
+    position: fixed; inset: 0;
+    align-items: center; justify-content: center;
+    background: rgba(5,4,8,0.72);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    z-index: 60; padding: 24px;
+    opacity: 0; visibility: hidden; pointer-events: none;
+    transition: opacity 260ms var(--ease-smooth), visibility 0ms linear 260ms;
+  }
+  .support-panel.open {
+    opacity: 1; visibility: visible; pointer-events: auto;
+    transition: opacity 260ms var(--ease-smooth), visibility 0ms linear 0ms;
+  }
+  .support-links { display: flex; flex-direction: column; gap: 8px; align-items: center; }
+
+  .overlay-card {
+    width: 100%; max-width: 300px;
+    background: linear-gradient(180deg, var(--bg-panel), #1a1624);
+    border: 1px solid var(--panel-edge);
+    border-radius: 20px;
+    padding: 22px 20px;
+    text-align: center;
+    box-shadow: 0 24px 60px -12px rgba(0,0,0,0.75);
+    transform: scale(0.92) translateY(10px);
+    opacity: 0;
+    transition: transform 320ms var(--ease-smooth), opacity 240ms ease;
+  }
+  .settings-panel.open .overlay-card,
+  .feedback-panel.open .overlay-card,
+  .support-panel.open .overlay-card {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .led, .dial-core, .ring-fill, .settings-panel, .feedback-panel, .support-panel,
+    .settings-btn, .feedback-btn, .support-btn, .theme-swatch, .tap-btn, .play-btn,
+    .bpm-step, .app, .bpm-number, .overlay-card, .live-badge,
+    .feedback-link,
+    input[type="range"]::-webkit-slider-thumb, input[type="range"]::-moz-range-thumb {
+      transition: none !important; animation: none !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+<audio id="silentUnlock" loop playsinline style="display:none">
+  <source src="data:audio/wav;base64,UklGRoQJAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YWAJAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA=" type="audio/wav">
+</audio>
+
+<div class="app">
+  <button class="settings-btn" id="settingsBtn" aria-label="Open color settings" aria-expanded="false">⚙</button>
+  <button class="support-btn" id="supportBtn" aria-label="Open support options" aria-expanded="false">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.35-9.5-8.5C.5 8.5 2.5 5 6 5c2 0 3.5 1 6 3.5C14.5 6 16 5 18 5c3.5 0 5.5 3.5 3.5 7.5C19 16.65 12 21 12 21z"/></svg>
+  </button>
+
+  <div class="title-block">
+    <div class="title-main">METRONOME</div>
+    <div class="title-sub">by savior</div>
+  </div>
+  <div class="live-badge" id="liveBadge"><span class="live-dot"></span>LIVE</div>
+
+  <div class="settings-panel" id="settingsPanel">
+    <div class="overlay-card">
+      <div class="settings-panel-label">Color Theme</div>
+      <div class="theme-swatches" id="themeSwatches"></div>
+    </div>
+  </div>
+
+  <div class="support-panel" id="supportPanel">
+    <div class="overlay-card">
+    <div class="support-links">
+      <a class="feedback-link" href="https://xavierchua10-dotcom.github.io/savior-hub/" target="_blank" rel="noopener noreferrer">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.35-9.5-8.5C.5 8.5 2.5 5 6 5c2 0 3.5 1 6 3.5C14.5 6 16 5 18 5c3.5 0 5.5 3.5 3.5 7.5C19 16.65 12 21 12 21z"/></svg>
+        Check out & support
+      </a>
+    </div>
+    </div>
+  </div>
+
+  <div class="device-wrap">
+    <div class="dial-wrap">
+      <svg class="ring-svg" viewBox="0 0 220 220">
+        <circle class="ring-track" cx="110" cy="110" r="100" fill="none" stroke-width="4"></circle>
+        <circle id="ringFill" class="ring-fill" cx="110" cy="110" r="100" fill="none" stroke-width="4"
+          stroke-dasharray="628.3" stroke-dashoffset="628.3"></circle>
+      </svg>
+      <div class="dial-core" id="dialCore">
+        <div class="bpm-number" id="bpmNumber">120</div>
+        <div class="bpm-label">BPM</div>
+        <div class="tempo-marking" id="tempoMarking">Allegro</div>
+      </div>
+    </div>
+
+    <div class="led-row" id="ledRow"></div>
+  </div>
+
+  <div class="bpm-slider-row">
+    <button class="bpm-step" id="stepDown" aria-label="Decrease tempo">–</button>
+    <input type="range" id="bpmSlider" min="30" max="300" value="120" aria-label="Tempo in beats per minute">
+    <button class="bpm-step" id="stepUp" aria-label="Increase tempo">+</button>
+  </div>
+
+  <div class="transport">
+    <button class="tap-btn" id="tapBtn">TAP TEMPO</button>
+    <button class="play-btn" id="playBtn" aria-label="Start metronome">▶ PLAY</button>
+  </div>
+
+  <div class="settings-row">
+    <div class="field">
+      <label for="timeSig">Time</label>
+      <select id="timeSig">
+        <option value="2">2/4</option>
+        <option value="3">3/4</option>
+        <option value="4" selected>4/4</option>
+        <option value="5">5/4</option>
+        <option value="6">6/8</option>
+        <option value="7">7/8</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="subdiv">Subdivide</label>
+      <select id="subdiv">
+        <option value="1" selected>None</option>
+        <option value="2">8th notes</option>
+        <option value="3">Triplets</option>
+        <option value="4">16th notes</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="settings-row">
+    <div class="field">
+      <label for="soundSelect">Sound</label>
+      <select id="soundSelect">
+        <option value="click" selected>Classic Click</option>
+        <option value="wood">Woodblock</option>
+        <option value="beep">Beep</option>
+        <option value="clave">Clave</option>
+        <option value="digital">Digital Blip</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="volume-row">
+    <span class="vlabel">VOL</span>
+    <input type="range" id="volumeSlider" min="0" max="100" value="70" aria-label="Click volume">
+    <span class="vreadout" id="volReadout">70%</span>
+  </div>
+  <div class="save-indicator" id="saveIndicator">SAVED</div>
+
+  <button class="feedback-btn" id="feedbackBtn" aria-label="Open feedback" aria-expanded="false">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4V5z"/></svg>
+  </button>
+  <div class="feedback-panel" id="feedbackPanel">
+    <div class="overlay-card">
+      <div class="feedback-text">Found a bug or have feedback? Reach out:</div>
+      <div class="feedback-links">
+        <a class="feedback-link" href="https://instagram.com/im.savior_" target="_blank" rel="noopener noreferrer">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>
+          @im.savior_
+        </a>
+        <a class="feedback-link" href="mailto:xavierchua10@gmail.com">
+          <span>✉</span> xavierchua10@gmail.com
+        </a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  const bpmSlider = document.getElementById('bpmSlider');
+  const bpmNumber = document.getElementById('bpmNumber');
+  const tempoMarking = document.getElementById('tempoMarking');
+  const stepDown = document.getElementById('stepDown');
+  const stepUp = document.getElementById('stepUp');
+  const tapBtn = document.getElementById('tapBtn');
+  const playBtn = document.getElementById('playBtn');
+  const timeSigSel = document.getElementById('timeSig');
+  const subdivSel = document.getElementById('subdiv');
+  const soundSelect = document.getElementById('soundSelect');
+  const volumeSlider = document.getElementById('volumeSlider');
+  const volReadout = document.getElementById('volReadout');
+  const ledRow = document.getElementById('ledRow');
+  const dialCore = document.getElementById('dialCore');
+  const ringFill = document.getElementById('ringFill');
+  const liveBadge = document.getElementById('liveBadge');
+  const silentUnlock = document.getElementById('silentUnlock');
+  const saveIndicator = document.getElementById('saveIndicator');
+  const settingsBtn = document.getElementById('settingsBtn');
+  const settingsPanel = document.getElementById('settingsPanel');
+  const themeSwatches = document.getElementById('themeSwatches');
+  const feedbackBtn = document.getElementById('feedbackBtn');
+  const feedbackPanel = document.getElementById('feedbackPanel');
+  const supportBtn = document.getElementById('supportBtn');
+  const supportPanel = document.getElementById('supportPanel');
+
+  const STORAGE_KEY = 'savior-metronome-settings';
+  const RING_CIRCUMFERENCE = 628.3;
+
+  const THEMES = [
+    { key: 'savior',  label: 'Savior',  primary: '#9163f9', secondary: '#5b21b6', accent2: '#ff2e88' },
+    { key: 'crimson', label: 'Crimson', primary: '#ff5c5c', secondary: '#9f1239', accent2: '#ffb020' },
+    { key: 'cyan',    label: 'Cyan',    primary: '#38bdf8', secondary: '#0369a1', accent2: '#22d3ee' },
+    { key: 'emerald', label: 'Emerald', primary: '#34d399', secondary: '#047857', accent2: '#a3e635' },
+    { key: 'mono',    label: 'Mono',    primary: '#d4d4d8', secondary: '#52525b', accent2: '#ffffff' }
+  ];
+
+  let bpm = 120;
+  let beatsPerMeasure = 4;
+  let subdivision = 1;
+  let volume = 0.7;
+  let currentTheme = 'savior';
+  let currentSound = 'click';
+  let noiseBuffer = null;
+
+  let audioCtx = null;
+  let isPlaying = false;
+  let currentStep = 0;
+  let nextNoteTime = 0.0;
+  const lookahead = 25.0;
+  const scheduleAheadTime = 0.12;
+  let timerID = null;
+  let ringAnimId = null;
+  let saveTimeoutID = null;
+
+  function tempoWord(v){
+    if (v < 60) return 'Largo';
+    if (v < 72) return 'Adagio';
+    if (v < 108) return 'Andante';
+    if (v < 120) return 'Moderato';
+    if (v < 156) return 'Allegro';
+    if (v < 176) return 'Vivace';
+    if (v < 200) return 'Presto';
+    return 'Prestissimo';
+  }
+
+  function buildLeds(){
+    ledRow.innerHTML = '';
+    for (let i = 0; i < beatsPerMeasure; i++){
+      const d = document.createElement('div');
+      d.className = 'led';
+      ledRow.appendChild(d);
+    }
+  }
+
+  function updateSliderFill(slider){
+    const min = parseFloat(slider.min), max = parseFloat(slider.max);
+    const pct = ((parseFloat(slider.value) - min) / (max - min)) * 100;
+    slider.style.background = `linear-gradient(to right, var(--purple-1) ${pct}%, var(--track) ${pct}%)`;
+  }
+
+  function bumpBpmNumber(){
+    bpmNumber.classList.remove('pop');
+    void bpmNumber.offsetWidth; // force reflow so the animation can restart
+    bpmNumber.classList.add('pop');
+  }
+
+  function updateVolReadout(){
+    const pct = Math.round(volume * 100);
+    if (pct === 0){
+      volReadout.textContent = 'MUTE';
+      volReadout.classList.add('muted');
+    } else {
+      volReadout.textContent = pct + '%';
+      volReadout.classList.remove('muted');
+    }
+  }
+
+  // --- Color theme ---
+  function hexToRgba(hex, alpha){
+    const h = hex.replace('#', '');
+    const r = parseInt(h.substring(0, 2), 16);
+    const g = parseInt(h.substring(2, 4), 16);
+    const b = parseInt(h.substring(4, 6), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
+
+  function applyTheme(key, skipSave){
+    const theme = THEMES.find(t => t.key === key) || THEMES[0];
+    currentTheme = theme.key;
+    const root = document.documentElement;
+    root.style.setProperty('--purple-1', theme.primary);
+    root.style.setProperty('--purple-2', theme.secondary);
+    root.style.setProperty('--magenta', theme.accent2);
+    root.style.setProperty('--track', hexToRgba(theme.primary, 0.14));
+    root.style.setProperty('--glow-1', hexToRgba(theme.primary, 0.16));
+    root.style.setProperty('--glow-2', hexToRgba(theme.accent2, 0.06));
+
+    const swatches = themeSwatches.children;
+    for (let i = 0; i < swatches.length; i++){
+      swatches[i].classList.toggle('active', swatches[i].dataset.theme === theme.key);
+    }
+    if (!skipSave) queueSave();
+  }
+
+  function buildThemeSwatches(){
+    themeSwatches.innerHTML = '';
+    THEMES.forEach((theme) => {
+      const btn = document.createElement('button');
+      btn.className = 'theme-swatch';
+      btn.type = 'button';
+      btn.dataset.theme = theme.key;
+      btn.setAttribute('aria-label', theme.label + ' theme');
+      btn.style.background = `linear-gradient(135deg, ${theme.primary}, ${theme.accent2})`;
+      btn.addEventListener('click', () => applyTheme(theme.key));
+      themeSwatches.appendChild(btn);
+    });
+  }
+
+  settingsBtn.addEventListener('click', () => {
+    const isOpen = settingsPanel.classList.toggle('open');
+    settingsBtn.classList.toggle('active', isOpen);
+    settingsBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    if (isOpen){
+      feedbackPanel.classList.remove('open');
+      feedbackBtn.classList.remove('active');
+      feedbackBtn.setAttribute('aria-expanded', 'false');
+      supportPanel.classList.remove('open');
+      supportBtn.classList.remove('active');
+      supportBtn.setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  feedbackBtn.addEventListener('click', () => {
+    const isOpen = feedbackPanel.classList.toggle('open');
+    feedbackBtn.classList.toggle('active', isOpen);
+    feedbackBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    if (isOpen){
+      settingsPanel.classList.remove('open');
+      settingsBtn.classList.remove('active');
+      settingsBtn.setAttribute('aria-expanded', 'false');
+      supportPanel.classList.remove('open');
+      supportBtn.classList.remove('active');
+      supportBtn.setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  supportBtn.addEventListener('click', () => {
+    const isOpen = supportPanel.classList.toggle('open');
+    supportBtn.classList.toggle('active', isOpen);
+    supportBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    if (isOpen){
+      settingsPanel.classList.remove('open');
+      settingsBtn.classList.remove('active');
+      settingsBtn.setAttribute('aria-expanded', 'false');
+      feedbackPanel.classList.remove('open');
+      feedbackBtn.classList.remove('active');
+      feedbackBtn.setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  // --- Persistence (localStorage; works in any browser, including once
+  // this is deployed on its own, e.g. Netlify) ---
+  function queueSave(){
+    clearTimeout(saveTimeoutID);
+    saveTimeoutID = setTimeout(saveSettings, 500);
+  }
+
+  function saveSettings(){
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        bpm, beatsPerMeasure, subdivision, volume, theme: currentTheme, sound: currentSound
+      }));
+      saveIndicator.classList.add('show');
+      setTimeout(() => saveIndicator.classList.remove('show'), 900);
+    } catch (err) {
+      // Storage can fail (e.g. private browsing); settings just won't persist this time.
+    }
+  }
+
+  function loadSettings(){
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) return JSON.parse(raw);
+    } catch (err) {
+      // No saved settings yet, or storage unavailable — fall back to defaults.
+    }
+    return null;
+  }
+
+  function setBpm(v, skipSave){
+    bpm = Math.min(300, Math.max(30, Math.round(v)));
+    bpmSlider.value = bpm;
+    bpmNumber.textContent = bpm;
+    tempoMarking.textContent = tempoWord(bpm);
+    updateSliderFill(bpmSlider);
+    if (!skipSave) queueSave();
+  }
+
+  bpmSlider.addEventListener('input', () => setBpm(parseInt(bpmSlider.value, 10)));
+  stepDown.addEventListener('click', () => { setBpm(bpm - 1); bumpBpmNumber(); });
+  stepUp.addEventListener('click', () => { setBpm(bpm + 1); bumpBpmNumber(); });
+
+  volumeSlider.addEventListener('input', () => {
+    volume = parseInt(volumeSlider.value, 10) / 100;
+    updateVolReadout();
+    updateSliderFill(volumeSlider);
+    queueSave();
+  });
+
+  timeSigSel.addEventListener('change', () => {
+    beatsPerMeasure = parseInt(timeSigSel.value, 10);
+    buildLeds();
+    currentStep = 0;
+    queueSave();
+  });
+
+  subdivSel.addEventListener('change', () => {
+    subdivision = parseInt(subdivSel.value, 10);
+    currentStep = 0;
+    queueSave();
+  });
+
+  soundSelect.addEventListener('change', () => {
+    currentSound = soundSelect.value;
+    queueSave();
+  });
+
+  // --- Tap tempo ---
+  let tapTimes = [];
+  tapBtn.addEventListener('click', () => {
+    const now = performance.now();
+    if (tapTimes.length && now - tapTimes[tapTimes.length - 1] > 2000) tapTimes = [];
+    tapTimes.push(now);
+    if (tapTimes.length > 5) tapTimes.shift();
+    if (tapTimes.length >= 2){
+      const intervals = [];
+      for (let i = 1; i < tapTimes.length; i++) intervals.push(tapTimes[i] - tapTimes[i-1]);
+      const avg = intervals.reduce((a,b) => a+b, 0) / intervals.length;
+      setBpm(60000 / avg);
+      bumpBpmNumber();
+    }
+    tapBtn.textContent = 'TAP TEMPO ●';
+    setTimeout(() => { tapBtn.textContent = 'TAP TEMPO'; }, 100);
+  });
+
+  // --- Audio click: 5 synthesized sound presets, no sample files needed ---
+  function getNoiseBuffer(){
+    if (noiseBuffer) return noiseBuffer;
+    const len = Math.floor(audioCtx.sampleRate * 0.3);
+    noiseBuffer = audioCtx.createBuffer(1, len, audioCtx.sampleRate);
+    const data = noiseBuffer.getChannelData(0);
+    for (let i = 0; i < len; i++) data[i] = Math.random() * 2 - 1;
+    return noiseBuffer;
+  }
+
+  function tierPeak(tier, a, m, s){
+    return volume * (tier === 'accent' ? a : tier === 'main' ? m : s);
+  }
+
+  function makeClick(time, tier){
+    const freq = { accent: 1600, main: 1000, sub: 720 }[tier];
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.type = 'square';
+    osc.frequency.value = freq;
+    const peak = tierPeak(tier, 0.9, 0.6, 0.32);
+    gain.gain.setValueAtTime(peak, time);
+    gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.045);
+    osc.start(time); osc.stop(time + 0.05);
+  }
+
+  function makeWoodblock(time, tier){
+    const freq = { accent: 1400, main: 1000, sub: 700 }[tier];
+    const src = audioCtx.createBufferSource();
+    src.buffer = getNoiseBuffer();
+    const bp = audioCtx.createBiquadFilter();
+    bp.type = 'bandpass'; bp.frequency.value = freq; bp.Q.value = 7;
+    const gain = audioCtx.createGain();
+    src.connect(bp); bp.connect(gain); gain.connect(audioCtx.destination);
+    const peak = tierPeak(tier, 0.95, 0.65, 0.35);
+    gain.gain.setValueAtTime(peak, time);
+    gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.035);
+    src.start(time); src.stop(time + 0.05);
+  }
+
+  function makeBeep(time, tier){
+    const freq = { accent: 1800, main: 1200, sub: 850 }[tier];
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    const peak = tierPeak(tier, 0.85, 0.55, 0.3);
+    gain.gain.setValueAtTime(0.0001, time);
+    gain.gain.exponentialRampToValueAtTime(peak, time + 0.006);
+    gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.09);
+    osc.start(time); osc.stop(time + 0.1);
+  }
+
+  function makeClave(time, tier){
+    const freqStart = { accent: 2200, main: 1700, sub: 1300 }[tier];
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(freqStart, time);
+    osc.frequency.exponentialRampToValueAtTime(freqStart * 0.55, time + 0.02);
+    const peak = tierPeak(tier, 0.9, 0.6, 0.32);
+    gain.gain.setValueAtTime(peak, time);
+    gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.04);
+    osc.start(time); osc.stop(time + 0.05);
+  }
+
+  function makeDigital(time, tier){
+    const freqStart = { accent: 900, main: 650, sub: 450 }[tier];
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(freqStart, time);
+    osc.frequency.exponentialRampToValueAtTime(freqStart * 2.2, time + 0.025);
+    const peak = tierPeak(tier, 0.8, 0.5, 0.28);
+    gain.gain.setValueAtTime(peak, time);
+    gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.03);
+    osc.start(time); osc.stop(time + 0.035);
+  }
+
+  const SOUND_MAKERS = {
+    click: makeClick,
+    wood: makeWoodblock,
+    beep: makeBeep,
+    clave: makeClave,
+    digital: makeDigital
+  };
+
+  function playClick(time, isAccent, isMainBeat){
+    const tier = isAccent ? 'accent' : (isMainBeat ? 'main' : 'sub');
+    (SOUND_MAKERS[currentSound] || makeClick)(time, tier);
+  }
+
+  function flash(el, activeClass, extraClass, add, durationMs){
+    el.classList.remove(activeClass, extraClass);
+    requestAnimationFrame(() => {
+      el.classList.add(activeClass);
+      if (add) el.classList.add(extraClass);
+      setTimeout(() => el.classList.remove(activeClass, extraClass), durationMs);
+    });
+  }
+
+  // Every step gets some visual feedback on the dial: a light "tick" flicker
+  // for subdivisions, a full pulse for main beats, magenta for the downbeat.
+  // LEDs only track main beats (they represent position within the measure).
+  function pulseVisual(beatIndex, isMainBeat, isAccent, stepDurationMs, beatDurationMs){
+    if (isMainBeat){
+      const dur = Math.min(200, beatDurationMs * 0.6);
+      flash(dialCore, 'beat', 'accent', isAccent, dur);
+      const leds = ledRow.children;
+      const led = leds[beatIndex];
+      if (led) flash(led, 'active', 'accent', isAccent, Math.min(240, beatDurationMs * 0.7));
+    } else {
+      const dur = Math.min(120, stepDurationMs * 0.7);
+      flash(dialCore, 'tick', null, false, dur);
+    }
+  }
+
+  function scheduleNote(step, time){
+    const isMainBeat = (step % subdivision) === 0;
+    const beatIndex = Math.floor(step / subdivision) % beatsPerMeasure;
+    const isAccent = isMainBeat && beatIndex === 0;
+
+    if (volume > 0) playClick(time, isAccent, isMainBeat);
+
+    const stepDurationMs = (60000 / bpm) / subdivision;
+    const beatDurationMs = stepDurationMs * subdivision;
+    const delay = Math.max(0, (time - audioCtx.currentTime) * 1000);
+    setTimeout(() => pulseVisual(beatIndex, isMainBeat, isAccent, stepDurationMs, beatDurationMs), delay);
+  }
+
+  function nextNote(){
+    const secondsPerStep = (60.0 / bpm) / subdivision;
+    nextNoteTime += secondsPerStep;
+    currentStep = (currentStep + 1) % (beatsPerMeasure * subdivision);
+  }
+
+  function scheduler(){
+    while (nextNoteTime < audioCtx.currentTime + scheduleAheadTime){
+      scheduleNote(currentStep, nextNoteTime);
+      nextNote();
+    }
+    timerID = setTimeout(scheduler, lookahead);
+  }
+
+  function animateRing(){
+    if (!isPlaying || !audioCtx) return;
+    const secondsPerBeat = 60.0 / bpm;
+    const measureDur = secondsPerBeat * beatsPerMeasure;
+    const elapsed = audioCtx.currentTime % measureDur;
+    const offset = RING_CIRCUMFERENCE * (1 - elapsed / measureDur);
+    ringFill.style.strokeDashoffset = offset;
+    ringAnimId = requestAnimationFrame(animateRing);
+  }
+
+  function togglePlay(){
+    isPlaying = !isPlaying;
+    if (isPlaying){
+      if (!audioCtx){
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+
+      // Best-effort iOS mute-switch workaround: playing a silent looping
+      // <audio> element can nudge Safari into the "playback" audio session
+      // category instead of "ambient", which the hardware mute switch
+      // silences. Behavior varies by iOS version and isn't guaranteed.
+      if (silentUnlock){
+        silentUnlock.play().catch(() => {});
+      }
+
+      currentStep = 0;
+      nextNoteTime = audioCtx.currentTime + 0.05;
+      scheduler();
+      animateRing();
+      playBtn.textContent = '■ STOP';
+      playBtn.classList.add('playing');
+      playBtn.setAttribute('aria-label', 'Stop metronome');
+      liveBadge.classList.add('on');
+    } else {
+      clearTimeout(timerID);
+      cancelAnimationFrame(ringAnimId);
+      if (silentUnlock) silentUnlock.pause();
+      playBtn.textContent = '▶ PLAY';
+      playBtn.classList.remove('playing');
+      playBtn.setAttribute('aria-label', 'Start metronome');
+      liveBadge.classList.remove('on');
+      dialCore.classList.remove('beat', 'accent', 'tick');
+      ringFill.style.strokeDashoffset = RING_CIRCUMFERENCE;
+      const leds = ledRow.children;
+      for (let i = 0; i < leds.length; i++) leds[i].classList.remove('active', 'accent');
+    }
+  }
+
+  playBtn.addEventListener('click', togglePlay);
+
+  // Tapping the dim backdrop (outside the card) closes whichever overlay is open
+  [settingsPanel, supportPanel, feedbackPanel].forEach((panel) => {
+    panel.addEventListener('click', (e) => {
+      if (e.target !== panel) return;
+      panel.classList.remove('open');
+      if (panel === settingsPanel){
+        settingsBtn.classList.remove('active');
+        settingsBtn.setAttribute('aria-expanded', 'false');
+      } else if (panel === feedbackPanel){
+        feedbackBtn.classList.remove('active');
+        feedbackBtn.setAttribute('aria-expanded', 'false');
+      } else if (panel === supportPanel){
+        supportBtn.classList.remove('active');
+        supportBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+  });
+
+  document.addEventListener('keydown', (e) => {
+    const tag = document.activeElement.tagName;
+    const isFormControl = tag === 'SELECT' || tag === 'INPUT' || tag === 'BUTTON' || tag === 'A';
+    if (e.code === 'Space' && !isFormControl){
+      e.preventDefault();
+      togglePlay();
+    }
+  });
+
+  // --- Init: restore saved settings, then fall back to defaults ---
+  (async function init(){
+    buildThemeSwatches();
+    const saved = await loadSettings();
+    if (saved){
+      beatsPerMeasure = saved.beatsPerMeasure || 4;
+      subdivision = saved.subdivision || 1;
+      volume = (typeof saved.volume === 'number') ? saved.volume : 0.7;
+      currentSound = saved.sound || 'click';
+      timeSigSel.value = String(beatsPerMeasure);
+      subdivSel.value = String(subdivision);
+      soundSelect.value = currentSound;
+      volumeSlider.value = Math.round(volume * 100);
+      setBpm(saved.bpm || 120, true);
+      applyTheme(saved.theme || 'savior', true);
+    } else {
+      setBpm(120, true);
+      applyTheme('savior', true);
+    }
+    updateSliderFill(volumeSlider);
+    updateVolReadout();
+    buildLeds();
+  })();
+})();
+</script>
+</body>
+</html>
