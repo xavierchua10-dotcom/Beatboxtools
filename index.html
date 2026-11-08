@@ -13,7 +13,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-<link rel="stylesheet" href="fonts.css?v=20261108e">
+<link rel="stylesheet" href="fonts.css?v=20261108f">
 <style>
   :root{
     color-scheme:dark;
@@ -77,16 +77,18 @@
   @keyframes blink{50%{opacity:.35}}
 
   /* tools: full-screen layer with X and a title bar */
-  .ov{position:fixed;inset:0;z-index:20;background:var(--bg);display:flex;flex-direction:column;visibility:hidden;opacity:0;transition:opacity .18s ease,visibility 0s .18s}
-  .ov.open{visibility:visible;opacity:1;transition:opacity .18s ease}
+  .ov{position:fixed;inset:0;z-index:20;background:var(--bg);display:flex;flex-direction:column;visibility:hidden;opacity:0;transform:translateY(22px);transition:opacity .2s ease,transform .24s cubic-bezier(.2,.8,.2,1),visibility 0s .24s}
+  .ov.open{visibility:visible;opacity:1;transform:none;transition:opacity .2s ease,transform .24s cubic-bezier(.2,.8,.2,1)}
   .ov-bar{flex:none;display:flex;align-items:center;padding:calc(6px + var(--safe-top)) 14px 6px;border-bottom:1px solid var(--line);min-height:50px}
-  .ov-bar h2{flex:1;margin:0;padding-right:32px;text-align:center;font:700 18px var(--f-head);letter-spacing:.1em;text-transform:uppercase}
+  .ov-bar h2{flex:1;margin:0;text-align:center;font:700 18px var(--f-head);letter-spacing:.1em;text-transform:uppercase}
   .ov-bar h2 span{color:var(--accent)}
   .ov-body{flex:1;min-height:0;position:relative}
   .pane{position:absolute;inset:0;width:100%;height:100%;border:0;background:var(--bg);visibility:hidden;overflow:auto}
   .pane.on{visibility:visible}
   .ov:not(.open){pointer-events:none}
   .ov:not(.open) .pane{visibility:hidden}
+  .ov-bar .top-btn.gone{visibility:hidden}
+  .tools .hint{margin:18px 4px 0;color:var(--text-faint);font-size:12px;line-height:1.5;text-align:center}
   .tools{padding:16px;max-width:480px;margin:0 auto}
   .tools .sl{display:block;margin:6px 0 10px;font:500 12px var(--f-head);letter-spacing:.12em;text-transform:uppercase;color:var(--text-faint)}
   .tools .sl.gap{margin-top:20px}
@@ -122,10 +124,10 @@
   </header>
 
   <main class="stage" id="stage">
-    <iframe id="v-voice" class="view" src="voice.html?v=20261108e" title="Voice note recorder" role="tabpanel" allow="autoplay; screen-wake-lock; microphone"></iframe>
-    <iframe id="v-history" class="view" src="history.html?v=20261108e" title="Voice note history" role="tabpanel" allow="autoplay"></iframe>
-    <iframe id="v-routine" class="view" src="routine.html?v=20261108e" title="Routine builder" role="tabpanel" allow="autoplay; screen-wake-lock"></iframe>
-    <iframe id="v-settings" class="view" src="settings.html?v=20261108e" title="Settings" role="tabpanel"></iframe>
+    <iframe id="v-voice" class="view" src="voice.html?v=20261108f" title="Voice note recorder" role="tabpanel" allow="autoplay; screen-wake-lock; microphone"></iframe>
+    <iframe id="v-history" class="view" src="history.html?v=20261108f" title="Voice note history" role="tabpanel" allow="autoplay"></iframe>
+    <iframe id="v-routine" class="view" src="routine.html?v=20261108f" title="Routine builder" role="tabpanel" allow="autoplay; screen-wake-lock"></iframe>
+    <iframe id="v-settings" class="view" src="settings.html?v=20261108f" title="Settings" role="tabpanel"></iframe>
   </main>
 
   <nav aria-label="Beatbox tools" id="tabnav">
@@ -157,6 +159,9 @@
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.4 5 12 10.6 17.6 5 19 6.4 13.4 12l5.6 5.6-1.4 1.4-5.6-5.6L6.4 19 5 17.6 10.6 12 5 6.4z"/></svg>
       </button>
       <h2 id="ovTitle">More <span>tools</span></h2>
+      <button class="top-btn gone" id="ovList" type="button" aria-label="All tools">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6.5v6.5H4zM13.5 4H20v6.5h-6.5zM4 13.5h6.5V20H4zM13.5 13.5H20V20h-6.5z"/></svg>
+      </button>
     </div>
     <div class="ov-body">
       <div class="pane tools on" id="p-list">
@@ -171,9 +176,10 @@
           <div><b>Battle round</b><small>60 / 120 / 150 / 200 sec with buzzer</small></div>
           <span class="run">Running</span><span class="go" aria-hidden="true">›</span>
         </button>
+        <p class="hint">They keep running when you close this, so you can record or rehearse over the metronome. The gold dot on the grid button tells you something is still going.</p>
       </div>
-      <iframe id="v-metronome" class="pane" src="metronome.html?v=20261108e" title="Metronome" allow="autoplay; screen-wake-lock"></iframe>
-      <iframe id="v-battle" class="pane" src="battle.html?v=20261108e" title="Battle round timer" allow="autoplay; screen-wake-lock"></iframe>
+      <iframe id="v-metronome" class="pane" src="metronome.html?v=20261108f" title="Metronome" allow="autoplay; screen-wake-lock"></iframe>
+      <iframe id="v-battle" class="pane" src="battle.html?v=20261108f" title="Battle round timer" allow="autoplay; screen-wake-lock"></iframe>
     </div>
   </section>
 
@@ -192,7 +198,8 @@
   var stage = document.getElementById('stage');
   var tabnav = document.getElementById('tabnav');
   var current = IDS[0];
-  var openPane = null;
+  var openPane = null, pushed = false;
+  var listBtn = document.getElementById('ovList');
 
   function stored() { try { return localStorage.getItem(KEY); } catch (e) { return null; } }
   function remember(id) { try { localStorage.setItem(KEY, id); } catch (e) {} }
@@ -221,7 +228,8 @@
   }
 
   /* tools layer: pane is 'list', 'metronome' or 'battle'; null closes it */
-  function openTools(pane) {
+  function openTools(pane, push) {
+    var wasOpen = !!openPane;
     openPane = pane || 'list';
     ['list'].concat(TOOLS).forEach(function (p) {
       var el = document.getElementById(p === 'list' ? 'p-list' : 'v-' + p);
@@ -235,12 +243,18 @@
     toolsBtn.setAttribute('aria-expanded', 'true');
     stage.setAttribute('inert', ''); tabnav.setAttribute('inert', '');
     if (TOOLS.indexOf(openPane) > -1) show(document.getElementById('v-' + openPane).contentWindow);
-    try { history.replaceState(null, '', '#' + (openPane === 'list' ? 'tools' : openPane)); } catch (e) {}
-    closeBtn.focus({ preventScroll: true });
+    listBtn.classList.toggle('gone', openPane === 'list');
+    var hash = '#' + (openPane === 'list' ? 'tools' : openPane);
+    /* opening from a tap adds one history entry, so the phone's Back button closes the layer */
+    try {
+      if (push && !wasOpen) { history.pushState(null, '', hash); pushed = true; }
+      else history.replaceState(null, '', hash);
+    } catch (e) {}
+    if (!wasOpen) closeBtn.focus({ preventScroll: true });
   }
   function closeTools() {
     if (!openPane) return;
-    openPane = null;
+    openPane = null; pushed = false;
     ov.classList.remove('open');
     ov.setAttribute('aria-hidden', 'true');
     toolsBtn.setAttribute('aria-expanded', 'false');
@@ -258,9 +272,15 @@
     else { if (openPane) closeTools(); select(h); }
   }
 
-  toolsBtn.addEventListener('click', function () { openTools('list'); });
-  closeBtn.addEventListener('click', closeTools);
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeTools(); });
+  function requestClose() {
+    if (!openPane) return;
+    if (pushed) { pushed = false; try { history.back(); return; } catch (e) {} }
+    closeTools();
+  }
+  toolsBtn.addEventListener('click', function () { openTools('list', true); });
+  closeBtn.addEventListener('click', requestClose);
+  listBtn.addEventListener('click', function () { openTools('list'); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') requestClose(); });
   Array.prototype.forEach.call(document.querySelectorAll('[data-open]'), function (b) {
     b.addEventListener('click', function () { openTools(b.getAttribute('data-open')); });
   });

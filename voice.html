@@ -6,8 +6,8 @@
 <title>Voice note by Savior</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="fonts.css?v=20261108e">
-<link rel="stylesheet" href="theme.css?v=20261108e">
+<link rel="stylesheet" href="fonts.css?v=20261108f">
+<link rel="stylesheet" href="theme.css?v=20261108f">
 <style>
   .app{display:flex;flex-direction:column;align-items:center}
   .status{min-height:22px;margin:0 0 6px;text-align:center;color:var(--text-dim);font-size:14px}
@@ -43,9 +43,10 @@
   .toggle small{display:block;margin-top:3px;color:var(--text-dim);font-size:12px;line-height:1.45}
   .saved{width:100%;margin-top:18px;padding:14px;background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--success);border-radius:14px}
   .saved[hidden]{display:none}
-  .saved p{margin:0 0 12px;font-size:14px;line-height:1.4}
-  .saved .nm{font-weight:600;overflow-wrap:anywhere}
-  .saved .sub{color:var(--text-dim);font:400 12px var(--f-mono);margin-top:2px}
+  .saved .lab{display:block;margin:0 0 8px;color:var(--text-faint);font:500 12px var(--f-head);letter-spacing:.12em;text-transform:uppercase}
+  .saved input{font:600 16px var(--f-body);margin:0}
+  .saved .sub{color:var(--text-dim);font:400 12px var(--f-mono);margin:8px 0 12px;min-height:16px}
+  .saved .sub.ok{color:var(--success)}
   .saved .row{display:flex;gap:8px;flex-wrap:wrap}
   .saved .btn.primary{font-size:13px}
 </style>
@@ -53,7 +54,6 @@
 <body>
 <main class="app">
   <h1 class="page-title">Voice <span>note</span></h1>
-  <p class="page-tag">by savior</p>
 
   <p id="status" class="status" role="status" aria-live="polite">Tap the mic to record</p>
   <div id="time" class="time">0:00.0</div>
@@ -66,7 +66,9 @@
   <button id="cancel" class="btn" type="button" hidden>Cancel and discard</button>
 
   <div id="saved" class="saved" hidden>
-    <p><span class="nm" id="savedName"></span><span class="sub" id="savedSub" style="display:block"></span></p>
+    <label class="lab" for="savedName">Name this note</label>
+    <input id="savedName" type="text" maxlength="60" autocomplete="off" enterkeyhint="done" spellcheck="false">
+    <div class="sub" id="savedSub"></div>
     <div class="row">
       <button id="openHist" class="btn primary" type="button">Open history</button>
       <button id="dlSaved" class="btn" type="button" hidden>Download</button>
@@ -294,10 +296,36 @@
     });
   }
 
-  var lastBlob = null, lastMeta = null;
+  var lastBlob = null, lastMeta = null, savedInfo = '';
+  function setSub(t, ok) { var e = $('#savedSub'); e.textContent = t; e.classList.toggle('ok', !!ok); }
+  /* rename the note that was just saved; resolves once it is stored */
+  function commitName() {
+    var inp = $('#savedName'), m = lastMeta;
+    if (!m) return Promise.resolve();
+    var v = inp.value.trim().slice(0, 60);
+    if (!v) { inp.value = m.name; return Promise.resolve(); }
+    if (v === m.name) return Promise.resolve();
+    m.name = v; inp.value = v;
+    if (lastBlob) return Promise.resolve();   /* not stored: the name is only used for the download */
+    return openDB().then(function (db) {
+      return new Promise(function (res, rej) {
+        var tx = db.transaction('meta', 'readwrite');
+        tx.objectStore('meta').put(m);
+        tx.oncomplete = function () { db.close(); res(); };
+        tx.onerror = tx.onabort = function () { db.close(); rej(tx.error); };
+      });
+    }).then(function () {
+      tell({ type: 'saved' });
+      setSub(savedInfo + ' · Name saved', true);
+    }, function () { setSub('Could not rename that note.', false); });
+  }
+  $('#savedName').addEventListener('focus', function () { var i = this; setTimeout(function () { try { i.select(); } catch (e) {} }, 0); });
+  $('#savedName').addEventListener('change', commitName);
+  $('#savedName').addEventListener('keydown', function (e) { if (e.key === 'Enter') this.blur(); });
   function showSaved(meta, failedBlob) {
-    $('#savedName').textContent = meta.name;
-    $('#savedSub').textContent = fmt(meta.duration) + ' · ' + Math.max(1, Math.round(meta.size / 1024)) + ' KB';
+    $('#savedName').value = meta.name;
+    savedInfo = fmt(meta.duration) + ' · ' + Math.max(1, Math.round(meta.size / 1024)) + ' KB';
+    setSub(savedInfo, false);
     $('#openHist').hidden = !inFrame || !!failedBlob;
     $('#dlSaved').hidden = !failedBlob;
     lastBlob = failedBlob; lastMeta = meta;
@@ -311,11 +339,11 @@
   $('#cancel').addEventListener('click', function () {
     if (st.rec && st.rec.state !== 'inactive') { st.discard = true; st.rec.stop(); }
   });
-  $('#openHist').addEventListener('click', function () { tell({ type: 'goto', tab: 'history' }); });
+  $('#openHist').addEventListener('click', function () { commitName().then(function () { tell({ type: 'goto', tab: 'history' }); }); });
   $('#dlSaved').addEventListener('click', function () {
     if (!lastBlob) return;
     var a = document.createElement('a'), url = URL.createObjectURL(lastBlob);
-    a.href = url; a.download = 'voice-note.' + extOf(lastMeta.mime || '');
+    a.href = url; a.download = ((lastMeta.name || 'voice-note').replace(/[^a-z0-9 _.-]+/gi, '').trim().replace(/\s+/g, '-').slice(0, 60) || 'voice-note') + '.' + extOf(lastMeta.mime || '');
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
   });

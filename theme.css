@@ -19,7 +19,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .app{max-width:480px;margin:0 auto;padding:18px 16px 32px}
 
 /* page heading, same on every tab */
-.page-title{margin:2px 0 0;text-align:center;font:700 22px/1.15 var(--f-head);letter-spacing:.08em;text-transform:uppercase;color:var(--text)}
+.page-title{margin:2px 0 16px;text-align:center;font:700 22px/1.15 var(--f-head);letter-spacing:.08em;text-transform:uppercase;color:var(--text)}
 .page-title span{color:var(--accent)}
 .page-tag{margin:2px 0 18px;text-align:center;color:var(--text-faint);font:400 11px var(--f-mono);letter-spacing:.2em;text-transform:lowercase}
 
