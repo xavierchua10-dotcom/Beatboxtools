@@ -64,5 +64,7 @@ body{background-image:none}
 
 /* support / help / feedback buttons are removed from the tabs for now */
 .support-btn,.feedback-btn,#supportPanel,#feedbackPanel{display:none !important}
-.title-block{margin-top:6px !important}
+/* the tools layer already shows the title in its own bar */
+.title-block,.titleblock{display:none !important}
+.app{padding-top:20px !important}
 body header{display:none !important}
