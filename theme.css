@@ -1,0 +1,66 @@
+/* Shared look for Beatboxtools. Same palette, fonts and components as the SaviorFit Logger. */
+:root{
+  color-scheme:dark;
+  --bg:#14161a; --panel:#1c1f24; --panel-2:#242830; --panel-3:#2a2f38; --line:#2e333b;
+  --text:#e9e6df; --text-dim:#8b9098; --text-faint:#82878f;
+  --accent:#f2b134; --accent-dim:#7a6224; --accent-rgb:242,177,52; --on-accent:#1c1500;
+  --accent-2:#c1443c; --accent-2-dim:#4a2321; --success:#5fb86a;
+  --f-head:'Oswald','Arial Narrow',system-ui,sans-serif;
+  --f-body:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --f-mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg)}
+body{min-height:100vh;min-height:100dvh;font-family:var(--f-body);color:var(--text);-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font-family:inherit}
+button{touch-action:manipulation;-webkit-user-select:none;user-select:none;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.app{max-width:480px;margin:0 auto;padding:18px 16px 32px}
+
+/* page heading, same on every tab */
+.page-title{margin:2px 0 0;text-align:center;font:700 22px/1.15 var(--f-head);letter-spacing:.08em;text-transform:uppercase;color:var(--text)}
+.page-title span{color:var(--accent)}
+.page-tag{margin:2px 0 18px;text-align:center;color:var(--text-faint);font:400 11px var(--f-mono);letter-spacing:.2em;text-transform:lowercase}
+
+.section-label{display:block;margin:20px 0 8px;font:500 12px var(--f-head);letter-spacing:.12em;text-transform:uppercase;color:var(--text-faint)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px}
+
+/* buttons */
+.btn{
+  border:1px solid var(--line);background:var(--panel-2);color:var(--text);border-radius:10px;
+  font:600 13px var(--f-head);letter-spacing:.06em;text-transform:uppercase;padding:11px 16px;min-height:44px;
+  transition:background .15s,border-color .15s,color .15s,transform .1s;
+}
+.btn:active{transform:scale(.98)}
+.btn[hidden]{display:none}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:700;font-size:15px}
+.btn.primary:disabled{background:var(--panel-3);border-color:var(--panel-3);color:var(--text-faint)}
+.btn.danger,.btn.armed{background:transparent;border-color:var(--accent-2-dim);color:var(--accent-2)}
+.btn.armed{background:var(--accent-2);border-color:var(--accent-2);color:#fff}
+
+/* chips */
+.chip{
+  border:1px solid var(--line);background:transparent;color:var(--text-dim);border-radius:8px;
+  padding:6px 12px;min-height:34px;font:600 11px var(--f-mono);letter-spacing:.08em;
+  transition:border-color .15s,color .15s,background .15s;
+}
+.chip.on{border-color:var(--accent);color:var(--accent);background:rgba(var(--accent-rgb),.1)}
+
+/* inputs */
+input[type=text],input[type=number],select,textarea{
+  width:100%;background:var(--panel-3);border:1px solid var(--line);border-radius:10px;color:var(--text);
+  font:500 16px var(--f-mono);padding:10px 12px;outline:none;min-height:42px;
+}
+input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+
+/* small square icon button */
+.ib{
+  width:38px;height:38px;border-radius:8px;border:1px solid var(--line);background:var(--panel-2);color:var(--text-dim);
+  display:grid;place-items:center;padding:0;transition:color .15s,border-color .15s,background .15s;
+}
+.ib:hover{color:var(--text)}
+.ib svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ib.armed{background:var(--accent-2);border-color:var(--accent-2);color:#fff}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}

@@ -14,4 +14,4 @@ Voice notes are stored in the browser's IndexedDB on the device. They never leav
 
 Open a tab directly with `#voice`, `#history`, `#metronome`, `#battle` or `#routine` on the end of the link.
 
-The metronome and battle files come from the former `savior-audio` and `Saviortimer` repos and are unchanged copies of the originals.
+The look matches the SaviorFit Logger: near-black background, gold accent, Oswald headings, Inter body, JetBrains Mono numbers (fonts are self-hosted in `fonts/`). `theme.css` styles Record, History and Routine. `legacy.css` re-skins the metronome and battle pages, which come from the former `savior-audio` and `Saviortimer` repos and are otherwise unchanged (the metronome's colour-theme picker is hidden, since the colours are now fixed).

@@ -6,89 +6,45 @@
 <title>Voice history by Savior</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="fonts.css">
+<link rel="stylesheet" href="theme.css">
 <style>
-  :root{
-    color-scheme:dark;
-    --bg:#09070d; --panel:#131019; --field:#0f0c15; --edge:#201a2c;
-    --purple:#9163f9; --purple-2:#5b21b6; --magenta:#ff2e88;
-    --text:#f4f2f8; --dim:#8d8998; --faint:#57515f;
-    --glow1:rgba(145,99,249,.16); --glow2:rgba(255,46,136,.06);
+  .sum{margin:0 0 14px;text-align:center;color:var(--text-dim);font:400 12px var(--f-mono);min-height:16px}
+  .note{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 12px 10px;margin-bottom:10px;transition:border-color .15s}
+  .note.active{border-color:var(--accent)}
+  .note .nm{
+    width:100%;background:transparent;border:1px solid transparent;border-radius:8px;color:var(--text);
+    font:600 16px var(--f-body);padding:6px 8px;margin:0 0 0 -8px;outline:none;min-height:0;
   }
-  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  html,body{margin:0;background:var(--bg)}
-  body{
-    min-height:100vh;min-height:100dvh;
-    font-family:Inter,system-ui,-apple-system,'Segoe UI',sans-serif;color:var(--text);
-    background:
-      radial-gradient(ellipse 700px 500px at 50% -10%,var(--glow1),transparent 60%),
-      radial-gradient(ellipse 500px 400px at 100% 100%,var(--glow2),transparent 60%),
-      var(--bg);
-  }
-  button,input{font-family:inherit}
-  button{touch-action:manipulation;-webkit-user-select:none;user-select:none;cursor:pointer}
-  .app{max-width:480px;margin:0 auto;padding:22px 16px 32px}
-  h1{
-    margin:6px 0 0;text-align:center;text-transform:uppercase;letter-spacing:.04em;
-    font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:28px;
-    background:linear-gradient(90deg,var(--purple),var(--magenta));
-    -webkit-background-clip:text;background-clip:text;color:transparent;
-  }
-  .by{margin:2px 0 6px;text-align:center;color:var(--faint);font:400 12px 'JetBrains Mono',monospace;letter-spacing:.2em}
-  .sum{margin:0 0 16px;text-align:center;color:var(--dim);font:400 12px 'JetBrains Mono',monospace;min-height:16px}
-  .note{background:var(--panel);border:1px solid var(--edge);border-radius:16px;padding:12px 12px 10px;margin-bottom:10px}
-  .note.active{border-color:var(--purple)}
-  .nm{
-    width:100%;background:transparent;border:1px solid transparent;border-radius:10px;color:var(--text);
-    font-size:16px;font-weight:600;padding:6px 8px;margin:0 0 0 -8px;outline:none;
-  }
-  .nm:focus{background:var(--field);border-color:var(--purple)}
-  .meta{display:flex;gap:10px;color:var(--dim);font:400 12px 'JetBrains Mono',monospace;margin:0 0 10px}
+  .note .nm:focus{background:var(--panel-3);border-color:var(--accent)}
+  .meta{display:flex;gap:10px;color:var(--text-dim);font:400 12px var(--f-mono);margin:0 0 10px}
   .prow{display:flex;align-items:center;gap:10px}
-  .pbtn{
-    flex:none;width:44px;height:44px;border-radius:50%;border:0;color:#fff;display:grid;place-items:center;
-    background:linear-gradient(135deg,var(--purple),var(--purple-2));padding:0;
-  }
+  .pbtn{flex:none;width:44px;height:44px;border-radius:50%;border:0;color:var(--on-accent);display:grid;place-items:center;background:var(--accent);padding:0}
   .pbtn svg{width:22px;height:22px;fill:currentColor;stroke:none}
   .pbtn .i-pause{display:none}
   .note.playing .pbtn .i-play{display:none}
   .note.playing .pbtn .i-pause{display:block}
-  .note.playing .pbtn{background:linear-gradient(135deg,var(--magenta),#c4125f)}
   .wv{display:flex;align-items:center;gap:2px;height:40px;flex:1;min-width:0;cursor:pointer;touch-action:manipulation}
-  .wv i{display:block;flex:1;min-width:2px;border-radius:2px;background:#3a3150}
-  .wv i.on{background:linear-gradient(180deg,var(--magenta),var(--purple))}
-  .clock{flex:none;min-width:78px;text-align:right;color:var(--dim);font:400 12px 'JetBrains Mono',monospace}
+  .wv i{display:block;flex:1;min-width:2px;border-radius:2px;background:var(--panel-3)}
+  .wv i.on{background:linear-gradient(180deg,var(--accent),#b8841f)}
+  .clock{flex:none;min-width:78px;text-align:right;color:var(--text-dim);font:400 12px var(--f-mono)}
   .acts{display:flex;align-items:center;gap:6px;margin-top:8px}
   .acts .grow{flex:1}
-  .chip{
-    border:1px solid var(--edge);background:var(--field);color:var(--dim);border-radius:999px;
-    padding:0 12px;min-height:36px;font:500 13px 'JetBrains Mono',monospace;
-  }
-  .chip.on{border-color:var(--purple);color:var(--text)}
-  .ib{
-    width:38px;height:38px;border-radius:12px;border:1px solid var(--edge);background:#1a1523;color:var(--text);
-    display:grid;place-items:center;padding:0;
-  }
-  .ib svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-  .ib.armed{background:var(--magenta);border-color:var(--magenta)}
-  .empty{text-align:center;color:var(--dim);padding:34px 12px}
+  .chip{min-height:36px;padding:0 12px;font-size:12px}
+  .empty{text-align:center;color:var(--text-dim);padding:34px 12px}
   .empty p{margin:0 0 14px;font-size:14px;line-height:1.5}
-  .btn{
-    border:1px solid var(--edge);background:linear-gradient(135deg,var(--purple),var(--purple-2));color:#fff;
-    border-radius:12px;font-size:14px;font-weight:600;padding:11px 18px;min-height:44px;border-color:transparent;
-  }
-  .btn[hidden]{display:none}
-  .err{color:var(--magenta);text-align:center;font-size:14px;padding:20px 8px}
+  .err{color:var(--accent-2);text-align:center;font-size:14px;padding:20px 8px}
 </style>
 </head>
 <body>
 <main class="app">
-  <h1>History</h1>
-  <p class="by">voice notes</p>
+  <h1 class="page-title">Voice <span>history</span></h1>
+  <p class="page-tag">voice notes</p>
   <p id="sum" class="sum"></p>
   <div id="list"></div>
   <div id="empty" class="empty" hidden>
     <p>No voice notes yet. Record one and it shows up here.</p>
-    <button id="goRec" class="btn" type="button">Record a note</button>
+    <button id="goRec" class="btn primary" type="button">Record a note</button>
   </div>
   <p id="err" class="err" hidden></p>
 </main>

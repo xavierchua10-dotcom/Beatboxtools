@@ -6,112 +6,69 @@
 <title>Routine builder by Savior</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="fonts.css">
+<link rel="stylesheet" href="theme.css">
 <style>
-  :root{
-    color-scheme:dark;
-    --bg:#09070d; --panel:#131019; --field:#0f0c15; --edge:#201a2c;
-    --purple:#9163f9; --purple-2:#5b21b6; --magenta:#ff2e88;
-    --text:#f4f2f8; --dim:#8d8998; --faint:#57515f;
-    --glow1:rgba(145,99,249,.16); --glow2:rgba(255,46,136,.06);
-  }
-  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  html,body{margin:0;background:var(--bg)}
-  body{
-    min-height:100vh;min-height:100dvh;
-    font-family:Inter,system-ui,-apple-system,'Segoe UI',sans-serif;color:var(--text);
-    background:
-      radial-gradient(ellipse 700px 500px at 50% -10%,var(--glow1),transparent 60%),
-      radial-gradient(ellipse 500px 400px at 100% 100%,var(--glow2),transparent 60%),
-      var(--bg);
-  }
-  button,select,input,textarea{font-family:inherit}
-  button{touch-action:manipulation;-webkit-user-select:none;user-select:none;cursor:pointer}
-  .app{max-width:480px;margin:0 auto;padding:22px 16px 32px}
-  h1{
-    margin:6px 0 0;text-align:center;text-transform:uppercase;letter-spacing:.04em;
-    font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:28px;
-    background:linear-gradient(90deg,var(--purple),var(--magenta));
-    -webkit-background-clip:text;background-clip:text;color:transparent;
-  }
-  .by{margin:2px 0 18px;text-align:center;color:var(--faint);font:400 12px 'JetBrains Mono',monospace;letter-spacing:.2em}
-  .card{background:var(--panel);border:1px solid var(--edge);border-radius:18px;padding:14px;margin-bottom:12px}
-  .lab{display:block;margin:0 0 8px;color:var(--dim);font:500 11px 'JetBrains Mono',monospace;letter-spacing:.14em;text-transform:uppercase}
+  .card{margin-bottom:12px}
+  .lab{display:block;margin:0 0 8px;color:var(--text-faint);font:500 12px var(--f-head);letter-spacing:.12em;text-transform:uppercase}
   .row{display:flex;align-items:center;gap:8px}
   .row.wrap{flex-wrap:wrap}
-  input[type=text],input[type=number],select,textarea{
-    width:100%;background:var(--field);border:1px solid var(--edge);border-radius:12px;color:var(--text);
-    font-size:16px;padding:11px 13px;outline:none;
-  }
-  input:focus,select:focus,textarea:focus{border-color:var(--purple)}
   input[type=number]{-moz-appearance:textfield;appearance:textfield}
   input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
-  textarea{resize:none;font-size:14px;line-height:1.4}
-  #rname{margin-top:8px}
-  .btn{
-    border:1px solid var(--edge);background:#1a1523;color:var(--text);border-radius:12px;
-    font-size:14px;font-weight:600;padding:11px 14px;min-height:44px;
-  }
-  .btn.sm{min-height:42px;padding:9px 12px;font-size:13px;flex:none}
-  .btn.primary{background:linear-gradient(135deg,var(--purple),var(--purple-2));border-color:transparent}
+  textarea{resize:none;font:400 14px/1.4 var(--f-body)}
+  select{font:500 14px var(--f-mono)}
+  #rname{margin-top:8px;font-family:var(--f-body);font-weight:600}
+  .btn.sm{min-height:42px;padding:9px 12px;font-size:12px;flex:none}
   .btn.wide{width:100%}
-  .btn.armed{background:var(--magenta);border-color:var(--magenta);color:#fff}
-  .chip{
-    border:1px solid var(--edge);background:var(--field);color:var(--dim);border-radius:999px;
-    padding:8px 14px;font-size:13px;font-weight:500;min-height:36px;
-  }
-  .chip.on{border-color:var(--purple);color:var(--text);background:rgba(145,99,249,.18)}
   details.tpl{margin-top:10px}
-  details.tpl summary{color:var(--purple);font-size:13px;font-weight:600;cursor:pointer;padding:6px 0}
+  details.tpl summary{color:var(--accent);font:600 12px var(--f-head);letter-spacing:.08em;text-transform:uppercase;cursor:pointer;padding:6px 0}
   details.tpl .row{margin-top:6px}
   .meter{margin-top:14px}
-  .bar{height:8px;background:var(--field);border-radius:99px;overflow:hidden;border:1px solid var(--edge)}
-  .bar>div{height:100%;width:0;background:linear-gradient(90deg,var(--purple),var(--magenta));border-radius:99px;transition:width 160ms ease}
-  .meter.over .bar>div{background:var(--magenta)}
-  #meterText{margin-top:8px;color:var(--dim);font:500 13px 'JetBrains Mono',monospace}
-  .meter.over #meterText{color:var(--magenta)}
-  .sec{background:var(--panel);border:1px solid var(--edge);border-radius:16px;padding:12px;margin-bottom:10px}
+  .bar{height:10px;background:var(--panel-3);border-radius:6px;overflow:hidden}
+  .bar>div{height:100%;width:0;background:linear-gradient(90deg,#b8841f,var(--accent));border-radius:6px;transition:width 160ms ease}
+  .meter.over .bar>div{background:var(--accent-2)}
+  #meterText{margin-top:8px;color:var(--text-dim);font:500 13px var(--f-mono)}
+  .meter.over #meterText{color:var(--accent-2)}
+  .sec{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px}
   .sec-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
-  .idx{
-    flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;
-    background:linear-gradient(135deg,var(--purple),var(--magenta));font:600 12px 'JetBrains Mono',monospace;
-  }
-  .range{flex:none;color:var(--dim);font:400 12px 'JetBrains Mono',monospace}
+  .idx{flex:none;width:26px;height:26px;border-radius:8px;display:grid;place-items:center;background:rgba(var(--accent-rgb),.12);border:1px solid var(--accent-dim);color:var(--accent);font:700 12px var(--f-mono)}
+  .range{flex:none;color:var(--text-dim);font:400 12px var(--f-mono)}
   .sec-body{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
   .stepper{display:flex;align-items:center;gap:4px}
   .stepper button,.acts button{
-    flex:none;width:38px;height:38px;border-radius:12px;border:1px solid var(--edge);background:#1a1523;color:var(--text);
+    flex:none;width:38px;height:38px;border-radius:8px;border:1px solid var(--line);background:var(--panel-2);color:var(--text);
     display:grid;place-items:center;font-size:20px;line-height:1;padding:0;
   }
-  .stepper input{width:56px;text-align:center;font:500 16px 'JetBrains Mono',monospace;padding:9px 2px}
-  .stepper span{color:var(--dim);font-size:13px;padding:0 2px}
+  .stepper input{width:56px;text-align:center;font:600 16px var(--f-mono);padding:9px 2px}
+  .stepper span{color:var(--text-dim);font-size:13px;padding:0 2px}
   .acts{display:flex;gap:4px;margin-left:auto}
-  .acts button{width:34px;height:34px}
+  .acts button{width:34px;height:34px;color:var(--text-dim)}
   .acts svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-  .acts button.armed{background:var(--magenta);border-color:var(--magenta)}
-  .empty{color:var(--dim);font-size:14px;text-align:center;padding:18px 8px}
+  .acts button.armed{background:var(--accent-2);border-color:var(--accent-2);color:#fff}
+  .empty{color:var(--text-dim);font-size:14px;text-align:center;padding:18px 8px}
   #quick{margin:6px 0 12px}
   .actions{display:flex;gap:10px;margin-top:12px}
   .actions .btn{flex:1}
-  .msg{min-height:20px;margin:10px 0 0;text-align:center;color:var(--dim);font-size:13px}
+  .msg{min-height:20px;margin:10px 0 0;text-align:center;color:var(--text-dim);font-size:13px}
 
   .reh{position:fixed;inset:0;z-index:50;display:flex;flex-direction:column;padding:20px 16px 24px;background:var(--bg)}
   .reh[hidden]{display:none}
   .reh-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
-  .reh-name{color:var(--dim);font:500 12px 'JetBrains Mono',monospace;letter-spacing:.14em;text-transform:uppercase;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .reh-name{color:var(--text-faint);font:500 12px var(--f-head);letter-spacing:.12em;text-transform:uppercase;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .reh-mid{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px;min-height:0}
-  .reh-label{margin:0;font:700 34px 'Space Grotesk',sans-serif;line-height:1.1;max-width:100%;overflow-wrap:anywhere}
-  .reh-time{margin:0;font:700 128px/1 'Space Grotesk',sans-serif;background:linear-gradient(180deg,#fff,#c9b6ff);-webkit-background-clip:text;background-clip:text;color:transparent}
-  .reh-time.urgent{background:none;color:var(--magenta);-webkit-text-fill-color:var(--magenta)}
-  .reh-notes{margin:6px 0 0;color:var(--dim);font-size:15px;line-height:1.4;max-width:90%;white-space:pre-wrap;overflow-wrap:anywhere}
-  .reh-meta{display:flex;justify-content:space-between;gap:12px;margin:10px 0 16px;color:var(--dim);font:400 13px 'JetBrains Mono',monospace}
+  .reh-label{margin:0;font:700 34px/1.1 var(--f-head);letter-spacing:.06em;text-transform:uppercase;max-width:100%;overflow-wrap:anywhere}
+  .reh-time{margin:0;font:700 128px/1 var(--f-head);color:var(--accent)}
+  .reh-time.urgent{color:var(--accent-2)}
+  .reh-notes{margin:6px 0 0;color:var(--text-dim);font-size:15px;line-height:1.4;max-width:90%;white-space:pre-wrap;overflow-wrap:anywhere}
+  .reh-meta{display:flex;justify-content:space-between;gap:12px;margin:10px 0 16px;color:var(--text-dim);font:400 13px var(--f-mono)}
   .reh-meta span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .reh .btn.big{width:100%;min-height:54px;font-size:16px}
 </style>
 </head>
 <body>
 <main class="app">
-  <h1>Routine builder</h1>
-  <p class="by">by savior</p>
+  <h1 class="page-title">Routine <span>builder</span></h1>
+  <p class="page-tag">by savior</p>
 
   <section class="card">
     <label class="lab" for="pick">Routine</label>
@@ -136,7 +93,7 @@
     <div class="row wrap" id="tchips"></div>
     <div class="row" style="margin-top:10px">
       <input id="target" type="number" inputmode="numeric" min="5" max="3600" aria-label="Target seconds" style="width:96px">
-      <span style="color:var(--dim);font-size:13px">sec</span>
+      <span style="color:var(--text-dim);font-size:13px">sec</span>
     </div>
     <div class="meter" id="meter">
       <div class="bar"><div id="fill"></div></div>
