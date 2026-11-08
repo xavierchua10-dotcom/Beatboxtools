@@ -48,10 +48,11 @@
   }
   nav button{
     position:relative;flex:1;height:var(--bar);
-    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+    min-width:0;padding:0 2px;
     background:none;border:0;border-radius:0;cursor:pointer;
     color:var(--dim);
-    font-family:inherit;font-size:12px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;
+    font-family:inherit;font-size:11px;font-weight:500;letter-spacing:.03em;text-transform:uppercase;
     touch-action:manipulation;-webkit-user-select:none;user-select:none;
     transition:color 160ms ease;
   }
@@ -62,16 +63,31 @@
     background:linear-gradient(90deg,var(--violet),var(--magenta));border-radius:0 0 2px 2px;
   }
   nav button:focus-visible{outline:2px solid var(--violet);outline-offset:-4px}
+  nav button.recording::after{
+    content:"";position:absolute;top:11px;left:calc(50% + 8px);width:9px;height:9px;border-radius:50%;
+    background:var(--magenta);box-shadow:0 0 0 2px var(--panel);
+  }
+  @media (max-width:370px){nav button{font-size:10px;letter-spacing:0}}
 </style>
 </head>
 <body>
   <main class="stage">
+    <iframe id="v-voice" class="view" src="voice.html" title="Voice note recorder" role="tabpanel" allow="autoplay; screen-wake-lock; microphone"></iframe>
+    <iframe id="v-history" class="view" src="history.html" title="Voice note history" role="tabpanel" allow="autoplay"></iframe>
     <iframe id="v-metronome" class="view" src="metronome.html" title="Metronome" role="tabpanel" allow="autoplay; screen-wake-lock"></iframe>
     <iframe id="v-battle" class="view" src="battle.html" title="Battle round timer" role="tabpanel" allow="autoplay; screen-wake-lock"></iframe>
     <iframe id="v-routine" class="view" src="routine.html" title="Routine builder" role="tabpanel" allow="autoplay; screen-wake-lock"></iframe>
   </main>
 
   <nav role="tablist" aria-label="Savior audio tools">
+    <button role="tab" data-tab="voice" aria-controls="v-voice" aria-selected="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+      Record
+    </button>
+    <button role="tab" data-tab="history" aria-controls="v-history" aria-selected="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1L3.5 8.5"/><path d="M3.5 4v4.5H8"/><path d="M12 7.5V12l3 2"/></svg>
+      History
+    </button>
     <button role="tab" data-tab="metronome" aria-controls="v-metronome" aria-selected="false">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 3h7l3 17.5h-13z"/><path d="M12 16.5 15.5 7"/><path d="M9.5 12.5h4"/></svg>
       Metronome
@@ -88,7 +104,7 @@
 
 <script>
 (function () {
-  var IDS = ['metronome', 'battle', 'routine'];
+  var IDS = ['voice', 'history', 'metronome', 'battle', 'routine'];
   var KEY = 'savior-audio-tools:tab';
   var buttons = Array.prototype.slice.call(document.querySelectorAll('nav button'));
 
@@ -107,6 +123,9 @@
       view.classList.toggle('on', on);
       view.setAttribute('aria-hidden', on ? 'false' : 'true');
       if (on) view.removeAttribute('inert'); else view.setAttribute('inert', '');
+      if (on) {
+        try { view.contentWindow.postMessage({ type: 'shown' }, location.origin); } catch (e) {}
+      }
     });
     buttons.forEach(function (b) {
       var on = b.getAttribute('data-tab') === id;
@@ -129,6 +148,16 @@
 
   window.addEventListener('hashchange', function () {
     select(location.hash.replace('#', ''));
+  });
+
+  window.addEventListener('message', function (e) {
+    if (e.origin !== location.origin) return;
+    var d = e.data || {};
+    if (d.type === 'goto' && IDS.indexOf(d.tab) > -1) select(d.tab);
+    else if (d.type === 'recording') {
+      var rb = document.querySelector('nav button[data-tab="voice"]');
+      if (rb) rb.classList.toggle('recording', !!d.on);
+    }
   });
 
   select(location.hash.replace('#', '') || stored() || IDS[0]);

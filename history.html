@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Voice history by Savior</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    color-scheme:dark;
+    --bg:#09070d; --panel:#131019; --field:#0f0c15; --edge:#201a2c;
+    --purple:#9163f9; --purple-2:#5b21b6; --magenta:#ff2e88;
+    --text:#f4f2f8; --dim:#8d8998; --faint:#57515f;
+    --glow1:rgba(145,99,249,.16); --glow2:rgba(255,46,136,.06);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;background:var(--bg)}
+  body{
+    min-height:100vh;min-height:100dvh;
+    font-family:Inter,system-ui,-apple-system,'Segoe UI',sans-serif;color:var(--text);
+    background:
+      radial-gradient(ellipse 700px 500px at 50% -10%,var(--glow1),transparent 60%),
+      radial-gradient(ellipse 500px 400px at 100% 100%,var(--glow2),transparent 60%),
+      var(--bg);
+  }
+  button,input{font-family:inherit}
+  button{touch-action:manipulation;-webkit-user-select:none;user-select:none;cursor:pointer}
+  .app{max-width:480px;margin:0 auto;padding:22px 16px 32px}
+  h1{
+    margin:6px 0 0;text-align:center;text-transform:uppercase;letter-spacing:.04em;
+    font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:28px;
+    background:linear-gradient(90deg,var(--purple),var(--magenta));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .by{margin:2px 0 6px;text-align:center;color:var(--faint);font:400 12px 'JetBrains Mono',monospace;letter-spacing:.2em}
+  .sum{margin:0 0 16px;text-align:center;color:var(--dim);font:400 12px 'JetBrains Mono',monospace;min-height:16px}
+  .note{background:var(--panel);border:1px solid var(--edge);border-radius:16px;padding:12px 12px 10px;margin-bottom:10px}
+  .note.active{border-color:var(--purple)}
+  .nm{
+    width:100%;background:transparent;border:1px solid transparent;border-radius:10px;color:var(--text);
+    font-size:16px;font-weight:600;padding:6px 8px;margin:0 0 0 -8px;outline:none;
+  }
+  .nm:focus{background:var(--field);border-color:var(--purple)}
+  .meta{display:flex;gap:10px;color:var(--dim);font:400 12px 'JetBrains Mono',monospace;margin:0 0 10px}
+  .prow{display:flex;align-items:center;gap:10px}
+  .pbtn{
+    flex:none;width:44px;height:44px;border-radius:50%;border:0;color:#fff;display:grid;place-items:center;
+    background:linear-gradient(135deg,var(--purple),var(--purple-2));padding:0;
+  }
+  .pbtn svg{width:22px;height:22px;fill:currentColor;stroke:none}
+  .pbtn .i-pause{display:none}
+  .note.playing .pbtn .i-play{display:none}
+  .note.playing .pbtn .i-pause{display:block}
+  .note.playing .pbtn{background:linear-gradient(135deg,var(--magenta),#c4125f)}
+  .wv{display:flex;align-items:center;gap:2px;height:40px;flex:1;min-width:0;cursor:pointer;touch-action:manipulation}
+  .wv i{display:block;flex:1;min-width:2px;border-radius:2px;background:#3a3150}
+  .wv i.on{background:linear-gradient(180deg,var(--magenta),var(--purple))}
+  .clock{flex:none;min-width:78px;text-align:right;color:var(--dim);font:400 12px 'JetBrains Mono',monospace}
+  .acts{display:flex;align-items:center;gap:6px;margin-top:8px}
+  .acts .grow{flex:1}
+  .chip{
+    border:1px solid var(--edge);background:var(--field);color:var(--dim);border-radius:999px;
+    padding:0 12px;min-height:36px;font:500 13px 'JetBrains Mono',monospace;
+  }
+  .chip.on{border-color:var(--purple);color:var(--text)}
+  .ib{
+    width:38px;height:38px;border-radius:12px;border:1px solid var(--edge);background:#1a1523;color:var(--text);
+    display:grid;place-items:center;padding:0;
+  }
+  .ib svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .ib.armed{background:var(--magenta);border-color:var(--magenta)}
+  .empty{text-align:center;color:var(--dim);padding:34px 12px}
+  .empty p{margin:0 0 14px;font-size:14px;line-height:1.5}
+  .btn{
+    border:1px solid var(--edge);background:linear-gradient(135deg,var(--purple),var(--purple-2));color:#fff;
+    border-radius:12px;font-size:14px;font-weight:600;padding:11px 18px;min-height:44px;border-color:transparent;
+  }
+  .btn[hidden]{display:none}
+  .err{color:var(--magenta);text-align:center;font-size:14px;padding:20px 8px}
+</style>
+</head>
+<body>
+<main class="app">
+  <h1>History</h1>
+  <p class="by">voice notes</p>
+  <p id="sum" class="sum"></p>
+  <div id="list"></div>
+  <div id="empty" class="empty" hidden>
+    <p>No voice notes yet. Record one and it shows up here.</p>
+    <button id="goRec" class="btn" type="button">Record a note</button>
+  </div>
+  <p id="err" class="err" hidden></p>
+</main>
+
+<script>
+(function () {
+  'use strict';
+  var DB = 'savior-voice-notes';
+  var N = 48;
+  var SPEEDS = [1, 0.75, 0.5, 1.5];
+  var $ = function (s, el) { return (el || document).querySelector(s); };
+  var inFrame = window.parent !== window;
+  var metas = [], speed = 1, cur = null, canShareFiles = false;
+
+  function fmt(s) {
+    s = Math.max(0, Math.round(s));
+    return Math.floor(s / 60) + ':' + (s % 60 < 10 ? '0' : '') + (s % 60);
+  }
+  function fmtSize(b) {
+    return b < 1048576 ? Math.max(1, Math.round(b / 1024)) + ' KB' : (b / 1048576).toFixed(1) + ' MB';
+  }
+  function extOf(mime) {
+    mime = mime || '';
+    return mime.indexOf('mp4') > -1 ? 'm4a' : mime.indexOf('ogg') > -1 ? 'ogg' : 'webm';
+  }
+  function safeName(n) {
+    return (n || 'voice-note').replace(/[^a-z0-9 _.-]+/gi, '').trim().replace(/\s+/g, '-').slice(0, 60) || 'voice-note';
+  }
+  function tell(m) {
+    try { if (inFrame) window.parent.postMessage(m, location.origin); } catch (e) {}
+  }
+
+  try {
+    var probe = new File([''], 'a.webm', { type: 'audio/webm' });
+    canShareFiles = !!(navigator.share && navigator.canShare && navigator.canShare({ files: [probe] }));
+  } catch (e) {}
+
+  function openDB() {
+    return new Promise(function (res, rej) {
+      if (!window.indexedDB) { rej(new Error('no indexedDB')); return; }
+      var q = indexedDB.open(DB, 1);
+      q.onupgradeneeded = function () {
+        var d = q.result;
+        if (!d.objectStoreNames.contains('meta')) d.createObjectStore('meta', { keyPath: 'id' });
+        if (!d.objectStoreNames.contains('blob')) d.createObjectStore('blob', { keyPath: 'id' });
+      };
+      q.onsuccess = function () { res(q.result); };
+      q.onerror = function () { rej(q.error); };
+    });
+  }
+  function run(stores, mode, fn) {
+    return openDB().then(function (db) {
+      return new Promise(function (res, rej) {
+        var tx = db.transaction(stores, mode), out;
+        out = fn(tx);
+        tx.oncomplete = function () { db.close(); res(out && out.result !== undefined ? out.result : out); };
+        tx.onerror = tx.onabort = function () { db.close(); rej(tx.error); };
+      });
+    });
+  }
+  function listMetas() { return run(['meta'], 'readonly', function (tx) { return tx.objectStore('meta').getAll(); }); }
+  function getBlob(id) { return run(['blob'], 'readonly', function (tx) { return tx.objectStore('blob').get(id); }); }
+  function putMeta(m) { return run(['meta'], 'readwrite', function (tx) { tx.objectStore('meta').put(m); }); }
+  function delNote(id) {
+    return run(['meta', 'blob'], 'readwrite', function (tx) {
+      tx.objectStore('meta').delete(id); tx.objectStore('blob').delete(id);
+    });
+  }
+
+  var NOTE_HTML =
+    '<input class="nm" type="text" maxlength="60" aria-label="Note name">' +
+    '<div class="meta"><span class="when"></span><span class="len"></span><span class="size"></span></div>' +
+    '<div class="prow">' +
+    '<button class="pbtn" type="button" data-act="play" aria-label="Play">' +
+    '<svg class="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>' +
+    '<svg class="i-pause" viewBox="0 0 24 24"><rect x="6" y="5" width="4.5" height="14" rx="1.2"/><rect x="13.5" y="5" width="4.5" height="14" rx="1.2"/></svg>' +
+    '</button><div class="wv" aria-label="Waveform, tap to jump"></div><span class="clock"></span></div>' +
+    '<div class="acts"><button class="chip" type="button" data-act="speed" aria-label="Playback speed"></button><span class="grow"></span>' +
+    '<button class="ib" type="button" data-act="share" aria-label="Share"><svg viewBox="0 0 24 24"><path d="M12 3v12M7.5 7.5 12 3l4.5 4.5M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg></button>' +
+    '<button class="ib" type="button" data-act="dl" aria-label="Download"><svg viewBox="0 0 24 24"><path d="M12 4v11M7.5 10.5 12 15l4.5-4.5M5 20h14"/></svg></button>' +
+    '<button class="ib" type="button" data-act="del" aria-label="Delete"><svg viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg></button>' +
+    '</div>';
+
+  function speedLabel() { return (speed === 0.75 ? '0.75' : String(speed)) + '×'; }
+
+  function renderList() {
+    var box = $('#list');
+    box.textContent = '';
+    $('#empty').hidden = metas.length > 0;
+    var total = metas.reduce(function (a, m) { return a + (m.size || 0); }, 0);
+    $('#sum').textContent = metas.length ? metas.length + (metas.length === 1 ? ' note' : ' notes') + ' · ' + fmtSize(total) : '';
+    metas.forEach(function (m) {
+      var el = document.createElement('article');
+      el.className = 'note'; el.dataset.id = m.id; el.innerHTML = NOTE_HTML;
+      $('.nm', el).value = m.name;
+      $('.when', el).textContent = new Date(m.created).toLocaleString([], { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+      $('.len', el).textContent = fmt(m.duration);
+      $('.size', el).textContent = fmtSize(m.size || 0);
+      $('.clock', el).textContent = '0:00 / ' + fmt(m.duration);
+      var wv = $('.wv', el), peaks = m.peaks && m.peaks.length ? m.peaks : [];
+      for (var i = 0; i < N; i++) {
+        var bar = document.createElement('i');
+        bar.style.height = Math.round(6 + (peaks[i] === undefined ? 0.1 : peaks[i]) * 34) + 'px';
+        wv.appendChild(bar);
+      }
+      $('.chip', el).textContent = speedLabel();
+      if (!canShareFiles) $('[data-act=share]', el).hidden = true;
+      box.appendChild(el);
+    });
+    syncActive();
+  }
+
+  function cardOf(id) { return $('#list .note[data-id="' + id + '"]'); }
+  function metaOf(id) { for (var i = 0; i < metas.length; i++) if (metas[i].id === id) return metas[i]; return null; }
+
+  function syncActive() {
+    document.querySelectorAll('#list .note').forEach(function (el) {
+      var on = !!cur && el.dataset.id === cur.id;
+      el.classList.toggle('active', on);
+      el.classList.toggle('playing', on && !au.paused);
+      $('[data-act=play]', el).setAttribute('aria-label', on && !au.paused ? 'Pause' : 'Play');
+      if (on) paint();
+    });
+  }
+  function paint() {
+    if (!cur) return;
+    var el = cardOf(cur.id), m = metaOf(cur.id);
+    if (!el || !m) return;
+    var dur = m.duration || 1, t = Math.min(au.currentTime || 0, dur);
+    var ratio = Math.max(0, Math.min(1, t / dur)), upto = Math.round(ratio * N);
+    var bars = el.querySelectorAll('.wv i');
+    for (var i = 0; i < bars.length; i++) bars[i].classList.toggle('on', i < upto);
+    $('.clock', el).textContent = fmt(t) + ' / ' + fmt(dur);
+  }
+
+  var au = new Audio();
+  au.preload = 'auto';
+  au.addEventListener('timeupdate', paint);
+  au.addEventListener('play', syncActive);
+  au.addEventListener('pause', syncActive);
+  au.addEventListener('ended', function () {
+    try { au.currentTime = 0; } catch (e) {}
+    syncActive();
+  });
+
+  function release() {
+    try { au.pause(); } catch (e) {}
+    if (cur && cur.url) URL.revokeObjectURL(cur.url);
+    cur = null;
+  }
+  function loadNote(id) {
+    return getBlob(id).then(function (rec) {
+      if (!rec || !rec.blob) throw new Error('missing');
+      release();
+      var url = URL.createObjectURL(rec.blob);
+      au.src = url;
+      au.playbackRate = speed;
+      cur = { id: id, url: url };
+      syncActive();
+    });
+  }
+  function playFrom(id, ratio) {
+    var go = function () {
+      var m = metaOf(id);
+      if (ratio != null && m) {
+        try { au.currentTime = ratio * m.duration; } catch (e) {}
+      }
+      au.playbackRate = speed;
+      var p = au.play();
+      if (p && p.catch) p.catch(function () {});
+    };
+    if (cur && cur.id === id) go();
+    else loadNote(id).then(go, function () { showErr('That note could not be opened.'); });
+  }
+  function showErr(t) {
+    var e = $('#err'); e.textContent = t; e.hidden = !t;
+    if (t) setTimeout(function () { e.hidden = true; }, 3500);
+  }
+
+  function arm(btn, fn) {
+    if (btn.dataset.armed === '1') { clearTimeout(btn._t); btn.dataset.armed = '0'; btn.classList.remove('armed'); fn(); return; }
+    btn.dataset.armed = '1'; btn.classList.add('armed');
+    btn._t = setTimeout(function () { btn.dataset.armed = '0'; btn.classList.remove('armed'); }, 2500);
+  }
+
+  $('#list').addEventListener('click', function (e) {
+    var wv = e.target.closest('.wv');
+    var card = e.target.closest('.note');
+    if (!card) return;
+    var id = card.dataset.id, m = metaOf(id);
+    if (!m) return;
+    if (wv) {
+      var r = wv.getBoundingClientRect();
+      playFrom(id, Math.max(0, Math.min(0.999, (e.clientX - r.left) / r.width)));
+      return;
+    }
+    var b = e.target.closest('button[data-act]');
+    if (!b) return;
+    var act = b.dataset.act;
+    if (act === 'play') {
+      if (cur && cur.id === id && !au.paused) au.pause();
+      else playFrom(id, null);
+    } else if (act === 'speed') {
+      speed = SPEEDS[(SPEEDS.indexOf(speed) + 1) % SPEEDS.length];
+      au.playbackRate = speed;
+      document.querySelectorAll('#list .chip').forEach(function (c) { c.textContent = speedLabel(); });
+    } else if (act === 'dl') {
+      getBlob(id).then(function (rec) {
+        if (!rec) return;
+        var a = document.createElement('a'), url = URL.createObjectURL(rec.blob);
+        a.href = url; a.download = safeName(m.name) + '.' + extOf(m.mime);
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+      });
+    } else if (act === 'share') {
+      getBlob(id).then(function (rec) {
+        if (!rec) return;
+        var f = new File([rec.blob], safeName(m.name) + '.' + extOf(m.mime), { type: rec.blob.type });
+        return navigator.share({ files: [f], title: m.name });
+      }).catch(function () {});
+    } else if (act === 'del') {
+      arm(b, function () {
+        if (cur && cur.id === id) release();
+        delNote(id).then(function () {
+          metas = metas.filter(function (x) { return x.id !== id; });
+          renderList();
+        }, function () { showErr('Could not delete that note.'); });
+      });
+    }
+  });
+  $('#list').addEventListener('change', function (e) {
+    if (!e.target.classList.contains('nm')) return;
+    var card = e.target.closest('.note'), m = metaOf(card.dataset.id);
+    if (!m) return;
+    var v = e.target.value.trim();
+    if (!v) { e.target.value = m.name; return; }
+    m.name = v.slice(0, 60);
+    e.target.value = m.name;
+    putMeta(m).catch(function () { showErr('Could not rename that note.'); });
+  });
+  $('#list').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && e.target.classList.contains('nm')) e.target.blur();
+  });
+  $('#goRec').addEventListener('click', function () { tell({ type: 'goto', tab: 'voice' }); });
+
+  function refresh() {
+    if (document.activeElement && document.activeElement.classList && document.activeElement.classList.contains('nm')) return;
+    listMetas().then(function (rows) {
+      metas = (rows || []).slice().sort(function (a, b) { return b.created - a.created; });
+      $('#err').hidden = true;
+      renderList();
+    }, function () {
+      $('#empty').hidden = true;
+      showErr('Saved notes are not available in this browser.');
+    });
+  }
+
+  try {
+    var bc = new BroadcastChannel('savior-voice');
+    bc.onmessage = function (e) {
+      var d = e.data || {};
+      if (d.type === 'saved') refresh();
+      else if (d.type === 'recording' && d.on) { try { au.pause(); } catch (x) {} }
+    };
+  } catch (e) {}
+  window.addEventListener('message', function (e) {
+    if (e.origin !== location.origin) return;
+    if (e.data && e.data.type === 'shown') refresh();
+  });
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) refresh(); });
+
+  refresh();
+})();
+</script>
+</body>
+</html>
