@@ -61,3 +61,8 @@ body{background-image:none}
 .statepill.live{color:#c1443c}
 .help-btn:focus-visible,button:focus-visible{outline-color:#f2b134 !important}
 .modal p,.modal li{color:#cfcbc2}
+
+/* support / help / feedback buttons are removed from the tabs for now */
+.support-btn,.feedback-btn,#supportPanel,#feedbackPanel{display:none !important}
+.title-block{margin-top:6px !important}
+body header{display:none !important}
