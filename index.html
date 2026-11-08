@@ -14,7 +14,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-<link rel="stylesheet" href="fonts.css?v=20261108h">
+<link rel="stylesheet" href="fonts.css?v=20261108i">
 <style>
   :root{
     color-scheme:dark;
@@ -93,20 +93,22 @@
   .tools h1{margin:2px 0 16px;text-align:center;font:700 22px/1.15 var(--f-head);letter-spacing:.08em;text-transform:uppercase}
   .tools h1 span{color:var(--accent)}
   .tools .hint{margin:18px 4px 0;color:var(--text-faint);font-size:12px;line-height:1.5;text-align:center}
+  .tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   .tool{
-    display:flex;align-items:center;gap:14px;width:100%;text-align:left;text-decoration:none;color:inherit;font:inherit;
-    background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:10px;cursor:pointer;
+    position:relative;display:flex;align-items:center;gap:14px;width:100%;text-align:left;text-decoration:none;color:inherit;font:inherit;
+    background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;margin:0;cursor:pointer;min-width:0;
     transition:border-color .15s,background .15s;
   }
   .tool:active{background:var(--panel-2);border-color:var(--accent-dim)}
-  .tool .ti{flex:none;width:44px;height:44px;border-radius:10px;background:rgba(242,177,52,.12);border:1px solid var(--accent-dim);color:var(--accent);display:grid;place-items:center}
-  .tool .ti svg{width:22px;height:22px;fill:currentColor}
-  .tool b{display:block;font:600 15px var(--f-head);letter-spacing:.08em;text-transform:uppercase}
-  .tool small{display:block;margin-top:2px;color:var(--text-dim);font-size:12px;line-height:1.4}
+  .tool.wide{margin-bottom:10px;padding:12px 14px}
+  .tool.tile{flex-direction:column;align-items:flex-start;gap:10px;padding:12px}
+  .tool .ti{flex:none;width:40px;height:40px;border-radius:10px;background:rgba(242,177,52,.12);border:1px solid var(--accent-dim);color:var(--accent);display:grid;place-items:center}
+  .tool .ti svg{width:21px;height:21px;fill:currentColor}
+  .tool b{display:block;font:600 14px var(--f-head);letter-spacing:.08em;text-transform:uppercase}
+  .tool small{display:block;margin-top:2px;color:var(--text-dim);font-size:12px;line-height:1.35}
   .tool .go{margin-left:auto;color:var(--text-faint);font-size:20px;line-height:1}
-  .tool .run{display:none;margin-left:auto;font:600 10px var(--f-head);letter-spacing:.1em;text-transform:uppercase;color:var(--accent);border:1px solid var(--accent-dim);border-radius:6px;padding:2px 6px}
+  .tool .run{display:none;position:absolute;top:10px;right:10px;font:600 10px var(--f-head);letter-spacing:.1em;text-transform:uppercase;color:var(--accent);border:1px solid var(--accent-dim);border-radius:6px;padding:2px 6px;background:var(--panel)}
   .tool.live .run{display:block}
-  .tool.live .go{display:none}
 
   @media (prefers-reduced-motion:reduce){.tab-indicator,.ov{transition:none}nav button.recording::after,nav button.live::after{animation:none}}
 </style>
@@ -125,23 +127,56 @@
   </header>
 
   <main class="stage" id="stage">
-    <iframe id="v-voice" class="view" src="voice.html?v=20261108h" title="Voice note recorder" role="tabpanel" allow="autoplay; screen-wake-lock; microphone"></iframe>
-    <iframe id="v-history" class="view" src="history.html?v=20261108h" title="Voice note history" role="tabpanel" allow="autoplay"></iframe>
-    <iframe id="v-routine" class="view" src="routine.html?v=20261108h" title="Routine builder" role="tabpanel" allow="autoplay; screen-wake-lock"></iframe>
+    <iframe id="v-voice" class="view" src="voice.html?v=20261108i" title="Voice note recorder" role="tabpanel" allow="autoplay; screen-wake-lock; microphone"></iframe>
+    <iframe id="v-history" class="view" src="history.html?v=20261108i" title="Voice note history" role="tabpanel" allow="autoplay"></iframe>
+    <iframe id="v-routine" class="view" src="routine.html?v=20261108i" title="Routine builder" role="tabpanel" allow="autoplay; screen-wake-lock"></iframe>
     <div id="v-tools" class="view" role="tabpanel" aria-label="Tools">
       <div class="tools">
         <h1>Practice <span>tools</span></h1>
-        <button class="tool" type="button" data-open="metronome" id="t-metronome">
-          <div class="ti"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M9.2 2.5h5.6a1 1 0 0 1 1 .8l3.2 16.4a1.6 1.6 0 0 1-1.6 1.9H6.6A1.6 1.6 0 0 1 5 19.7L8.2 3.3a1 1 0 0 1 1-.8zm3.6 6.3a1 1 0 0 0-1.8-.6l-2.1 5.2a1 1 0 1 0 1.9.7l.5-1.3h1.5l-.1 2.2a1 1 0 1 0 2 .1z"/></svg></div>
-          <div><b>Metronome</b><small>BPM, accents, subdivisions, tap tempo</small></div>
-          <span class="run">Playing</span><span class="go" aria-hidden="true">›</span>
+        <button class="tool wide" type="button" data-open="log" id="t-log">
+          <div class="ti"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm2 9v6h2v-6zm4-4v10h2V8zm4 6v4h2v-4z"/></svg></div>
+          <div><b>Practice log</b><small id="plogSub">0 min today</small></div>
+          <span class="go" aria-hidden="true">›</span>
         </button>
-        <button class="tool" type="button" data-open="battle" id="t-battle">
-          <div class="ti"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M9 2.5h6a1 1 0 0 1 0 2h-2v1.6a8.5 8.5 0 1 1-2 0V4.5H9a1 1 0 0 1 0-2zm3 5.6a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13zm1 2.4v3.6l2.3 1.4a1 1 0 0 1-1 1.7l-2.8-1.7a1 1 0 0 1-.5-.9v-4.1a1 1 0 0 1 2 0z"/></svg></div>
-          <div><b>Battle round</b><small>60 / 120 / 150 / 200 sec with buzzer</small></div>
-          <span class="run">Running</span><span class="go" aria-hidden="true">›</span>
-        </button>
-        <p class="hint">They keep running when you leave this tab, so you can record or rehearse over the metronome. A gold dot on the Tools tab tells you something is still going.</p>
+        <div class="tiles">
+          <button class="tool tile" type="button" data-open="metronome" id="t-metronome">
+            <div class="ti"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M9.2 2.5h5.6a1 1 0 0 1 1 .8l3.2 16.4a1.6 1.6 0 0 1-1.6 1.9H6.6A1.6 1.6 0 0 1 5 19.7L8.2 3.3a1 1 0 0 1 1-.8zm3.6 6.3a1 1 0 0 0-1.8-.6l-2.1 5.2a1 1 0 1 0 1.9.7l.5-1.3h1.5l-.1 2.2a1 1 0 1 0 2 .1z"/></svg></div>
+            <div><b>Metronome</b><small>BPM, accents, tap tempo</small></div><span class="run">Playing</span>
+          </button>
+          <button class="tool tile" type="button" data-open="battle" id="t-battle">
+            <div class="ti"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M9 2.5h6a1 1 0 0 1 0 2h-2v1.6a8.5 8.5 0 1 1-2 0V4.5H9a1 1 0 0 1 0-2zm3 5.6a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13zm1 2.4v3.6l2.3 1.4a1 1 0 0 1-1 1.7l-2.8-1.7a1 1 0 0 1-.5-.9v-4.1a1 1 0 0 1 2 0z"/></svg></div>
+            <div><b>Battle round</b><small>60 to 200 sec, buzzer</small></div><span class="run">Running</span>
+          </button>
+          <button class="tool tile" type="button" data-open="loop" id="t-loop">
+            <div class="ti"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5V2L7 6l5 4V7a5 5 0 0 1 4.6 7l1.5 1.5A7 7 0 0 0 12 5zM6.4 8.5 4.9 7A7 7 0 0 0 12 19v3l5-4-5-4v3a5 5 0 0 1-5.6-8.5z"/></svg></div>
+            <div><b>Loop pad</b><small>Layer beats on a loop</small></div><span class="run">Playing</span>
+          </button>
+          <button class="tool tile" type="button" data-open="pattern" id="t-pattern">
+            <div class="ti"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h4v4H3zm6 0h4v4H9zm6 0h4v4h-4zM3 10h4v4H3zm6 0h4v4H9zm6 0h4v4h-4zM3 16h4v4H3zm6 0h4v4H9zm6 0h4v4h-4z"/></svg></div>
+            <div><b>Pattern grid</b><small>16 steps, backing beats</small></div><span class="run">Playing</span>
+          </button>
+          <button class="tool tile" type="button" data-open="timing" id="t-timing">
+            <div class="ti"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 4a6 6 0 1 1 0 12 6 6 0 0 1 0-12zm0 3a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/></svg></div>
+            <div><b>Timing check</b><small>Tap along, see ms off</small></div><span class="run">Running</span>
+          </button>
+          <button class="tool tile" type="button" data-open="ladder" id="t-ladder">
+            <div class="ti"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20h5v-5h5v-5h5V5h3v15H3z"/></svg></div>
+            <div><b>BPM ladder</b><small>Fastest clean BPM</small></div>
+          </button>
+          <button class="tool tile" type="button" data-open="tuner" id="t-tuner">
+            <div class="ti"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 2v8a3 3 0 0 0 2 2.8V22h2v-9.2A3 3 0 0 0 15 10V2h-2v8a1 1 0 0 1-2 0V2z"/></svg></div>
+            <div><b>Tuner</b><small>Hum a note, see pitch</small></div>
+          </button>
+          <button class="tool tile" type="button" data-open="spectrum" id="t-spectrum">
+            <div class="ti"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14h3v6H4zm5-8h3v14H9zm5 5h3v9h-3zm5-3h3v12h-3z"/></svg></div>
+            <div><b>Mic spectrum</b><small>See your sound live</small></div>
+          </button>
+          <button class="tool tile" type="button" data-open="prompts" id="t-prompts">
+            <div class="ti"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M6 3h12a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3zm2.5 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm7 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM12 10.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM8.5 14a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm7 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/></svg></div>
+            <div><b>Freestyle prompts</b><small>Random words and rules</small></div><span class="run">Running</span>
+          </button>
+        </div>
+        <p class="hint">Metronome, Battle round, Loop pad and Pattern grid keep going when you leave a tool or switch tabs, so you can record or rehearse over them. A gold dot on the Tools tab tells you something is still going.</p>
       </div>
     </div>
   </main>
@@ -177,17 +212,27 @@
       <h2 id="ovTitle"><span>Settings</span></h2>
     </div>
     <div class="ov-body">
-      <iframe id="v-settings" class="pane" src="settings.html?v=20261108h" title="Settings"></iframe>
-      <iframe id="v-metronome" class="pane" src="metronome.html?v=20261108h" title="Metronome" allow="autoplay; screen-wake-lock"></iframe>
-      <iframe id="v-battle" class="pane" src="battle.html?v=20261108h" title="Battle round timer" allow="autoplay; screen-wake-lock"></iframe>
+      <iframe id="v-settings" class="pane" src="settings.html?v=20261108i" title="Settings"></iframe>
+      <iframe id="v-metronome" class="pane" src="metronome.html?v=20261108i" title="Metronome" allow="autoplay; screen-wake-lock"></iframe>
+      <iframe id="v-battle" class="pane" src="battle.html?v=20261108i" title="Battle round timer" allow="autoplay; screen-wake-lock"></iframe>
+      <iframe id="v-log" class="pane" data-src="log.html?v=20261108i" title="Practice log"></iframe>
+      <iframe id="v-loop" class="pane" data-src="loop.html?v=20261108i" title="Loop pad" allow="autoplay; microphone"></iframe>
+      <iframe id="v-pattern" class="pane" data-src="pattern.html?v=20261108i" title="Pattern grid" allow="autoplay"></iframe>
+      <iframe id="v-timing" class="pane" data-src="timing.html?v=20261108i" title="Timing check" allow="autoplay"></iframe>
+      <iframe id="v-ladder" class="pane" data-src="ladder.html?v=20261108i" title="BPM ladder"></iframe>
+      <iframe id="v-tuner" class="pane" data-src="tuner.html?v=20261108i" title="Tuner" allow="autoplay; microphone"></iframe>
+      <iframe id="v-spectrum" class="pane" data-src="spectrum.html?v=20261108i" title="Mic spectrum" allow="microphone"></iframe>
+      <iframe id="v-prompts" class="pane" data-src="prompts.html?v=20261108i" title="Freestyle prompts" allow="autoplay"></iframe>
     </div>
   </section>
 
+<script src="plog.js?v=20261108i"></script>
 <script>
 (function () {
   var IDS = ['voice', 'history', 'routine', 'tools'];
-  var PANES = ['settings', 'metronome', 'battle'];
-  var TITLES = { settings: '<span>Settings</span>', metronome: 'Metro<span>nome</span>', battle: 'Battle <span>round</span>' };
+  var PANES = ['settings', 'metronome', 'battle', 'log', 'loop', 'pattern', 'timing', 'ladder', 'tuner', 'spectrum', 'prompts'];
+  var LAZY = ['log', 'loop', 'pattern', 'timing', 'ladder', 'tuner', 'spectrum', 'prompts'];
+  var TITLES = { settings: '<span>Settings</span>', metronome: 'Metro<span>nome</span>', battle: 'Battle <span>round</span>', log: 'Practice <span>log</span>', loop: 'Loop <span>pad</span>', pattern: 'Pattern <span>grid</span>', timing: 'Timing <span>check</span>', ladder: 'BPM <span>ladder</span>', tuner: '<span>Tuner</span>', spectrum: 'Mic <span>spectrum</span>', prompts: 'Freestyle <span>prompts</span>' };
   var KEY = 'savior-audio-tools:tab';
   var buttons = Array.prototype.slice.call(document.querySelectorAll('nav button'));
   var ind = document.getElementById('ind');
@@ -203,6 +248,7 @@
   function stored() { try { return localStorage.getItem(KEY); } catch (e) { return null; } }
   function remember(id) { try { localStorage.setItem(KEY, id); } catch (e) {} }
   function show(win) { try { if (win) win.postMessage({ type: 'shown' }, location.origin); } catch (e) {} }
+  function hide(pane) { try { document.getElementById('v-' + pane).contentWindow.postMessage({ type: 'hidden' }, location.origin); } catch (e) {} }
 
   function select(id, focusTab) {
     if (IDS.indexOf(id) === -1) id = IDS[0];
@@ -223,13 +269,17 @@
     });
     ind.style.transform = 'translateX(' + (IDS.indexOf(id) * 100) + '%)';
     remember(id);
+    if (id === 'tools') logCard();
     if (!openPane) { try { history.replaceState(null, '', '#' + id); } catch (e) {} }
   }
 
-  /* full-screen layer: pane is 'settings', 'metronome' or 'battle' */
+  /* full-screen layer: pane is one of PANES */
   function openLayer(pane, push) {
-    var wasOpen = !!openPane;
+    var wasOpen = !!openPane, prev = openPane;
     if (!wasOpen) opener = document.activeElement;
+    if (prev && prev !== pane) hide(prev);
+    var fr = document.getElementById('v-' + pane);
+    if (fr.getAttribute('data-src') && !fr.getAttribute('src')) fr.setAttribute('src', fr.getAttribute('data-src'));
     openPane = pane;
     PANES.forEach(function (p) {
       var el = document.getElementById('v-' + p);
@@ -253,6 +303,7 @@
   }
   function closeLayer() {
     if (!openPane) return;
+    hide(openPane);
     openPane = null; pushed = false;
     ov.classList.remove('open');
     ov.setAttribute('aria-hidden', 'true');
@@ -263,6 +314,7 @@
     var back = opener && document.contains(opener) ? opener : settingsBtn;
     try { back.focus({ preventScroll: true }); } catch (e) {}
     show(document.getElementById('v-' + current).contentWindow);
+    logCard();
   }
 
   function route() {
@@ -299,27 +351,56 @@
     var d = e.data || {};
     if (d.type === 'goto' && IDS.indexOf(d.tab) > -1) { if (openPane) closeLayer(); select(d.tab); }
     else if (d.type === 'recording') {
+      recOn = !!d.on;
       var rb = document.querySelector('nav button[data-tab="voice"]');
       if (rb) rb.classList.toggle('recording', !!d.on);
     }
   });
 
-  /* a gold dot on the Tools tab while the metronome plays or a battle round runs */
+  /* a gold dot on the Tools tab while something is still going; the same state feeds the practice log */
+  var live = {}, recOn = false, rehOn = false;
+  function frameDoc(id) { try { return document.getElementById(id).contentDocument; } catch (e) { return null; } }
   function poll() {
-    var met = false, bat = false;
-    try {
-      var m = document.getElementById('v-metronome').contentDocument.getElementById('playBtn');
-      met = !!m && /^stop/i.test(m.getAttribute('aria-label') || '');
-    } catch (e) {}
-    try {
-      var b = document.getElementById('v-battle').contentDocument.getElementById('mainBtn');
-      bat = !!b && /^pause/i.test((b.textContent || '').trim());
-    } catch (e) {}
-    document.getElementById('t-metronome').classList.toggle('live', met);
-    document.getElementById('t-battle').classList.toggle('live', bat);
-    document.querySelector('nav button[data-tab="tools"]').classList.toggle('live', met || bat);
+    var d, m, b, any = false;
+    d = frameDoc('v-metronome'); m = d && d.getElementById('playBtn');
+    live.metronome = !!m && /^stop/i.test(m.getAttribute('aria-label') || '');
+    d = frameDoc('v-battle'); b = d && d.getElementById('mainBtn');
+    live.battle = !!b && /^pause/i.test((b.textContent || '').trim());
+    ['loop', 'pattern', 'timing', 'prompts'].forEach(function (k) {
+      d = frameDoc('v-' + k); live[k] = !!d && d.documentElement.getAttribute('data-running') === '1';
+    });
+    d = frameDoc('v-routine'); m = d && d.getElementById('reh'); rehOn = !!m && !m.hidden;
+    ['metronome', 'battle', 'loop', 'pattern', 'timing', 'prompts'].forEach(function (k) {
+      var el = document.getElementById('t-' + k); if (el) el.classList.toggle('live', !!live[k]);
+      if (live[k]) any = true;
+    });
+    document.querySelector('nav button[data-tab="tools"]').classList.toggle('live', any);
   }
   setInterval(poll, 500);
+
+  /* practice time: one bucket per second, whichever tool you are really using. Stays on this device. */
+  var lastTick = Date.now();
+  function bucket() {
+    var vis = document.visibilityState === 'visible';
+    if (openPane && openPane !== 'settings' && openPane !== 'log' && vis) return openPane;
+    if (recOn) return 'record';
+    if (rehOn) return 'routine';
+    var order = ['metronome', 'battle', 'loop', 'pattern'];
+    for (var i = 0; i < order.length; i++) if (live[order[i]]) return order[i];
+    return null;
+  }
+  function logCard() {
+    var o = PLog.load(), t = Math.round(PLog.total(o.days[PLog.key()]) / 60), st = PLog.streak(o).now;
+    var el = document.getElementById('plogSub');
+    if (el) el.textContent = t + ' min today' + (st ? ' \u00b7 ' + st + ' day streak' : '');
+  }
+  setInterval(function () {
+    var now = Date.now(), dt = Math.min(2, (now - lastTick) / 1000); lastTick = now;
+    var k = bucket();
+    if (k && dt > 0) PLog.add(k, dt);
+    if (current === 'tools' && !openPane) logCard();
+  }, 1000);
+  logCard();
 
   /* installable app: keep the install prompt for the Settings tab, and register the offline worker */
   window.addEventListener('beforeinstallprompt', function (e) {

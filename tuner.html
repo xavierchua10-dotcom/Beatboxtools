@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#14161a">
+<title>Tuner</title>
+<link rel="stylesheet" href="fonts.css?v=20261108i">
+<link rel="stylesheet" href="theme.css?v=20261108i">
+<link rel="stylesheet" href="tools.css?v=20261108i">
+<style>
+  .head{text-align:center;margin-top:2px}
+  .note-big{font:700 92px/1 var(--f-head);margin-top:6px;transition:color .2s}
+  .note-big sup{font-size:44px;color:var(--accent);vertical-align:top;line-height:1.5}
+  .note-big small{font-size:34px;color:var(--text-faint)}
+  .note-big.off{color:var(--text-faint)}
+  .note-big.in{color:var(--success)}
+  .gauge{width:100%;max-width:340px;display:block;margin:12px auto 0}
+  #needle{transition:transform .08s linear;transform-origin:50px 56px}
+  .cents{text-align:center;margin:2px 0 12px;min-height:26px}
+  .cents b{font:700 20px var(--f-mono);color:var(--accent)}
+  @media (prefers-reduced-motion:reduce){#needle{transition:none}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="head"><div class="cap" id="state" style="letter-spacing:.2em">Tap start</div>
+    <div class="note-big off" id="note" aria-live="off">–</div>
+    <div class="mono dim" id="hz" style="font-size:15px;margin-top:4px">&nbsp;</div></div>
+  <svg class="gauge" viewBox="0 0 100 62" aria-hidden="true"><g id="ticks"></g><g id="needle"><line x1="50" y1="56" x2="50" y2="18" stroke="#f2b134" stroke-width="2" stroke-linecap="round"/></g><circle cx="50" cy="56" r="3" fill="#f2b134"/><text x="6" y="60" font-size="5" fill="#82878f" font-family="monospace">♭ −50</text><text x="94" y="60" font-size="5" fill="#82878f" font-family="monospace" text-anchor="end">+50 ♯</text></svg>
+  <div class="cents" id="cents" aria-live="polite"><span class="dim" style="font-size:12px">Hum, sing or play a note</span></div>
+  <div class="card" style="padding:10px 12px"><div class="row sp cap" style="margin-bottom:6px"><span>Last 5 sec</span><span>Hold steady</span></div>
+    <svg viewBox="0 0 100 60" preserveAspectRatio="none" style="width:100%;height:66px;display:block" aria-hidden="true"><rect x="0" y="27" width="100" height="6" fill="rgba(95,184,106,.10)"/><line x1="0" y1="30" x2="100" y2="30" stroke="#5fb86a" stroke-width=".6" stroke-dasharray="2 2" vector-effect="non-scaling-stroke"/><polyline id="trace" points="" fill="none" stroke="#f2b134" stroke-width="1.5" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg></div>
+  <div class="btns"><button class="btn primary" id="listen" type="button">Start listening</button><button class="btn" id="ref" type="button">Play A 440</button></div>
+  <p class="msg" id="msg" role="status" aria-live="polite"></p>
+</div>
+<script src="tools.js?v=20261108i"></script>
+<script>
+(function () {
+  var $ = Tools.$, NAMES = ['C', 'D♭', 'D', 'E♭', 'E', 'F', 'G♭', 'G', 'A♭', 'A', 'B♭', 'B'];
+  var stream = null, src = null, an = null, buf = null, raf = 0, on = false, frame = 0;
+  var recent = [], trace = [], lastGood = 0, osc = null, oscGain = null;
+
+  var ticks = '';
+  for (var a = -60; a <= 60; a += 10) {
+    var r = a * Math.PI / 180, big = a % 30 === 0, r2 = big ? 46 : 43;
+    ticks += '<line x1="' + (50 + 40 * Math.sin(r)).toFixed(1) + '" y1="' + (56 - 40 * Math.cos(r)).toFixed(1) + '" x2="' + (50 + r2 * Math.sin(r)).toFixed(1) + '" y2="' + (56 - r2 * Math.cos(r)).toFixed(1) + '" stroke="' + (a === 0 ? '#5fb86a' : '#4a5058') + '" stroke-width="' + (big ? 1.4 : .8) + '"/>';
+  }
+  $('#ticks').innerHTML = ticks;
+  function say(t, err) { var m = $('#msg'); m.textContent = t; m.classList.toggle('err', !!err); }
+
+  /* YIN pitch detection on a copy of the signal averaged down to a quarter of the sample rate, which also smooths away bright noise */
+  function detect(sig, sr) {
+    var n = sig.length >> 2, x = new Float32Array(n), i, rms = 0;
+    for (i = 0; i < n; i++) { x[i] = (sig[4 * i] + sig[4 * i + 1] + sig[4 * i + 2] + sig[4 * i + 3]) * .25; rms += x[i] * x[i]; }
+    rms = Math.sqrt(rms / n);
+    if (rms < 0.012) return 0;
+    var fs = sr / 4, W = n >> 1, tmax = Math.min(W - 1, Math.floor(fs / 55)), tmin = Math.max(2, Math.floor(fs / 900));
+    var d = new Float32Array(tmax + 1), t, j, sum;
+    for (t = 1; t <= tmax; t++) { sum = 0; for (j = 0; j < W; j++) { var df = x[j] - x[j + t]; sum += df * df; } d[t] = sum; }
+    var run = 0, cm = new Float32Array(tmax + 1); cm[0] = 1;
+    for (t = 1; t <= tmax; t++) { run += d[t]; cm[t] = run ? d[t] * t / run : 1; }
+    var best = -1;
+    for (t = tmin; t < tmax; t++) {
+      if (cm[t] < 0.15) { while (t + 1 < tmax && cm[t + 1] < cm[t]) t++; best = t; break; }
+    }
+    if (best < 0) return 0;
+    var s0 = cm[best - 1] || cm[best], s1 = cm[best], s2 = cm[best + 1] || cm[best], den = 2 * (2 * s1 - s2 - s0);
+    var shift = den ? (s2 - s0) / den : 0;
+    return fs / (best + shift);
+  }
+  function median(a) { var s = a.slice().sort(function (p, q) { return p - q; }); return s[s.length >> 1]; }
+
+  function show(f) {
+    var now = performance.now();
+    if (f) {
+      recent.push(f); if (recent.length > 5) recent.shift();
+      var fm = median(recent), midi = 69 + 12 * Math.log2(fm / 440), n = Math.round(midi), cents = (midi - n) * 100;
+      lastGood = now;
+      var name = NAMES[((n % 12) + 12) % 12], oct = Math.floor(n / 12) - 1, flat = name.length > 1;
+      $('#note').className = 'note-big' + (Math.abs(cents) <= 5 ? ' in' : '');
+      $('#note').innerHTML = name.charAt(0) + (flat ? '<sup>♭</sup>' : '') + '<small> ' + oct + '</small>';
+      $('#hz').textContent = fm.toFixed(1) + ' Hz';
+      $('#needle').style.transform = 'rotate(' + (Tools.clamp(cents, -50, 50) * 1.2).toFixed(1) + 'deg)';
+      var r = Math.round(cents);
+      $('#cents').innerHTML = '<b>' + (r < 0 ? '−' : r > 0 ? '+' : '') + Math.abs(r) + '</b><span class="dim" style="font-size:12px"> cents ' + (Math.abs(r) <= 5 ? 'in tune' : r < 0 ? 'flat' : 'sharp') + '</span>';
+      trace.push({ t: now, c: cents });
+      $('#state').textContent = 'Listening';
+    } else {
+      recent = [];
+      if (now - lastGood > 500) {
+        $('#note').className = 'note-big off'; $('#needle').style.transform = 'rotate(0deg)';
+        $('#cents').innerHTML = '<span class="dim" style="font-size:12px">Hum, sing or play a note</span>';
+      }
+      $('#state').textContent = 'Listening';
+    }
+    while (trace.length && now - trace[0].t > 5000) trace.shift();
+    $('#trace').setAttribute('points', trace.map(function (p) {
+      return (100 - (now - p.t) / 50).toFixed(1) + ',' + (30 - Tools.clamp(p.c, -50, 50) * .56).toFixed(1);
+    }).join(' '));
+  }
+  function loop() {
+    if (!on) return;
+    raf = requestAnimationFrame(loop);
+    if ((frame++ % 3) !== 0) return;
+    an.getFloatTimeDomainData(buf);
+    show(detect(buf, Tools.ctx().sampleRate));
+  }
+  function start() {
+    if (on) return;
+    say('');
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { say('This browser cannot use the microphone here.', true); return; }
+    var c = Tools.ctx();
+    Tools.mic().then(function (s) {
+      stream = s; src = c.createMediaStreamSource(s); an = c.createAnalyser(); an.fftSize = 4096; buf = new Float32Array(an.fftSize);
+      src.connect(an); on = true; recent = []; trace = []; lastGood = 0; frame = 0;
+      $('#listen').textContent = 'Stop listening'; $('#listen').classList.remove('primary'); $('#listen').classList.add('danger');
+      Tools.running(false); loop();
+    }, function (e) { say(Tools.micError(e), true); });
+  }
+  function stop() {
+    on = false; cancelAnimationFrame(raf);
+    try { if (src) src.disconnect(); } catch (e) {}
+    if (stream) stream.getTracks().forEach(function (t) { t.stop(); });
+    stream = src = an = null;
+    $('#listen').textContent = 'Start listening'; $('#listen').classList.add('primary'); $('#listen').classList.remove('danger');
+    $('#state').textContent = 'Tap start'; $('#note').className = 'note-big off'; $('#note').textContent = '–'; $('#hz').innerHTML = '&nbsp;';
+    $('#needle').style.transform = 'rotate(0deg)'; $('#trace').setAttribute('points', '');
+    $('#cents').innerHTML = '<span class="dim" style="font-size:12px">Hum, sing or play a note</span>';
+  }
+  function tone(onOff) {
+    var c = Tools.ctx();
+    if (onOff) {
+      osc = c.createOscillator(); oscGain = c.createGain(); osc.frequency.value = 440;
+      oscGain.gain.setValueAtTime(.0001, c.currentTime); oscGain.gain.exponentialRampToValueAtTime(.25, c.currentTime + .05);
+      osc.connect(oscGain); oscGain.connect(c.destination); osc.start();
+      $('#ref').textContent = 'Stop tone';
+    } else if (osc) {
+      var o = osc, g = oscGain; osc = null;
+      g.gain.exponentialRampToValueAtTime(.0001, c.currentTime + .08); o.stop(c.currentTime + .1);
+      $('#ref').textContent = 'Play A 440';
+    }
+  }
+  $('#listen').addEventListener('click', function () { on ? stop() : start(); });
+  $('#ref').addEventListener('click', function () { tone(!osc); });
+  Tools.onHidden(function () { stop(); tone(false); });
+})();
+</script>
+</body>
+</html>

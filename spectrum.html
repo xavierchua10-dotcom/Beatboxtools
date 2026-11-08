@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#14161a">
+<title>Mic spectrum</title>
+<link rel="stylesheet" href="fonts.css?v=20261108i">
+<link rel="stylesheet" href="theme.css?v=20261108i">
+<link rel="stylesheet" href="tools.css?v=20261108i">
+<style>
+  .chart{height:230px;display:flex;align-items:flex-end;gap:3px;border-bottom:1px solid var(--line);position:relative}
+  .chart .b{flex:1;height:100%;position:relative}
+  .chart .b i{position:absolute;left:0;right:0;bottom:0;height:2%;border-radius:3px 3px 0 0;background:linear-gradient(180deg,var(--accent),#b8841f)}
+  .chart .b u{position:absolute;left:0;right:0;bottom:2%;height:2px;background:#f7d58a;opacity:.7;text-decoration:none}
+  .chart .idle{position:absolute;inset:0;display:grid;place-items:center;color:var(--text-faint);font-size:12.5px;text-align:center;padding:0 24px}
+  .axis{position:relative;height:14px;margin-top:6px;font:500 10px var(--f-mono);color:var(--text-faint)}
+  .axis span{position:absolute;transform:translateX(-50%);white-space:nowrap}
+  .axis span:first-child{transform:none}.axis span:last-child{transform:translateX(-100%)}
+  .bands{position:relative;height:14px;margin-top:6px}
+  .bands span{position:absolute;transform:translateX(-50%);white-space:nowrap;font:600 10px var(--f-head);letter-spacing:.14em;color:var(--accent);text-transform:uppercase}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="row sp" style="margin-bottom:10px">
+    <div class="chips" id="mode" role="group" aria-label="Display"><button class="chip on" type="button" data-m="live">LIVE</button><button class="chip" type="button" data-m="frozen">FROZEN</button></div>
+    <div class="chips" id="scale" role="group" aria-label="Frequency scale"><button class="chip on" type="button" data-s="log">LOG</button><button class="chip" type="button" data-s="lin">LINEAR</button></div>
+  </div>
+  <div class="card" style="padding:12px 10px 8px">
+    <div class="chart" id="chart" role="img" aria-label="Live spectrum of your microphone"><div class="idle" id="idle">Start listening, then make a sound.</div></div>
+    <div class="axis" id="axis"></div>
+    <div class="bands" id="bands"></div>
+  </div>
+  <div class="stats">
+    <div class="card stat"><div class="v" id="loud" style="color:var(--accent)">–</div><div class="cap">loudest</div></div>
+    <div class="card" style="flex:1;margin:0;padding:12px"><div class="row sp cap"><span>Level</span><span id="lvl">–</span></div><div class="bar" style="margin-top:10px"><i id="lvlBar"></i></div><div class="mono dim" id="pk" style="font-size:9.5px;margin-top:6px">peak –</div></div>
+  </div>
+  <div class="btns"><button class="btn primary" id="listen" type="button">Start listening</button><button class="btn" id="freeze" type="button">Freeze this sound</button></div>
+  <p class="note">Kicks sit low, snares in the middle with a bright snap, hats up high. Compare a clean take to a muddy one. Nothing is recorded or saved.</p>
+  <p class="msg" id="msg" role="status" aria-live="polite"></p>
+</div>
+<script src="tools.js?v=20261108i"></script>
+<script>
+(function () {
+  var $ = Tools.$, NB = 32, FMIN = 50, FMAX = 16000;
+  var stream = null, src = null, an = null, fd = null, td = null, raf = 0, on = false, frozen = false, scale = 'log';
+  var bars = [], caps = [], peaks = new Float32Array(NB), vals = new Float32Array(NB);
+  var chart = $('#chart');
+  for (var i = 0; i < NB; i++) {
+    var b = document.createElement('div'); b.className = 'b'; b.innerHTML = '<i></i><u></u>'; chart.appendChild(b);
+    bars.push(b.firstChild); caps.push(b.lastChild);
+  }
+  function say(t, err) { var m = $('#msg'); m.textContent = t; m.classList.toggle('err', !!err); }
+  function edge(k, fmax) { var r = k / NB; return scale === 'log' ? FMIN * Math.pow(fmax / FMIN, r) : FMIN + (fmax - FMIN) * r; }
+  function pos(f, fmax) { return (scale === 'log' ? Math.log(f / FMIN) / Math.log(fmax / FMIN) : (f - FMIN) / (fmax - FMIN)) * 100; }
+  function fmtF(f) { return f >= 1000 ? (f / 1000).toFixed(f >= 10000 ? 0 : 1).replace('.0', '') + ' k' : Math.round(f) + ' Hz'; }
+  function axis() {
+    var fmax = Math.min(FMAX, (on && an ? Tools.ctx().sampleRate / 2 : 22050)), labels = scale === 'log' ? [50, 200, 1000, 5000, fmax] : [50, 4000, 8000, 12000, fmax];
+    $('#axis').innerHTML = labels.map(function (f, i) { return '<span style="left:' + (i === 0 ? 0 : i === labels.length - 1 ? 100 : pos(f, fmax)) + '%">' + (i === labels.length - 1 ? (f / 1000).toFixed(f % 1000 ? 1 : 0) + ' kHz' : fmtF(f)) + '</span>'; }).join('');
+    $('#bands').innerHTML = scale === 'log' ? [['Bass · kick', 80], ['Snare', 1800], ['Hats', 9000]].map(function (b) { return '<span style="left:' + Tools.clamp(pos(b[1], fmax), 9, 91) + '%">' + b[0] + '</span>'; }).join('') : '';
+  }
+  function draw() {
+    for (var i = 0; i < NB; i++) {
+      bars[i].style.height = Math.max(2, vals[i] * 100) + '%';
+      caps[i].style.bottom = Math.max(2, peaks[i] * 100) + '%';
+    }
+  }
+  function frame() {
+    if (!on) return;
+    raf = requestAnimationFrame(frame);
+    if (frozen) return;
+    var c = Tools.ctx(), sr = c.sampleRate, fmax = Math.min(FMAX, sr / 2), hz = sr / an.fftSize;
+    an.getFloatFrequencyData(fd); an.getFloatTimeDomainData(td);
+    var loudBin = 0, loudDb = -200, k;
+    for (k = 0; k < NB; k++) {
+      var lo = Math.max(1, Math.floor(edge(k, fmax) / hz)), hi = Math.max(lo, Math.ceil(edge(k + 1, fmax) / hz) - 1), m = -200;
+      for (var j = lo; j <= hi && j < fd.length; j++) { if (fd[j] > m) m = fd[j]; if (fd[j] > loudDb) { loudDb = fd[j]; loudBin = j; } }
+      var v = Tools.clamp((m + 95) / 65, 0, 1);
+      vals[k] = vals[k] * .55 + v * .45;
+      peaks[k] = Math.max(vals[k], peaks[k] - .006);
+    }
+    draw();
+    var s = 0, pk = 0;
+    for (k = 0; k < td.length; k++) { var a = Math.abs(td[k]); s += td[k] * td[k]; if (a > pk) pk = a; }
+    var rms = Math.sqrt(s / td.length), db = rms > 1e-5 ? 20 * Math.log10(rms) : -100, pdb = pk > 1e-5 ? 20 * Math.log10(pk) : -100;
+    $('#lvl').textContent = db > -99 ? Math.round(db) + ' dB' : '–';
+    $('#lvlBar').style.width = Tools.clamp((db + 60) / 60 * 100, 0, 100) + '%';
+    $('#pk').textContent = 'peak ' + (pdb > -99 ? Math.round(pdb) + ' dB' : '–');
+    $('#loud').innerHTML = loudDb > -80 ? Math.round(loudBin * hz) + '<small> Hz</small>' : '–';
+  }
+  function setFrozen(f) {
+    frozen = f;
+    Array.prototype.forEach.call($('#mode').children, function (c) { c.classList.toggle('on', (c.getAttribute('data-m') === 'frozen') === f); });
+    $('#freeze').textContent = f ? 'Resume' : 'Freeze this sound';
+  }
+  function start() {
+    if (on) return;
+    say('');
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { say('This browser cannot use the microphone here.', true); return; }
+    var c = Tools.ctx();
+    Tools.mic().then(function (s) {
+      stream = s; src = c.createMediaStreamSource(s); an = c.createAnalyser(); an.fftSize = 4096; an.smoothingTimeConstant = .5;
+      fd = new Float32Array(an.frequencyBinCount); td = new Float32Array(an.fftSize);
+      src.connect(an); on = true; setFrozen(false); peaks.fill(0); vals.fill(0);
+      $('#idle').hidden = true; axis();
+      $('#listen').textContent = 'Stop listening'; $('#listen').classList.remove('primary'); $('#listen').classList.add('danger');
+      frame();
+    }, function (e) { say(Tools.micError(e), true); });
+  }
+  function stop() {
+    on = false; cancelAnimationFrame(raf);
+    try { if (src) src.disconnect(); } catch (e) {}
+    if (stream) stream.getTracks().forEach(function (t) { t.stop(); });
+    stream = src = an = null; setFrozen(false);
+    vals.fill(0); peaks.fill(0); draw(); $('#idle').hidden = false;
+    $('#loud').textContent = '–'; $('#lvl').textContent = '–'; $('#lvlBar').style.width = '0'; $('#pk').textContent = 'peak –';
+    $('#listen').textContent = 'Start listening'; $('#listen').classList.add('primary'); $('#listen').classList.remove('danger');
+  }
+  $('#listen').addEventListener('click', function () { on ? stop() : start(); });
+  $('#freeze').addEventListener('click', function () { if (on) setFrozen(!frozen); });
+  $('#mode').addEventListener('click', function (e) { var b = e.target.closest('.chip'); if (b && on) setFrozen(b.getAttribute('data-m') === 'frozen'); });
+  $('#scale').addEventListener('click', function (e) {
+    var b = e.target.closest('.chip'); if (!b) return;
+    scale = b.getAttribute('data-s');
+    Array.prototype.forEach.call(this.children, function (c) { c.classList.toggle('on', c === b); });
+    axis();
+  });
+  Tools.onHidden(stop);
+  axis(); draw();
+})();
+</script>
+</body>
+</html>

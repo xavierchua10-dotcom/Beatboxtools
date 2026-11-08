@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#14161a">
+<title>Timing check</title>
+<link rel="stylesheet" href="fonts.css?v=20261108i">
+<link rel="stylesheet" href="theme.css?v=20261108i">
+<link rel="stylesheet" href="tools.css?v=20261108i">
+<style>
+  .plot{position:relative;height:204px}
+  .plot svg{width:100%;height:100%;display:block}
+  .plot .empty{position:absolute;inset:0;display:grid;place-items:center;color:var(--text-faint);font-size:12.5px;text-align:center;padding:0 24px}
+  #tap{width:100%;height:96px;font-size:26px;letter-spacing:.14em;border-radius:16px;margin-bottom:0}
+  .flash{animation:flash .12s ease-out}
+  @keyframes flash{from{background:#fff3d6}}
+  @media (prefers-reduced-motion:reduce){.flash{animation:none}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="row sp" style="margin-bottom:12px">
+    <div class="chips" id="div" role="group" aria-label="Grid"><button class="chip on" type="button" data-d="1">QUARTERS</button><button class="chip" type="button" data-d="2">8THS</button></div>
+    <span class="mono dim" id="count" style="font-size:11px">0 taps</span>
+  </div>
+  <div class="card" style="padding:10px 12px">
+    <div class="row sp cap" style="margin-bottom:6px"><span>Early</span><span>On beat</span><span>Late</span></div>
+    <div class="plot"><svg id="plot" viewBox="0 0 100 200" preserveAspectRatio="none" aria-label="Your last taps against the beat"><rect x="40" y="0" width="20" height="200" fill="rgba(95,184,106,.10)"/><line x1="50" y1="0" x2="50" y2="200" stroke="#5fb86a" stroke-width=".6" vector-effect="non-scaling-stroke"/><g id="dots"></g></svg><div class="empty" id="empty">Start the click, then tap on every beat.</div></div>
+  </div>
+  <div class="stats">
+    <div class="card stat"><div class="v" id="avg">–</div><div class="cap">avg offset</div></div>
+    <div class="card stat"><div class="v" id="spread">–</div><div class="cap">spread</div></div>
+    <div class="card stat"><div class="v" id="score" style="color:var(--accent)">–</div><div class="cap">score</div></div>
+  </div>
+  <div class="row sp" style="margin-bottom:10px">
+    <div class="stepper"><button class="ib hold" id="minus" type="button" aria-label="Slower"><svg viewBox="0 0 24 24"><path d="M4 11h16v2H4z"/></svg></button><div class="val"><b id="bpm">90</b><span>BPM</span></div><button class="ib hold" id="plus" type="button" aria-label="Faster"><svg viewBox="0 0 24 24"><path d="M11 4h2v7h7v2h-7v7h-2v-7H4v-2h7z"/></svg></button></div>
+    <div class="row"><button class="btn" id="reset" type="button">Reset</button><button class="btn primary" id="start" type="button" style="min-width:104px">Start</button></div>
+  </div>
+  <button class="btn primary" id="tap" type="button">TAP</button>
+  <p class="note">Tap on the beat you hear. Dots move left if you are early and right if you are late. Space also taps.</p>
+</div>
+<script src="tools.js?v=20261108i"></script>
+<script>
+(function () {
+  var $ = Tools.$;
+  var bpm = Tools.store.get('savior-timing-bpm', 90), div = 1, playing = false;
+  var t0 = 0, nextN = 0, timer = null;
+  var taps = [], MAXTAPS = 16, RANGE = 60;
+
+  function beatDur() { return 60 / bpm; }
+  function gridDur() { return beatDur() / div; }
+  function click(t, accent) {
+    var c = Tools.ctx(), o = c.createOscillator(), g = c.createGain();
+    o.frequency.value = accent ? 1500 : 1000;
+    g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(accent ? .5 : .28, t + .002); g.gain.exponentialRampToValueAtTime(.0001, t + .05);
+    o.connect(g); g.connect(c.destination); o.start(t); o.stop(t + .06);
+  }
+  function sched() {
+    var c = Tools.ctx();
+    while (t0 + nextN * gridDur() < c.currentTime + .15) {
+      click(t0 + nextN * gridDur(), nextN % (4 * div) === 0);
+      nextN++;
+    }
+  }
+  function start() {
+    var c = Tools.ctx();
+    t0 = c.currentTime + .15; nextN = 0; playing = true;
+    sched(); timer = setInterval(sched, 25);
+    $('#start').textContent = 'Stop'; Tools.running(true);
+    clearTaps();
+  }
+  function stop() {
+    playing = false; clearInterval(timer); timer = null;
+    $('#start').textContent = 'Start'; Tools.running(false);
+  }
+  function setBpm(v) {
+    v = Tools.clamp(v, 40, 240);
+    if (playing) {
+      /* keep the grid in step: move the origin so the current position stays put */
+      var c = Tools.ctx(), pos = (c.currentTime - t0) / gridDur();
+      bpm = v; t0 = c.currentTime - pos * gridDur(); nextN = Math.ceil(pos);
+      clearTaps();
+    } else bpm = v;
+    $('#bpm').textContent = bpm; Tools.store.set('savior-timing-bpm', bpm);
+  }
+  function clearTaps() { taps = []; paint(); }
+
+  function tapTime(e) {
+    var c = Tools.ctx(), ts = c.getOutputTimestamp ? c.getOutputTimestamp() : null;
+    if (ts && ts.performanceTime) return ts.contextTime + (((e && e.timeStamp) || performance.now()) - ts.performanceTime) / 1000;
+    return c.currentTime;
+  }
+  function doTap(e) {
+    if (!playing) { $('#count').textContent = 'Press Start first'; return; }
+    var c = Tools.ctx(), lat = (c.outputLatency || c.baseLatency || 0);
+    var t = tapTime(e) - lat, g = gridDur();
+    var n = Math.round((t - t0) / g);
+    if (n < 0) return;
+    var off = (t - (t0 + n * g)) * 1000;
+    if (Math.abs(off) > g * 500 * 0.95) return;
+    taps.push(off); if (taps.length > MAXTAPS) taps.shift();
+    paint();
+  }
+  function paint() {
+    var dots = $('#dots'), s = '';
+    var n = taps.length, rowH = 200 / MAXTAPS;
+    taps.forEach(function (o, i) {
+      var x = 50 + Tools.clamp(o / RANGE, -1, 1) * 48, y = rowH * i + rowH / 2;
+      var a = Math.abs(o), col = a <= 12 ? '#5fb86a' : a <= 25 ? '#f2b134' : '#c1443c';
+      s += '<ellipse cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" rx="2.2" ry="3.4" fill="' + col + '"/>';
+    });
+    dots.innerHTML = s;
+    $('#empty').hidden = n > 0;
+    $('#count').textContent = n + (n === 1 ? ' tap' : ' taps');
+    if (!n) { $('#avg').textContent = $('#spread').textContent = $('#score').textContent = '–'; return; }
+    var avg = taps.reduce(function (a, b) { return a + b; }, 0) / n;
+    var sd = Math.sqrt(taps.reduce(function (a, b) { return a + (b - avg) * (b - avg); }, 0) / n);
+    var mabs = taps.reduce(function (a, b) { return a + Math.abs(b); }, 0) / n;
+    $('#avg').innerHTML = (avg < 0 ? '−' : '+') + Math.round(Math.abs(avg)) + '<small> ms</small>';
+    $('#spread').innerHTML = '±' + Math.round(sd) + '<small> ms</small>';
+    $('#score').textContent = Math.max(0, Math.round(100 - mabs * 1.5));
+  }
+
+  var tapBtn = $('#tap');
+  tapBtn.addEventListener('pointerdown', function (e) { e.preventDefault(); tapBtn.classList.remove('flash'); void tapBtn.offsetWidth; tapBtn.classList.add('flash'); doTap(e); });
+  tapBtn.addEventListener('keydown', function (e) { if (e.key === ' ' || e.key === 'Enter') e.preventDefault(); });
+  document.addEventListener('keydown', function (e) { if (e.key === ' ' && !e.repeat && !/INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) { e.preventDefault(); doTap(e); } });
+  $('#start').addEventListener('click', function () { playing ? stop() : start(); });
+  $('#reset').addEventListener('click', clearTaps);
+  $('#minus').addEventListener('click', function () { setBpm(bpm - 1); });
+  $('#plus').addEventListener('click', function () { setBpm(bpm + 1); });
+  $('#div').addEventListener('click', function (e) {
+    var b = e.target.closest('.chip'); if (!b) return;
+    div = +b.getAttribute('data-d');
+    Array.prototype.forEach.call(this.children, function (c) { c.classList.toggle('on', c === b); });
+    if (playing) { stop(); start(); } else clearTaps();
+  });
+  Tools.onHidden(stop);
+  $('#bpm').textContent = bpm; paint();
+})();
+</script>
+</body>
+</html>

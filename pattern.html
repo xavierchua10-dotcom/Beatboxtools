@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#14161a">
+<title>Pattern grid</title>
+<link rel="stylesheet" href="fonts.css?v=20261108i">
+<link rel="stylesheet" href="theme.css?v=20261108i">
+<link rel="stylesheet" href="tools.css?v=20261108i">
+<style>
+  .grid{padding:12px 8px}
+  .g-row{display:grid;grid-template-columns:44px repeat(16,1fr);gap:3px;align-items:center;margin-bottom:5px}
+  .g-row:last-child{margin-bottom:0}
+  .g-name{font:500 9.5px var(--f-mono);letter-spacing:.04em;color:var(--text-dim);text-transform:uppercase;background:none;border:0;padding:6px 0;text-align:left}
+  .g-name[aria-pressed="false"]{text-decoration:line-through;opacity:.45}
+  .cell{display:block;aspect-ratio:1;min-width:0;border-radius:5px;border:1px solid var(--line);background:var(--panel-3);padding:0}
+  .cell.q{border-color:#3a4049}
+  .cell.on{background:var(--accent);border-color:var(--accent)}
+  .cell.now{box-shadow:0 0 0 2px rgba(242,177,52,.45);border-color:var(--accent)}
+  .g-head span{text-align:center;font:500 9px var(--f-mono);color:#5a6068}
+  .g-head span.q{color:var(--accent)}
+  .notation{font:500 15px var(--f-mono);letter-spacing:.08em;line-height:1.9;display:flex;flex-wrap:wrap;gap:2px 0}
+  .notation .g{display:inline-flex;gap:8px;padding-right:8px;margin-right:8px;border-right:1px solid var(--line)}
+  .notation .g:last-child{border:0;margin:0;padding:0}
+  .notation .n{min-width:1ch;color:var(--text-dim)}
+  .notation .n.h{color:var(--accent)}
+  .notation .n.p{background:rgba(242,177,52,.18);border-radius:4px;color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="chips" id="presets" style="margin-bottom:12px" role="group" aria-label="Preset beats"></div>
+  <div class="card grid" id="grid"></div>
+  <div class="card" style="padding:12px 14px"><span class="lab" style="margin-bottom:6px">Beatbox notation</span><div class="notation" id="nota" aria-label="Pattern as beatbox notation"></div></div>
+  <div class="row sp" style="margin:4px 0 12px">
+    <div class="stepper"><button class="ib hold" id="minus" type="button" aria-label="Slower"><svg viewBox="0 0 24 24"><path d="M4 11h16v2H4z"/></svg></button><div class="val"><b id="bpm">96</b><span>BPM</span></div><button class="ib hold" id="plus" type="button" aria-label="Faster"><svg viewBox="0 0 24 24"><path d="M11 4h2v7h7v2h-7v7h-2v-7H4v-2h7z"/></svg></button></div>
+    <div style="flex:1;margin-left:14px"><div class="row sp cap"><label for="swing">Swing</label><span id="swv">0%</span></div><input type="range" id="swing" min="0" max="60" step="1" value="0"></div>
+  </div>
+  <button class="btn primary block" id="play" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg><span>Play</span></button>
+  <p class="note">Tap a square to add or remove a hit. Tap a row name to mute it. It keeps playing if you close it, so you can record over it.</p>
+</div>
+<script src="tools.js?v=20261108i"></script>
+<script>
+(function () {
+  var $ = Tools.$, KEY = 'savior-pattern-v1';
+  var ROWS = [{ id: 'kick', name: 'Kick', ch: 'B' }, { id: 'snare', name: 'Snare', ch: 'K' }, { id: 'hat', name: 'Hat', ch: 't' }, { id: 'bass', name: 'Bass', ch: 'w' }];
+  function mk(o) { var g = {}; ROWS.forEach(function (r) { var a = new Array(16).fill(0); (o[r.id] || []).forEach(function (i) { a[i] = 1; }); g[r.id] = a; }); return g; }
+  var PRESETS = [
+    { n: 'Boots n cats', g: mk({ kick: [0, 8, 10], snare: [4, 12], hat: [0, 2, 4, 6, 8, 10, 12, 14] }) },
+    { n: 'Four on floor', g: mk({ kick: [0, 4, 8, 12], snare: [4, 12], hat: [2, 6, 10, 14] }) },
+    { n: 'Break', g: mk({ kick: [0, 3, 6, 10], snare: [4, 12, 15], hat: [0, 2, 4, 6, 8, 10, 12, 14], bass: [10] }) },
+    { n: 'Empty', g: mk({}) }
+  ];
+  var saved = Tools.store.get(KEY, null);
+  var grid = saved && saved.g ? saved.g : JSON.parse(JSON.stringify(PRESETS[0].g));
+  var mute = saved && saved.m ? saved.m : {}, bpm = saved && saved.bpm || 96, swing = saved && saved.sw || 0, presetOn = saved ? (saved.p == null ? -1 : saved.p) : 0;
+  ROWS.forEach(function (r) { if (!Array.isArray(grid[r.id]) || grid[r.id].length !== 16) grid[r.id] = new Array(16).fill(0); });
+  function save() { Tools.store.set(KEY, { g: grid, m: mute, bpm: bpm, sw: swing, p: presetOn }); }
+
+  /* sound */
+  var noise = null;
+  function noiseBuf(c) {
+    if (noise) return noise;
+    noise = c.createBuffer(1, c.sampleRate, c.sampleRate);
+    var d = noise.getChannelData(0); for (var i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    return noise;
+  }
+  function env(c, t, peak, dur) {
+    var g = c.createGain(); g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(peak, t + .003); g.gain.exponentialRampToValueAtTime(.0001, t + dur); g.connect(c.destination); return g;
+  }
+  var VOICE = {
+    kick: function (c, t) { var o = c.createOscillator(); o.frequency.setValueAtTime(160, t); o.frequency.exponentialRampToValueAtTime(42, t + .14); o.connect(env(c, t, 1, .32)); o.start(t); o.stop(t + .35); },
+    snare: function (c, t) {
+      var n = c.createBufferSource(); n.buffer = noiseBuf(c); var f = c.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 2200; f.Q.value = .8; n.connect(f); f.connect(env(c, t, .7, .18)); n.start(t, Math.random() * .5); n.stop(t + .2);
+      var o = c.createOscillator(); o.type = 'triangle'; o.frequency.setValueAtTime(220, t); o.frequency.exponentialRampToValueAtTime(140, t + .08); o.connect(env(c, t, .5, .12)); o.start(t); o.stop(t + .15);
+    },
+    hat: function (c, t) { var n = c.createBufferSource(); n.buffer = noiseBuf(c); var f = c.createBiquadFilter(); f.type = 'highpass'; f.frequency.value = 7500; n.connect(f); f.connect(env(c, t, .38, .05)); n.start(t, Math.random() * .5); n.stop(t + .07); },
+    bass: function (c, t) { var o = c.createOscillator(); o.frequency.value = 55; var g = env(c, t, .8, .3); o.connect(g); o.start(t); o.stop(t + .33); }
+  };
+
+  /* clock */
+  var playing = false, timer = null, step = 0, nextT = 0, queue = [], raf = 0, lastNow = -1;
+  function stepDur() { return 60 / bpm / 4; }
+  function sched() {
+    var c = Tools.ctx();
+    while (nextT < c.currentTime + .12) {
+      var t = nextT + (step % 2 ? swing / 100 * stepDur() * .55 : 0);
+      ROWS.forEach(function (r) { if (grid[r.id][step] && !mute[r.id]) VOICE[r.id](c, t); });
+      queue.push({ t: t, s: step });
+      nextT += stepDur(); step = (step + 1) % 16;
+    }
+  }
+  function head() {
+    raf = requestAnimationFrame(head);
+    var c = Tools.ctx(), now = c.currentTime - (c.outputLatency || 0), cur = lastNow;
+    while (queue.length && queue[0].t <= now) cur = queue.shift().s;
+    if (cur !== lastNow) { lastNow = cur; paintNow(); }
+  }
+  function play() {
+    var c = Tools.ctx(); playing = true; step = 0; nextT = c.currentTime + .08; queue = []; lastNow = -1;
+    sched(); timer = setInterval(sched, 25); head();
+    setPlayBtn(); Tools.running(true);
+  }
+  function stop() {
+    playing = false; clearInterval(timer); cancelAnimationFrame(raf); queue = []; lastNow = -1; paintNow(); setPlayBtn(); Tools.running(false);
+  }
+  function setPlayBtn() {
+    var b = $('#play'); b.setAttribute('aria-label', playing ? 'Stop' : 'Play');
+    b.innerHTML = playing ? '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="6.5" width="11" height="11" rx="2.5"/></svg><span>Stop</span>' : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg><span>Play</span>';
+  }
+
+  /* drawing */
+  function build() {
+    var h = '<div class="g-row g-head"><span></span>';
+    for (var i = 0; i < 16; i++) h += '<span class="' + (i % 4 ? '' : 'q') + '">' + (i % 4 ? '·' : i / 4 + 1) + '</span>';
+    h += '</div>';
+    ROWS.forEach(function (r) {
+      h += '<div class="g-row" data-r="' + r.id + '"><button class="g-name" type="button" aria-pressed="' + !mute[r.id] + '" aria-label="' + r.name + ' row, tap to mute">' + r.name + '</button>';
+      for (var i = 0; i < 16; i++) h += '<button class="cell' + (i % 4 ? '' : ' q') + (grid[r.id][i] ? ' on' : '') + '" type="button" data-i="' + i + '" aria-pressed="' + !!grid[r.id][i] + '" aria-label="' + r.name + ' step ' + (i + 1) + '"></button>';
+      h += '</div>';
+    });
+    $('#grid').innerHTML = h; paintNow(); nota();
+  }
+  function paintNow() {
+    var cells = document.querySelectorAll('.cell');
+    Array.prototype.forEach.call(cells, function (c) { c.classList.toggle('now', +c.getAttribute('data-i') === lastNow); });
+    var ns = document.querySelectorAll('.notation .n'); Array.prototype.forEach.call(ns, function (n) { n.classList.toggle('p', +n.getAttribute('data-i') === lastNow); });
+  }
+  function nota() {
+    var out = '';
+    for (var b = 0; b < 4; b++) {
+      out += '<span class="g">';
+      for (var k = 0; k < 4; k++) {
+        var i = b * 4 + k, s = '';
+        ROWS.forEach(function (r) { if (grid[r.id][i]) s += r.ch; });
+        out += '<span class="n' + (s === 't' ? ' h' : '') + '" data-i="' + i + '">' + (s || '·') + '</span>';
+      }
+      out += '</span>';
+    }
+    $('#nota').innerHTML = out;
+  }
+  function presets() {
+    $('#presets').innerHTML = PRESETS.map(function (p, i) { return '<button class="chip' + (i === presetOn ? ' on' : '') + '" type="button" data-p="' + i + '">' + p.n.toUpperCase() + '</button>'; }).join('');
+  }
+  $('#presets').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-p]'); if (!b) return;
+    presetOn = +b.getAttribute('data-p'); grid = JSON.parse(JSON.stringify(PRESETS[presetOn].g)); save(); presets(); build();
+  });
+  $('#grid').addEventListener('click', function (e) {
+    var cell = e.target.closest('.cell'), nm = e.target.closest('.g-name');
+    if (cell) {
+      var r = cell.parentNode.getAttribute('data-r'), i = +cell.getAttribute('data-i');
+      grid[r][i] = grid[r][i] ? 0 : 1; cell.classList.toggle('on', !!grid[r][i]); cell.setAttribute('aria-pressed', !!grid[r][i]);
+      presetOn = -1; presets(); nota(); save();
+      if (grid[r][i] && !playing && !mute[r]) { try { VOICE[r](Tools.ctx(), Tools.ctx().currentTime + .01); } catch (x) {} }
+    } else if (nm) {
+      var rr = nm.parentNode.getAttribute('data-r'); mute[rr] = !mute[rr]; nm.setAttribute('aria-pressed', !mute[rr]); save();
+    }
+  });
+  function setBpm(v) { bpm = Tools.clamp(v, 50, 220); $('#bpm').textContent = bpm; save(); }
+  $('#minus').addEventListener('click', function () { setBpm(bpm - 2); });
+  $('#plus').addEventListener('click', function () { setBpm(bpm + 2); });
+  $('#swing').addEventListener('input', function () { swing = +this.value; $('#swv').textContent = swing + '%'; save(); });
+  $('#play').addEventListener('click', function () { playing ? stop() : play(); });
+  $('#bpm').textContent = bpm; $('#swing').value = swing; $('#swv').textContent = swing + '%';
+  presets(); build(); setPlayBtn();
+})();
+</script>
+</body>
+</html>

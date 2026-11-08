@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#14161a">
+<title>Freestyle prompts</title>
+<link rel="stylesheet" href="fonts.css?v=20261108i">
+<link rel="stylesheet" href="theme.css?v=20261108i">
+<link rel="stylesheet" href="tools.css?v=20261108i">
+<style>
+  .pc{padding:14px 14px 16px;width:100%;text-align:left;display:block;color:inherit;font:inherit}
+  .pc .val{font:700 30px/1.1 var(--f-head);letter-spacing:.04em;text-transform:uppercase;overflow-wrap:anywhere}
+  .pc .sub{margin-top:5px;color:var(--text-dim);font-size:12.5px;line-height:1.4}
+  .lock{width:34px;height:34px;flex:none;border-radius:8px;border:1px solid transparent;background:none;color:var(--text-faint);display:grid;place-items:center;padding:0;margin:-6px -6px 0 0}
+  .lock svg{width:18px;height:18px;fill:currentColor}
+  .lock[aria-pressed="true"]{color:var(--accent);border-color:var(--accent-dim);background:rgba(242,177,52,.1)}
+  .pc.flip .val,.pc.flip .sub{animation:pop .22s ease-out}
+  @keyframes pop{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+  .timer{font:700 56px/1 var(--f-head);text-align:center;margin:2px 0 10px}
+  .timer.low{color:var(--accent-2)}
+  @media (prefers-reduced-motion:reduce){.pc.flip .val,.pc.flip .sub{animation:none}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="row sp" style="margin-bottom:12px">
+    <div class="chips" id="lens" role="group" aria-label="Round length">
+      <button class="chip" type="button" data-s="30">30 SEC</button><button class="chip on" type="button" data-s="60">60 SEC</button><button class="chip" type="button" data-s="90">90 SEC</button>
+    </div>
+    <span class="mono dim" style="font-size:11px">no repeats</span>
+  </div>
+  <div id="cards"></div>
+  <div class="timer" id="clock" hidden aria-live="off">1:00</div>
+  <button class="btn primary block" id="shuf" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 3h5v5l-1.8-1.8-4.1 4.1-1.4-1.4 4.1-4.1zM3 4.4 4.4 3 11 9.6 9.6 11zM16 21l1.8-1.8-4.1-4.1 1.4-1.4 4.1 4.1L21 16v5zM3 19.6 9.6 13 11 14.4 4.4 21z"/></svg> Shuffle</button>
+  <div class="btns" style="margin:12px 0 0"><button class="btn" id="go" type="button">Start 60 sec timer</button><button class="btn" id="rec" type="button">Record it</button></div>
+  <p class="note">Tap the lock to keep one card while you shuffle the others.</p>
+</div>
+<script src="tools.js?v=20261108i"></script>
+<script>
+(function () {
+  var $ = Tools.$;
+  var LISTS = [
+    { k: 'Theme', items: [
+      ['Thunderstorm', 'Build it from a drizzle to a crash.'], ['Late night train', 'Steady rhythm, then it speeds past.'], ['Robot factory', 'Machines starting up, one by one.'],
+      ['Jungle', 'Layers of small sounds under one big one.'], ['Boxing match', 'Rounds, bells and a knockout.'], ['Haunted house', 'Creeping quiet, sudden scares.'],
+      ['Rush hour', 'Busy, crowded, honking.'], ['Space launch', 'Countdown, then lift off.'], ['Arcade', 'Bleeps, coins and a boss fight.'], ['Heartbeat', 'Start slow and let it race.'] ] },
+    { k: 'Sound to feature', items: [
+      ['Wobble bass', 'Use it at least twice.'], ['Inward snare', 'Make it the star of the last 8 bars.'], ['Lip roll', 'Land it right before a drop.'], ['Click roll', 'Weave it through the whole round.'],
+      ['Throat bass', 'Hold one long note under everything.'], ['Hi-hat roll', 'Speed it up, then pull it back.'], ['Vocal scratch', 'Answer your own beat with it.'], ['Humming', 'Sing a line over the groove.'],
+      ['Sub bass', 'Feel it more than hear it.'], ['Cough snare', 'Use it in place of your usual snare.'] ] },
+    { k: 'Rule', items: [
+      ['No kick for 8 bars', 'Hats and bass only, then drop it back in.'], ['Only 3 sounds', 'Pick three and stay with them.'], ['Slow it down', 'Half time. Make every hit count.'], ['Silence is a sound', 'Include at least 3 clean stops.'],
+      ['Change every 4 bars', 'New groove each time, no gaps.'], ['Build, never drop', 'Stack sounds up, keep rising.'], ['Mirror yourself', 'Play a pattern, then play it backwards.'], ['One breath rule', 'No obvious breath, hide your inhales.'],
+      ['Tempo jump', 'Switch speed halfway through.'], ['Eyes closed', 'Feel the beat without watching anything.'] ] }
+  ];
+  var state = LISTS.map(function (l) { return { i: -1, lock: false, seen: [] }; });
+  var len = 60, run = null;
+
+  function pick(n) {
+    var l = LISTS[n], s = state[n];
+    if (s.seen.length >= l.items.length - 1) s.seen = s.i > -1 ? [s.i] : [];
+    var c; do { c = Math.floor(Math.random() * l.items.length); } while (s.seen.indexOf(c) > -1 || c === s.i);
+    s.seen.push(c); s.i = c;
+  }
+  function paint(flipAll) {
+    $('#cards').innerHTML = LISTS.map(function (l, n) {
+      var it = l.items[state[n].i];
+      return '<div class="card pc' + (flipAll && !state[n].lock ? ' flip' : '') + '"><div class="row sp" style="margin-bottom:6px"><span class="lab" style="margin:0">' + l.k + '</span>' +
+        '<button class="lock" type="button" data-n="' + n + '" aria-pressed="' + state[n].lock + '" aria-label="Keep this ' + l.k.toLowerCase() + '"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10V8a5 5 0 0 1 10 0v2h1a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-9a1 1 0 0 1 1-1zm2 0h6V8a3 3 0 0 0-6 0z"/></svg></button></div>' +
+        '<div class="val">' + it[0] + '</div><div class="sub">' + it[1] + '</div></div>';
+    }).join('');
+  }
+  function shuffle() {
+    LISTS.forEach(function (l, n) { if (!state[n].lock || state[n].i < 0) pick(n); });
+    paint(true);
+  }
+  $('#cards').addEventListener('click', function (e) {
+    var b = e.target.closest('.lock'); if (!b) return;
+    var n = +b.getAttribute('data-n'); state[n].lock = !state[n].lock;
+    b.setAttribute('aria-pressed', state[n].lock);
+  });
+  $('#shuf').addEventListener('click', shuffle);
+  $('#lens').addEventListener('click', function (e) {
+    var b = e.target.closest('.chip'); if (!b || run) return;
+    len = +b.getAttribute('data-s');
+    Array.prototype.forEach.call(this.children, function (c) { c.classList.toggle('on', c === b); });
+    $('#go').textContent = 'Start ' + len + ' sec timer';
+  });
+  function fmt(s) { return Math.floor(s / 60) + ':' + (s % 60 < 10 ? '0' : '') + (s % 60); }
+  function chime(f, d) {
+    try { var c = Tools.ctx(), o = c.createOscillator(), g = c.createGain(); o.frequency.value = f; g.gain.setValueAtTime(.0001, c.currentTime); g.gain.exponentialRampToValueAtTime(.25, c.currentTime + .02); g.gain.exponentialRampToValueAtTime(.0001, c.currentTime + d); o.connect(g); g.connect(c.destination); o.start(); o.stop(c.currentTime + d + .05); } catch (x) {}
+  }
+  function stopTimer() {
+    if (run) clearInterval(run.t); run = null;
+    $('#clock').hidden = true; $('#go').textContent = 'Start ' + len + ' sec timer'; Tools.running(false);
+    Array.prototype.forEach.call($('#lens').children, function (c) { c.disabled = false; });
+  }
+  $('#go').addEventListener('click', function () {
+    if (run) { stopTimer(); return; }
+    Tools.ctx();
+    run = { end: Date.now() + len * 1000, left: len };
+    var clock = $('#clock'); clock.hidden = false; clock.classList.remove('low'); clock.textContent = fmt(len);
+    $('#go').textContent = 'Stop timer'; Tools.running(true);
+    Array.prototype.forEach.call($('#lens').children, function (c) { c.disabled = true; });
+    chime(660, .15);
+    run.t = setInterval(function () {
+      var left = Math.max(0, Math.ceil((run.end - Date.now()) / 1000));
+      if (left !== run.left) {
+        run.left = left; clock.textContent = fmt(left); clock.classList.toggle('low', left <= 5);
+        if (left > 0 && left <= 3) chime(660, .1);
+      }
+      if (left <= 0) { chime(880, .7); Tools.buzz([80, 60, 80]); stopTimer(); $('#cards').scrollIntoView({ block: 'start' }); }
+    }, 200);
+  });
+  $('#rec').addEventListener('click', function () { Tools.tell({ type: 'goto', tab: 'voice' }); });
+  Tools.onHidden(stopTimer);
+  shuffle();
+})();
+</script>
+</body>
+</html>
