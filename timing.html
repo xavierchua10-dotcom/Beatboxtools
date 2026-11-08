@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<script src="theme.js?v=20261108s"></script>
+<script src="theme.js?v=20261108t"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#14161a">
 <title>Timing check</title>
-<link rel="stylesheet" href="fonts.css?v=20261108s">
-<link rel="stylesheet" href="theme.css?v=20261108s">
-<link rel="stylesheet" href="tools.css?v=20261108s">
-<link rel="stylesheet" href="themes.css?v=20261108s">
+<link rel="stylesheet" href="fonts.css?v=20261108t">
+<link rel="stylesheet" href="theme.css?v=20261108t">
+<link rel="stylesheet" href="tools.css?v=20261108t">
+<link rel="stylesheet" href="themes.css?v=20261108t">
 <style>
   .plot{position:relative;height:204px}
   .plot svg{width:100%;height:100%;display:block}
@@ -35,14 +35,14 @@
     <div class="card stat"><div class="v" id="spread">–</div><div class="cap">spread</div></div>
     <div class="card stat"><div class="v" id="score" style="color:var(--accent-ink)">–</div><div class="cap">score</div></div>
   </div>
-  <div class="row sp" style="margin-bottom:10px">
+  <div class="row sp wrap" style="margin-bottom:10px;row-gap:10px">
     <div class="stepper"><button class="ib hold" id="minus" type="button" aria-label="Slower"><svg viewBox="0 0 24 24"><path d="M4 11h16v2H4z"/></svg></button><div class="val"><b id="bpm">90</b><span>BPM</span></div><button class="ib hold" id="plus" type="button" aria-label="Faster"><svg viewBox="0 0 24 24"><path d="M11 4h2v7h7v2h-7v7h-2v-7H4v-2h7z"/></svg></button></div>
     <div class="row"><button class="btn" id="reset" type="button">Reset</button><button class="btn primary" id="start" type="button" style="min-width:104px">Start</button></div>
   </div>
   <button class="btn primary" id="tap" type="button">TAP</button>
   <p class="note">Tap on the beat you hear. Dots move left if you are early and right if you are late. Space also taps.</p>
 </div>
-<script src="tools.js?v=20261108s"></script>
+<script src="tools.js?v=20261108t"></script>
 <script>
 (function () {
   var $ = Tools.$;
