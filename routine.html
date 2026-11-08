@@ -6,8 +6,8 @@
 <title>Routine builder by Savior</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="fonts.css?v=20261108c">
-<link rel="stylesheet" href="theme.css?v=20261108c">
+<link rel="stylesheet" href="fonts.css?v=20261108e">
+<link rel="stylesheet" href="theme.css?v=20261108e">
 <style>
   .card{margin-bottom:12px}
   .lab{display:block;margin:0 0 8px;color:var(--text-faint);font:500 12px var(--f-head);letter-spacing:.12em;text-transform:uppercase}
@@ -436,8 +436,15 @@
   });
 
   var run = null, ac = null, wl = null;
+  /* rehearsal options come from the Settings tab */
+  function opts() {
+    var o = {};
+    try { o = JSON.parse(localStorage.getItem('savior-settings-v1')) || {}; } catch (e) {}
+    return { countIn: [0, 3, 5, 10].indexOf(o.countIn) > -1 ? o.countIn : 3, beeps: o.beeps !== false, vibrate: o.vibrate !== false };
+  }
+  var cfg = opts();
   function beep(freq, dur, vol) {
-    if (!ac) return;
+    if (!ac || !cfg.beeps) return;
     try {
       var o = ac.createOscillator(), g = ac.createGain(), t = ac.currentTime;
       o.type = 'sine'; o.frequency.value = freq;
@@ -448,7 +455,7 @@
       o.start(t); o.stop(t + dur + 0.02);
     } catch (e) {}
   }
-  function buzz(p) { try { if (navigator.vibrate) navigator.vibrate(p); } catch (e) {} }
+  function buzz(p) { try { if (cfg.vibrate && navigator.vibrate) navigator.vibrate(p); } catch (e) {} }
   function lock() {
     try {
       if (navigator.wakeLock) navigator.wakeLock.request('screen').then(function (l) { wl = l; }, function () {});
@@ -518,7 +525,8 @@
       segs.push({ name: s.name || 'Section ' + (i + 1), notes: s.notes, start: t, end: t + s.sec });
       t += s.sec;
     });
-    run = { segs: segs, total: t, pos: -3, last: performance.now(), paused: false, done: false, seg: -1, rem: null, whole: null };
+    cfg = opts();
+    run = { segs: segs, total: t, pos: -cfg.countIn, last: performance.now(), paused: false, done: false, seg: -1, rem: null, whole: null };
     $('#rehName').textContent = r.name || 'Routine';
     $('#rehPause').textContent = 'Pause';
     $('#reh').hidden = false;

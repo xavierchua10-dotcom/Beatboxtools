@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#14161a">
+<title>Settings</title>
+<link rel="stylesheet" href="fonts.css?v=20261108e">
+<link rel="stylesheet" href="theme.css?v=20261108e">
+<style>
+  .card{margin-bottom:10px;padding:0}
+  .set{display:flex;align-items:center;gap:12px;padding:14px;border-top:1px solid var(--line)}
+  .set:first-child{border-top:0}
+  .set .tx{flex:1;min-width:0}
+  .set b{display:block;font:600 13px var(--f-head);letter-spacing:.06em;text-transform:uppercase}
+  .set small{display:block;margin-top:3px;color:var(--text-dim);font-size:12px;line-height:1.45}
+  .set .val{flex:none;color:var(--text-dim);font:500 13px var(--f-mono)}
+  .set.col{flex-direction:column;align-items:stretch;gap:10px}
+  .chips{display:flex;gap:8px;flex-wrap:wrap}
+  .switch{appearance:none;-webkit-appearance:none;flex:none;width:44px;height:26px;border-radius:99px;margin:0;
+    background:var(--panel-3);border:1px solid var(--line);position:relative;cursor:pointer;transition:background 160ms ease,border-color 160ms ease}
+  .switch::after{content:"";position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:var(--text-dim);transition:transform 160ms ease,background 160ms ease}
+  .switch:checked{background:rgba(var(--accent-rgb),.22);border-color:var(--accent)}
+  .switch:checked::after{transform:translateX(18px);background:var(--accent)}
+  .btn.wide{width:100%}
+  .msg{min-height:18px;margin:8px 0 0;text-align:center;color:var(--text-dim);font-size:13px}
+  .about{margin-top:22px;text-align:center;color:var(--text-faint);font:400 11px/1.7 var(--f-mono);letter-spacing:.08em}
+</style>
+</head>
+<body>
+<main class="app">
+  <h1 class="page-title"><span>Settings</span></h1>
+  <p class="page-tag">by savior</p>
+
+  <span class="section-label" style="margin-top:4px">Recording</span>
+  <section class="card">
+    <label class="set">
+      <span class="tx"><b>Raw audio</b><small>No echo cancelling, noise reduction or auto gain. Keeps your beatbox sounds as they are.</small></span>
+      <input id="raw" class="switch" type="checkbox" checked>
+    </label>
+  </section>
+
+  <span class="section-label">Rehearsal</span>
+  <section class="card">
+    <div class="set col">
+      <span class="tx"><b>Count-in</b><small>Seconds of countdown before a rehearsal starts.</small></span>
+      <div class="chips" id="ci">
+        <button class="chip" type="button" data-v="0">None</button>
+        <button class="chip" type="button" data-v="3">3 sec</button>
+        <button class="chip" type="button" data-v="5">5 sec</button>
+        <button class="chip" type="button" data-v="10">10 sec</button>
+      </div>
+    </div>
+    <label class="set">
+      <span class="tx"><b>Beeps</b><small>A beep at every section change and the last 3 seconds.</small></span>
+      <input id="beeps" class="switch" type="checkbox" checked>
+    </label>
+    <label class="set">
+      <span class="tx"><b>Vibration</b><small>Phones only, if your browser allows it.</small></span>
+      <input id="vib" class="switch" type="checkbox" checked>
+    </label>
+  </section>
+
+  <span class="section-label">Your data</span>
+  <section class="card">
+    <div class="set"><span class="tx"><b>Voice notes</b><small>Stored on this device only.</small></span><span class="val" id="notes">…</span></div>
+    <div class="set"><span class="tx"><b>Routines</b></span><span class="val" id="routines">…</span></div>
+    <div class="set col"><button id="wipe" class="btn danger wide" type="button" disabled>Delete all voice notes</button></div>
+  </section>
+  <p id="msg" class="msg" role="status" aria-live="polite"></p>
+
+  <p class="about">BEATBOX TOOLS · BY SAVIOR<br>Everything saves on this device. Clearing site data removes it.</p>
+</main>
+<script>
+(function () {
+  var $ = function (s) { return document.querySelector(s); };
+  var SKEY = 'savior-settings-v1', RAW_KEY = 'savior-voice-raw', RKEY = 'savior-routines-v1';
+  var DEF = { countIn: 3, beeps: true, vibrate: true };
+
+  function load() {
+    var s = {};
+    try { s = JSON.parse(localStorage.getItem(SKEY)) || {}; } catch (e) {}
+    return { countIn: [0, 3, 5, 10].indexOf(s.countIn) > -1 ? s.countIn : DEF.countIn,
+             beeps: s.beeps !== false, vibrate: s.vibrate !== false };
+  }
+  var st = load();
+  function save() { try { localStorage.setItem(SKEY, JSON.stringify(st)); } catch (e) {} }
+
+  function paint() {
+    Array.prototype.forEach.call(document.querySelectorAll('#ci .chip'), function (c) {
+      c.classList.toggle('on', Number(c.getAttribute('data-v')) === st.countIn);
+    });
+    $('#beeps').checked = st.beeps; $('#vib').checked = st.vibrate;
+    try { $('#raw').checked = localStorage.getItem(RAW_KEY) !== '0'; } catch (e) {}
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('#ci .chip'), function (c) {
+    c.addEventListener('click', function () { st.countIn = Number(c.getAttribute('data-v')); save(); paint(); });
+  });
+  $('#beeps').addEventListener('change', function () { st.beeps = this.checked; save(); });
+  $('#vib').addEventListener('change', function () { st.vibrate = this.checked; save(); });
+  $('#raw').addEventListener('change', function () {
+    try { localStorage.setItem(RAW_KEY, this.checked ? '1' : '0'); } catch (e) {}
+  });
+  /* the Record tab can change this too */
+  window.addEventListener('storage', function (e) { if (e.key === RAW_KEY) paint(); });
+
+  /* data summary */
+  function fmtSize(b) { return b >= 1048576 ? (b / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(b / 1024)) + ' KB'; }
+  function openDB() {
+    return new Promise(function (res, rej) {
+      if (!window.indexedDB) { rej(new Error('no indexedDB')); return; }
+      var q = indexedDB.open('savior-voice-notes', 1);
+      q.onupgradeneeded = function () {
+        var d = q.result;
+        if (!d.objectStoreNames.contains('meta')) d.createObjectStore('meta', { keyPath: 'id' });
+        if (!d.objectStoreNames.contains('blob')) d.createObjectStore('blob', { keyPath: 'id' });
+      };
+      q.onsuccess = function () { res(q.result); };
+      q.onerror = function () { rej(q.error); };
+    });
+  }
+  function summary() {
+    openDB().then(function (db) {
+      var rq = db.transaction('meta').objectStore('meta').getAll();
+      rq.onsuccess = function () {
+        var list = rq.result || [], size = 0;
+        list.forEach(function (m) { size += m.size || 0; });
+        $('#notes').textContent = list.length ? list.length + (list.length === 1 ? ' note · ' : ' notes · ') + fmtSize(size) : 'None';
+        $('#wipe').disabled = !list.length;
+        db.close();
+      };
+      rq.onerror = function () { $('#notes').textContent = '–'; db.close(); };
+    }, function () { $('#notes').textContent = 'Unavailable'; });
+    var n = 0;
+    try { var r = JSON.parse(localStorage.getItem(RKEY)); n = r && r.routines ? r.routines.length : (Array.isArray(r) ? r.length : 0); } catch (e) {}
+    $('#routines').textContent = n ? String(n) : 'None yet';
+  }
+
+  var armed = false, timer = null;
+  function disarm() { armed = false; var b = $('#wipe'); b.classList.remove('armed'); b.textContent = 'Delete all voice notes'; }
+  $('#wipe').addEventListener('click', function () {
+    var b = this;
+    if (!armed) {
+      armed = true; b.classList.add('armed'); b.textContent = 'Tap again to delete everything';
+      clearTimeout(timer); timer = setTimeout(disarm, 3500); return;
+    }
+    clearTimeout(timer); disarm();
+    openDB().then(function (db) {
+      var tx = db.transaction(['meta', 'blob'], 'readwrite');
+      tx.objectStore('meta').clear(); tx.objectStore('blob').clear();
+      tx.oncomplete = function () {
+        db.close(); $('#msg').textContent = 'All voice notes deleted.';
+        try { var bc = new BroadcastChannel('savior-voice'); bc.postMessage({ type: 'saved' }); bc.close(); } catch (e) {}
+        summary();
+      };
+      tx.onerror = function () { db.close(); $('#msg').textContent = 'Could not delete the notes.'; };
+    }, function () { $('#msg').textContent = 'Could not delete the notes.'; });
+  });
+
+  window.addEventListener('message', function (e) {
+    if (e.origin === location.origin && e.data && e.data.type === 'shown') { paint(); summary(); $('#msg').textContent = ''; }
+  });
+  paint(); summary();
+})();
+</script>
+</body>
+</html>

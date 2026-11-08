@@ -13,7 +13,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-<link rel="stylesheet" href="fonts.css?v=20261108d">
+<link rel="stylesheet" href="fonts.css?v=20261108e">
 <style>
   :root{
     color-scheme:dark;
@@ -58,7 +58,7 @@
   nav{flex:none;position:relative;background:var(--bg);border-top:1px solid var(--line);padding:0 0 var(--safe-bottom)}
   .tabs{position:relative;display:flex;max-width:480px;margin:0 auto;padding:4px 8px}
   .tab-indicator{
-    position:absolute;top:-1px;left:8px;width:calc((100% - 16px)/3);height:2.5px;background:var(--accent);border-radius:2px;
+    position:absolute;top:-1px;left:8px;width:calc((100% - 16px)/4);height:2.5px;background:var(--accent);border-radius:2px;
     transition:transform .25s cubic-bezier(.65,0,.35,1);
   }
   nav button{
@@ -122,9 +122,10 @@
   </header>
 
   <main class="stage" id="stage">
-    <iframe id="v-voice" class="view" src="voice.html?v=20261108d" title="Voice note recorder" role="tabpanel" allow="autoplay; screen-wake-lock; microphone"></iframe>
-    <iframe id="v-history" class="view" src="history.html?v=20261108d" title="Voice note history" role="tabpanel" allow="autoplay"></iframe>
-    <iframe id="v-routine" class="view" src="routine.html?v=20261108d" title="Routine builder" role="tabpanel" allow="autoplay; screen-wake-lock"></iframe>
+    <iframe id="v-voice" class="view" src="voice.html?v=20261108e" title="Voice note recorder" role="tabpanel" allow="autoplay; screen-wake-lock; microphone"></iframe>
+    <iframe id="v-history" class="view" src="history.html?v=20261108e" title="Voice note history" role="tabpanel" allow="autoplay"></iframe>
+    <iframe id="v-routine" class="view" src="routine.html?v=20261108e" title="Routine builder" role="tabpanel" allow="autoplay; screen-wake-lock"></iframe>
+    <iframe id="v-settings" class="view" src="settings.html?v=20261108e" title="Settings" role="tabpanel"></iframe>
   </main>
 
   <nav aria-label="Beatbox tools" id="tabnav">
@@ -141,6 +142,10 @@
       <button role="tab" data-tab="routine" aria-controls="v-routine" aria-selected="false">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.3 5.7a1 1 0 0 1 1.4-1.4l.6.6 1.6-1.6a1 1 0 0 1 1.4 1.4l-2.3 2.3a1 1 0 0 1-1.4 0zM3.3 11.7a1 1 0 0 1 1.4-1.4l.6.6 1.6-1.6a1 1 0 0 1 1.4 1.4l-2.3 2.3a1 1 0 0 1-1.4 0zM3.3 17.7a1 1 0 0 1 1.4-1.4l.6.6 1.6-1.6a1 1 0 0 1 1.4 1.4l-2.3 2.3a1 1 0 0 1-1.4 0zM11 5a1 1 0 0 1 1-1h8a1 1 0 0 1 0 2h-8a1 1 0 0 1-1-1zm0 6a1 1 0 0 1 1-1h8a1 1 0 0 1 0 2h-8a1 1 0 0 1-1-1zm0 6a1 1 0 0 1 1-1h8a1 1 0 0 1 0 2h-8a1 1 0 0 1-1-1z"/></svg>
         Routine
+      </button>
+      <button role="tab" data-tab="settings" aria-controls="v-settings" aria-selected="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+        Settings
       </button>
     </div>
   </nav>
@@ -167,14 +172,14 @@
           <span class="run">Running</span><span class="go" aria-hidden="true">›</span>
         </button>
       </div>
-      <iframe id="v-metronome" class="pane" src="metronome.html?v=20261108d" title="Metronome" allow="autoplay; screen-wake-lock"></iframe>
-      <iframe id="v-battle" class="pane" src="battle.html?v=20261108d" title="Battle round timer" allow="autoplay; screen-wake-lock"></iframe>
+      <iframe id="v-metronome" class="pane" src="metronome.html?v=20261108e" title="Metronome" allow="autoplay; screen-wake-lock"></iframe>
+      <iframe id="v-battle" class="pane" src="battle.html?v=20261108e" title="Battle round timer" allow="autoplay; screen-wake-lock"></iframe>
     </div>
   </section>
 
 <script>
 (function () {
-  var IDS = ['voice', 'history', 'routine'];
+  var IDS = ['voice', 'history', 'routine', 'settings'];
   var TOOLS = ['metronome', 'battle'];
   var TITLES = { list: 'More <span>tools</span>', metronome: 'Metro<span>nome</span>', battle: 'Battle <span>round</span>' };
   var KEY = 'savior-audio-tools:tab';
