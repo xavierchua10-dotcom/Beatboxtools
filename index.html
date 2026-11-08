@@ -68,6 +68,7 @@
   <main class="stage">
     <iframe id="v-metronome" class="view" src="metronome.html" title="Metronome" role="tabpanel" allow="autoplay; screen-wake-lock"></iframe>
     <iframe id="v-battle" class="view" src="battle.html" title="Battle round timer" role="tabpanel" allow="autoplay; screen-wake-lock"></iframe>
+    <iframe id="v-routine" class="view" src="routine.html" title="Routine builder" role="tabpanel" allow="autoplay; screen-wake-lock"></iframe>
   </main>
 
   <nav role="tablist" aria-label="Savior audio tools">
@@ -79,11 +80,15 @@
       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13.5" r="7.5"/><path d="M12 13.5V9.5"/><path d="M10 3h4"/><path d="m18.5 6 1.2-1.2"/></svg>
       Battle
     </button>
+    <button role="tab" data-tab="routine" aria-controls="v-routine" aria-selected="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"/><path d="m3.5 6 1 1 2-2M3.5 12l1 1 2-2M3.5 18l1 1 2-2"/></svg>
+      Routine
+    </button>
   </nav>
 
 <script>
 (function () {
-  var IDS = ['metronome', 'battle'];
+  var IDS = ['metronome', 'battle', 'routine'];
   var KEY = 'savior-audio-tools:tab';
   var buttons = Array.prototype.slice.call(document.querySelectorAll('nav button'));
 
