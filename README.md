@@ -37,4 +37,4 @@ The look matches the SaviorFit Logger: near-black background, gold accent, Oswal
 - Record: backdrop, rings around the mic, a Today card (minutes against goal, streak) and the newest note with a play button.
 - Tools: a This week card with daily bars, tools grouped as Rhythm, Ear & timing and Freestyle, and a LIVE border on running tools.
 - History: filter chips (All, Loops, This week), notes grouped by day, a LOOP tag on loop mixes.
-- Settings: top card with your streak, week and note count; Dark/Light/Auto switch; accent colours with a live preview; daily goal; Raw audio; Rehearsal options; Install; Your data (storage bar, Back up, Restore, last backup date, Delete all in its own card); About (privacy policy, Instagram, YouTube, support).
+- Settings: top card with your streak, week and note count; Dark/Light/Auto switch; accent colours with a live preview; daily goal; Raw audio; Rehearsal options; Install; Your data (storage bar, Back up, Restore, last backup date, Delete all in its own card); About (privacy policy, Instagram, YouTube).
