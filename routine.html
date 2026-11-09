@@ -1,140 +1,237 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<script src="theme.js?v=20261109i"></script>
+<script src="theme.js?v=20261109j"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Routine builder by Savior</title>
-<link rel="stylesheet" href="fonts.css?v=20261109i">
-<link rel="stylesheet" href="theme.css?v=20261109i">
-<link rel="stylesheet" href="themes.css?v=20261109i">
+<link rel="stylesheet" href="fonts.css?v=20261109j">
+<link rel="stylesheet" href="theme.css?v=20261109j">
+<link rel="stylesheet" href="themes.css?v=20261109j">
 <style>
-  .card{margin-bottom:12px}
-  .lab{display:block;margin:0 0 8px;color:var(--text-faint);font:500 12px var(--f-head);letter-spacing:.12em;text-transform:uppercase}
-  .row{display:flex;align-items:center;gap:8px}
-  .row.wrap{flex-wrap:wrap}
+  :root{--ls:color-mix(in srgb,var(--text) 16%,var(--line))}
+  .app{padding-bottom:104px}
+  svg.i{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
   input[type=number]{-moz-appearance:textfield;appearance:textfield}
   input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
-  textarea{resize:none;font:400 14px/1.4 var(--f-body)}
-  select{font:500 14px var(--f-mono)}
-  #rname{margin-top:8px;font-family:var(--f-body);font-weight:600}
-  .btn.sm{min-height:42px;padding:9px 12px;font-size:12px;flex:none}
-  .btn.wide{width:100%}
-  details.tpl{margin-top:10px}
-  details.tpl summary{color:var(--accent-ink);font:600 12px var(--f-head);letter-spacing:.08em;text-transform:uppercase;cursor:pointer;padding:6px 0}
-  details.tpl .row{margin-top:6px}
-  .meter{margin-top:14px}
-  .bar{height:10px;background:var(--panel-3);border-radius:6px;overflow:hidden}
-  .bar>div{height:100%;width:0;background:linear-gradient(90deg,var(--accent-deep),var(--accent));border-radius:6px;transition:width 160ms ease}
-  .meter.over .bar>div{background:var(--accent-2)}
-  #meterText{margin-top:8px;color:var(--text-dim);font:500 13px var(--f-mono)}
-  .meter.over #meterText{color:var(--accent-2)}
-  .sec{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px}
-  .sec-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
-  .idx{flex:none;width:26px;height:26px;border-radius:8px;display:grid;place-items:center;background:rgba(var(--accent-rgb),.12);border:1px solid var(--accent-dim);color:var(--accent-ink);font:700 12px var(--f-mono)}
-  .range{flex:none;color:var(--text-dim);font:400 12px var(--f-mono)}
-  .sec-body{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
-  .stepper{display:flex;align-items:center;gap:4px}
-  .stepper button,.acts button{
-    flex:none;width:38px;height:38px;border-radius:8px;border:1px solid var(--line);background:var(--panel-2);color:var(--text);
-    display:grid;place-items:center;font-size:20px;line-height:1;padding:0;
-  }
-  .stepper input{width:56px;text-align:center;font:600 16px var(--f-mono);padding:9px 2px}
-  .stepper span{color:var(--text-dim);font-size:13px;padding:0 2px}
-  .acts{display:flex;gap:4px;margin-left:auto}
-  .acts button{width:34px;height:34px;color:var(--text-dim)}
-  .acts svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-  .acts button.armed{background:var(--accent-2);border-color:var(--accent-2);color:#fff}
-  .empty{color:var(--text-dim);font-size:14px;text-align:center;padding:18px 8px}
-  #quick{margin:6px 0 12px}
-  .actions{display:flex;gap:10px;margin-top:12px}
-  .actions .btn{flex:1}
-  .msg{min-height:20px;margin:10px 0 0;text-align:center;color:var(--text-dim);font-size:13px}
+  textarea{resize:none;font:400 14px/1.5 var(--f-body)}
+  .lab{display:block;margin:0;color:var(--text-faint);font:500 10px var(--f-mono);letter-spacing:.2em;text-transform:uppercase}
 
-  .reh{position:fixed;inset:0;z-index:50;display:flex;flex-direction:column;padding:20px 16px 24px;background:var(--bg)}
+  /* header card */
+  .rh{padding:14px;margin-bottom:0;border-color:rgba(var(--accent-rgb),.3);background:radial-gradient(circle at 105% -20%,rgba(var(--accent-rgb),.2),transparent 55%),var(--panel);border-radius:16px}
+  .r1{display:flex;align-items:center;gap:8px}
+  #rname{flex:1;min-width:0;background:transparent;border:1px solid transparent;border-radius:10px;padding:4px 8px;margin-left:-8px;min-height:40px;font:700 22px var(--f-head);letter-spacing:.06em;text-transform:uppercase;text-overflow:ellipsis}
+  #rname:focus{background:var(--panel-3);border-color:var(--accent)}
+  #pickBtn{width:auto;min-width:40px;height:40px;padding:0 10px;gap:6px;display:flex;align-items:center;color:var(--accent-ink);font:600 11px var(--f-mono);letter-spacing:.06em}
+  #pickBtn svg{width:18px;height:18px}
+  .tl{display:flex;gap:3px;margin-top:14px;height:30px}
+  .tl button{flex:1 1 0;min-width:0;padding:0;border:0;border-radius:7px;background:rgba(var(--accent-rgb),.55);color:var(--on-accent);font:700 12px var(--f-head);overflow:hidden;transition:flex-grow .2s}
+  .tl button:nth-child(even){background:var(--accent)}
+  .tl button.sel{outline:2px solid var(--text);outline-offset:2px}
+  .tl .none{flex:1;border:1.5px dashed var(--ls);border-radius:7px;display:grid;place-items:center;color:var(--text-faint);font:500 11px var(--f-mono);letter-spacing:.1em}
+  .tmeta{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:12px}
+  .tm{font:700 18px var(--f-head);letter-spacing:.04em}
+  .tm span{color:var(--text-dim);font:500 13px var(--f-mono)}
+  .badge{height:24px;padding:0 9px;border-radius:7px;display:flex;align-items:center;gap:5px;font:600 10px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;
+    color:var(--success);background:color-mix(in srgb,var(--success) 14%,transparent);border:1px solid color-mix(in srgb,var(--success) 42%,transparent)}
+  .badge.left{color:var(--accent-ink);background:rgba(var(--accent-rgb),.12);border-color:rgba(var(--accent-rgb),.4)}
+  .badge.over{color:var(--accent-2);background:color-mix(in srgb,var(--accent-2) 14%,transparent);border-color:color-mix(in srgb,var(--accent-2) 45%,transparent)}
+  .tgt{display:flex;gap:6px;margin-top:12px}
+  .tgt button,.tgt input{flex:1 1 0;min-width:0;height:32px;min-height:0;padding:0;border-radius:8px;border:1px solid var(--line);background:var(--panel-2);color:var(--text-dim);font:600 11px var(--f-mono);text-align:center}
+  .tgt button.on,.tgt input.on{border-color:var(--accent);color:var(--accent-ink);background:rgba(var(--accent-rgb),.1)}
+  .tgt input{flex:1.25 1 0;font-size:12px;background:var(--panel-3)}
+  .tgt input::placeholder{color:var(--text-faint)}
+
+  .sechd{display:flex;align-items:baseline;justify-content:space-between;margin:18px 2px 8px}
+
+  /* section rows */
+  .sec{position:relative;margin-bottom:8px;border-radius:16px;background:var(--panel);border:1px solid var(--line);padding:0}
+  .sec::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:0 3px 3px 0;background:var(--accent)}
+  .sec-hit{display:flex;align-items:center;gap:12px;width:100%;padding:12px 12px 12px 16px;background:none;border:0;color:inherit;text-align:left;min-height:58px;border-radius:16px}
+  .num{flex:none;width:28px;height:28px;border-radius:8px;display:grid;place-items:center;background:rgba(var(--accent-rgb),.14);border:1px solid rgba(var(--accent-rgb),.4);color:var(--accent-ink);font:700 13px var(--f-head)}
+  .nm{flex:1;min-width:0}
+  .nm b{display:block;font:600 16px var(--f-head);letter-spacing:.06em;text-transform:uppercase;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .nm b.ph{color:var(--text-faint)}
+  .nm small{display:block;margin-top:1px;font-size:12px;color:var(--text-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .dur{flex:none;font:500 13px var(--f-mono);color:var(--text-dim)}
+  .chev{color:var(--text-faint)}
+  .sec.exp{border-color:rgba(var(--accent-rgb),.4);padding:14px 14px 14px 16px}
+  .sec.exp::before{top:12px;bottom:12px}
+  .eh{display:flex;align-items:center;gap:10px}
+  .sname{flex:1;min-width:0;height:42px;font:600 16px var(--f-head)!important;letter-spacing:.06em;text-transform:uppercase}
+  .ib.collapse{flex:none;width:42px;height:42px;color:var(--accent-ink)}
+  .step{display:flex;align-items:center;gap:10px;margin-top:12px}
+  .sb{flex:none;width:46px;height:46px;border-radius:12px;background:var(--panel-2);border:1px solid var(--ls);color:var(--text);font:500 22px var(--f-mono);display:grid;place-items:center;padding:0}
+  .sb:active{background:var(--panel-3)}
+  .sv{flex:1;display:flex;align-items:center;justify-content:center;gap:4px;height:46px;border-radius:12px;background:var(--panel-3);border:1px solid var(--line)}
+  .sv:focus-within{border-color:var(--accent)}
+  .ssec{width:64px!important;min-height:0!important;height:40px;text-align:center;background:transparent!important;border:0!important;padding:0!important;font:700 22px var(--f-head)!important}
+  .sv span{font:500 12px var(--f-mono);color:var(--text-dim)}
+  .range{margin-top:8px;text-align:center;color:var(--text-faint);font:400 12px var(--f-mono);letter-spacing:.06em}
+  .snotes{margin-top:10px;min-height:64px}
+  .acts{display:flex;gap:8px;margin-top:12px}
+  .acts button{flex:1;min-width:0;height:40px;border-radius:10px;background:var(--panel-2);border:1px solid var(--line);color:var(--text-dim);display:flex;align-items:center;justify-content:center;gap:5px;font:600 10px var(--f-mono);letter-spacing:.04em;text-transform:uppercase;padding:0}
+  .acts button svg{width:15px;height:15px}
+  .acts button:disabled{opacity:.35}
+  .acts button.d{color:var(--accent-2);border-color:var(--accent-2-dim)}
+  .empty{color:var(--text-dim);font-size:14px;text-align:center;padding:16px 8px 8px}
+  .add{width:100%;height:46px;margin-top:2px;border-radius:14px;border:1.5px dashed var(--ls);background:transparent;color:var(--text-dim);display:flex;align-items:center;justify-content:center;gap:8px;font:600 13px var(--f-head);letter-spacing:.08em;text-transform:uppercase}
+  .add:active{background:var(--panel)}
+  #quick{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+  #quick .chip{min-height:30px;padding:4px 10px;font-size:10px}
+
+  /* dock */
+  .dock{position:fixed;left:0;right:0;bottom:0;z-index:10;padding:22px 16px 12px;background:linear-gradient(transparent,var(--bg) 40%);pointer-events:none}
+  .dock-in{max-width:480px;margin:0 auto;display:flex;gap:10px;pointer-events:auto}
+  #rehearse{flex:1;height:52px;border:0;border-radius:14px;background:var(--accent);color:var(--on-accent);display:flex;align-items:center;justify-content:center;gap:10px;font:700 17px var(--f-head);letter-spacing:.1em;text-transform:uppercase;box-shadow:0 8px 24px rgba(var(--accent-rgb),.28)}
+  #rehearse svg{width:18px;height:18px;fill:currentColor;stroke:none}
+  #copy{flex:none;width:52px;height:52px;border-radius:14px;background:var(--panel-2);border:1px solid var(--ls);color:var(--text-dim);display:grid;place-items:center;padding:0}
+  #copy svg{width:20px;height:20px}
+  .msg{position:fixed;left:50%;bottom:80px;transform:translate(-50%,8px);z-index:12;max-width:86%;padding:9px 14px;border-radius:10px;background:var(--panel-3);border:1px solid var(--ls);color:var(--text);font:500 13px var(--f-body);opacity:0;pointer-events:none;transition:opacity .18s,transform .18s;text-align:center}
+  .msg.show{opacity:1;transform:translate(-50%,0)}
+
+  /* routines sheet */
+  .scrim{position:fixed;inset:0;z-index:30;background:rgba(8,9,11,.66);opacity:0;transition:opacity .2s}
+  .sheet{position:fixed;left:0;right:0;bottom:0;z-index:31;max-width:480px;margin:0 auto;max-height:86%;overflow:auto;background:var(--panel);border:1px solid var(--line);border-bottom:0;border-radius:22px 22px 0 0;padding:10px 14px 18px;transform:translateY(105%);transition:transform .26s cubic-bezier(.2,.8,.2,1)}
+  .scrim[hidden],.sheet[hidden]{display:none}
+  body.sheet-on .scrim{opacity:1}
+  body.sheet-on .sheet{transform:none}
+  .grab{width:40px;height:4px;border-radius:2px;background:var(--ls);margin:0 auto 12px}
+  .sheet h2{margin:0 0 12px;text-align:center;font:700 20px var(--f-head);letter-spacing:.1em;text-transform:uppercase}
+  .sheet h2 i{color:var(--accent-ink);font-style:normal}
+  .ri{display:flex;align-items:center;gap:12px;width:100%;padding:12px;margin-bottom:8px;border-radius:14px;border:1px solid var(--line);background:var(--panel-2);color:var(--text);text-align:left}
+  .ri.on{border-color:var(--accent);background:rgba(var(--accent-rgb),.08)}
+  .ri .t{flex:1;min-width:0}
+  .ri b{display:block;font:600 15px var(--f-head);letter-spacing:.06em;text-transform:uppercase;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .ri small{display:block;margin-top:2px;font:500 11px var(--f-mono);color:var(--text-faint)}
+  .mini{display:flex;gap:2px;width:64px;flex:none}
+  .mini i{height:8px;border-radius:2px;background:rgba(var(--accent-rgb),.6);min-width:1px}
+  .mini i:nth-child(even){background:var(--accent)}
+  .rad{flex:none;width:20px;height:20px;border-radius:50%;border:2px solid var(--ls);display:grid;place-items:center}
+  .ri.on .rad{border-color:var(--accent)}
+  .ri.on .rad::after{content:"";width:10px;height:10px;border-radius:50%;background:var(--accent)}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}
+  .two button{height:44px;border-radius:12px;border:1px solid var(--ls);background:var(--panel-2);color:var(--text);display:flex;align-items:center;justify-content:center;gap:7px;font:600 12px var(--f-head);letter-spacing:.08em;text-transform:uppercase;padding:0}
+  .two button svg{width:15px;height:15px;color:var(--accent-ink)}
+  .two button.d{color:var(--accent-2);border-color:var(--accent-2-dim)}
+  .two button.d svg{color:var(--accent-2)}
+  #tplRow{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  #tplRow[hidden]{display:none}
+
+  /* rehearsal */
+  .reh{position:fixed;inset:0;z-index:50;display:flex;flex-direction:column;overflow:hidden;background:var(--bg);--rs:min(250px,34dvh,76vw)}
   .reh[hidden]{display:none}
-  .reh-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
-  .reh-name{color:var(--text-faint);font:500 12px var(--f-head);letter-spacing:.12em;text-transform:uppercase;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .reh-mid{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px;min-height:0}
-  .reh-label{margin:0;font:700 34px/1.1 var(--f-head);letter-spacing:.06em;text-transform:uppercase;max-width:100%;overflow-wrap:anywhere}
-  .reh-time{margin:0;font:700 128px/1 var(--f-head);color:var(--accent-ink)}
-  .reh-time.urgent{color:var(--accent-2)}
-  .reh-notes{margin:6px 0 0;color:var(--text-dim);font-size:15px;line-height:1.4;max-width:90%;white-space:pre-wrap;overflow-wrap:anywhere}
-  .reh-meta{display:flex;justify-content:space-between;gap:12px;margin:10px 0 16px;color:var(--text-dim);font:400 13px var(--f-mono)}
-  .reh-meta span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .reh .btn.big{width:100%;min-height:54px;font-size:16px}
+  .glow{position:absolute;left:50%;top:40px;width:520px;height:520px;transform:translateX(-50%);background:radial-gradient(circle,rgba(var(--accent-rgb),.18),transparent 62%);pointer-events:none}
+  .rtop{position:relative;display:flex;align-items:center;gap:10px;padding:12px 14px}
+  .nmr{flex:1;min-width:0;font:500 11px var(--f-mono);letter-spacing:.18em;color:var(--text-faint);text-transform:uppercase;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .stop{display:flex;align-items:center;gap:6px;height:36px;padding:0 14px;border-radius:10px;background:var(--panel-2);border:1px solid var(--ls);color:var(--text);font:700 12px var(--f-head);letter-spacing:.1em;text-transform:uppercase}
+  .stop svg{width:12px;height:12px;fill:currentColor;stroke:none}
+  .prog{position:relative;display:flex;gap:4px;padding:0 14px}
+  .prog div{flex:1 1 0;min-width:2px;height:6px;border-radius:3px;background:var(--panel-3);overflow:hidden}
+  .prog i{display:block;height:100%;width:0;background:var(--accent)}
+  .rmid{position:relative;flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 14px}
+  .ringw{position:relative;width:var(--rs);height:var(--rs);flex:none}
+  .ringw svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+  .ringw circle{fill:none;stroke-width:12}
+  .trk{stroke:var(--panel-3)}
+  #rehArc{stroke:var(--accent);stroke-linecap:round;transition:stroke .2s}
+  .ringw.urgent #rehArc{stroke:var(--accent-2)}
+  .ringc{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .sn{font:600 12px var(--f-mono);letter-spacing:.28em;color:var(--text-dim);text-transform:uppercase;text-align:center}
+  .big{margin-top:2px;font:700 calc(var(--rs)*.44)/1 var(--f-head);color:var(--accent-ink);font-variant-numeric:tabular-nums}
+  .big.urgent{color:var(--accent-2)}
+  .rn{margin-top:18px;text-align:center;max-width:100%}
+  .rn .t{font:700 28px/1.1 var(--f-head);letter-spacing:.1em;text-transform:uppercase;overflow-wrap:anywhere}
+  .rn .s{margin:8px auto 0;max-width:300px;color:var(--text-dim);font-size:15px;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  .rbot{position:relative;padding:0 14px 14px}
+  .nx{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:16px;background:var(--panel);border:1px solid var(--line)}
+  .n2{flex:none;width:28px;height:28px;border-radius:8px;border:1px solid var(--ls);color:var(--text-dim);display:grid;place-items:center;font:700 13px var(--f-head)}
+  .nx .tx{flex:1;min-width:0}
+  .nt{margin-top:2px;font:600 16px var(--f-head);letter-spacing:.06em;text-transform:uppercase;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .lf{flex:none;font:500 12px var(--f-mono);color:var(--text-dim)}
+  .rb{display:flex;gap:10px;margin-top:10px}
+  .rb .p{flex:1;height:56px;border:0;border-radius:14px;background:var(--accent);color:var(--on-accent);display:flex;align-items:center;justify-content:center;gap:10px;font:700 18px var(--f-head);letter-spacing:.1em;text-transform:uppercase}
+  .rb .p svg{width:18px;height:18px;fill:currentColor;stroke:none}
+  .rb .s{flex:none;width:56px;height:56px;border-radius:14px;background:var(--panel-2);border:1px solid var(--ls);color:var(--text-dim);display:grid;place-items:center;padding:0}
+  .rb .s svg{width:20px;height:20px;fill:currentColor;stroke:none}
+  .rb .s[hidden]{display:none}
+  @media (max-height:520px){.rn{margin-top:10px}.rn .t{font-size:22px}.rn .s{font-size:13px;-webkit-line-clamp:2}.nx{padding:8px 12px}.rb .p,.rb .s{height:48px}.rb .s{width:48px}}
+  @media (max-width:340px){.tgt button{font-size:10px}.badge{padding:0 7px}}
 </style>
 </head>
 <body>
 <main class="app">
-  <h1 class="page-title">Routine <span>builder</span></h1>
-
-  <section class="card">
-    <label class="lab" for="pick">Routine</label>
-    <div class="row">
-      <select id="pick" aria-label="Choose routine"></select>
-      <button id="dupR" class="btn sm" type="button">Duplicate</button>
-      <button id="delR" class="btn sm" type="button">Delete</button>
+  <section class="card rh" id="head">
+    <div class="r1">
+      <input id="rname" type="text" maxlength="60" placeholder="Routine name" aria-label="Routine name" autocomplete="off">
+      <button id="pickBtn" class="ib" type="button" aria-haspopup="dialog" aria-label="Choose routine"><span id="pickN">1</span><svg class="i" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></button>
     </div>
-    <input id="rname" type="text" maxlength="60" placeholder="Routine name" aria-label="Routine name">
-    <details class="tpl" id="tpl">
-      <summary>New routine</summary>
-      <div class="row wrap">
-        <button class="chip" type="button" data-tpl="blank">Blank</button>
-        <button class="chip" type="button" data-tpl="wildcard">60s wildcard</button>
-        <button class="chip" type="button" data-tpl="round">120s round</button>
-      </div>
-    </details>
+    <div class="tl" id="tl"></div>
+    <div class="tmeta"><div class="tm" id="tm"></div><div class="badge" id="badge"></div></div>
+    <div class="tgt" id="tchips"></div>
   </section>
 
-  <section class="card">
-    <span class="lab">Target length</span>
-    <div class="row wrap" id="tchips"></div>
-    <div class="row" style="margin-top:10px">
-      <input id="target" type="number" inputmode="numeric" min="5" max="3600" aria-label="Target seconds" style="width:96px">
-      <span style="color:var(--text-dim);font-size:13px">sec</span>
-    </div>
-    <div class="meter" id="meter">
-      <div class="bar"><div id="fill"></div></div>
-      <div id="meterText"></div>
-    </div>
-  </section>
-
+  <div class="sechd"><span class="lab">Sections · tap to edit</span></div>
   <div id="list"></div>
-  <div class="row wrap" id="quick">
+  <button id="add" class="add" type="button"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add section</button>
+  <div id="quick">
     <button class="chip" type="button" data-name="Intro">+ Intro</button>
     <button class="chip" type="button" data-name="Build">+ Build</button>
     <button class="chip" type="button" data-name="Drop">+ Drop</button>
     <button class="chip" type="button" data-name="Tricks">+ Tricks</button>
     <button class="chip" type="button" data-name="Outro">+ Outro</button>
   </div>
-  <button id="add" class="btn wide" type="button">+ Add section</button>
-
-  <div class="actions">
-    <button id="rehearse" class="btn primary" type="button">Rehearse</button>
-    <button id="copy" class="btn" type="button">Copy as text</button>
-  </div>
-  <p id="msg" class="msg" role="status" aria-live="polite"></p>
 </main>
 
-<section id="reh" class="reh" hidden aria-label="Rehearsal">
-  <div class="reh-top">
-    <span id="rehName" class="reh-name"></span>
-    <button id="rehStop" class="btn sm" type="button">Stop</button>
+<div class="dock"><div class="dock-in">
+  <button id="rehearse" type="button"><svg viewBox="0 0 24 24"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>Rehearse</button>
+  <button id="copy" type="button" aria-label="Copy as text" title="Copy as text"><svg class="i" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg></button>
+</div></div>
+<p id="msg" class="msg" role="status" aria-live="polite"></p>
+
+<div id="scrim" class="scrim" hidden></div>
+<section id="sheet" class="sheet" hidden role="dialog" aria-modal="true" aria-label="Your routines">
+  <div class="grab"></div>
+  <h2>Your <i>routines</i></h2>
+  <div id="rlist"></div>
+  <div class="two">
+    <button id="newR" type="button"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>New routine</button>
+    <button id="tplBtn" type="button" aria-expanded="false"><svg class="i" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>From template</button>
   </div>
-  <div class="reh-mid">
-    <p id="rehLabel" class="reh-label" aria-live="polite">Get ready</p>
-    <p id="rehTime" class="reh-time">3</p>
-    <p id="rehNotes" class="reh-notes"></p>
+  <div id="tplRow" hidden>
+    <button class="chip" type="button" data-tpl="wildcard">60s wildcard</button>
+    <button class="chip" type="button" data-tpl="round">120s round</button>
   </div>
-  <div>
-    <div class="bar"><div id="rehBar"></div></div>
-    <div class="reh-meta"><span id="rehNext"></span><span id="rehLeft"></span></div>
-    <button id="rehPause" class="btn primary big" type="button">Pause</button>
+  <div class="two">
+    <button id="dupR" type="button"><svg class="i" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>Duplicate</button>
+    <button id="delR" class="d" type="button"><svg class="i" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg>Delete</button>
   </div>
 </section>
 
-<script src="confirm.js?v=20261109i"></script>
+<section id="reh" class="reh" hidden aria-label="Rehearsal">
+  <div class="glow"></div>
+  <div class="rtop">
+    <span id="rehName" class="nmr"></span>
+    <button id="rehStop" class="stop" type="button"><svg viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="2"/></svg>Stop</button>
+  </div>
+  <div class="prog" id="rehSegs" aria-hidden="true"></div>
+  <div class="rmid">
+    <div class="ringw" id="rehRing">
+      <svg viewBox="0 0 250 250" aria-hidden="true"><circle class="trk" cx="125" cy="125" r="112"/><circle id="rehArc" cx="125" cy="125" r="112" stroke-dasharray="0 704"/></svg>
+      <div class="ringc"><div id="rehSn" class="sn"></div><div id="rehTime" class="big">3</div></div>
+    </div>
+    <div class="rn"><div id="rehLabel" class="t" aria-live="polite">Get ready</div><div id="rehNotes" class="s"></div></div>
+  </div>
+  <div class="rbot">
+    <div class="nx"><div id="rehNn" class="n2">1</div><div class="tx"><span class="lab">Next</span><div id="rehNext" class="nt"></div></div><div id="rehLeft" class="lf"></div></div>
+    <div class="rb">
+      <button id="rehPause" class="p" type="button"><svg id="rehIco" viewBox="0 0 24 24"></svg><span id="rehPauseTxt">Pause</span></button>
+      <button id="rehSkip" class="s" type="button" aria-label="Skip to next section"><svg viewBox="0 0 24 24"><path d="M5 5l9 7-9 7zM17 4.5h2.5v15H17z"/></svg></button>
+    </div>
+  </div>
+</section>
+
+<script src="confirm.js?v=20261109j"></script>
 <script>
 (function () {
   'use strict';
@@ -142,6 +239,7 @@
   var $ = function (s, el) { return (el || document).querySelector(s); };
   var uid = function () { return Math.random().toString(36).slice(2, 9); };
   var clamp = function (n, a, b) { return Math.min(b, Math.max(a, n)); };
+  var CIRC = 703.7;
 
   function fmt(s) {
     s = Math.max(0, Math.round(s));
@@ -213,117 +311,185 @@
   }
   var msgT;
   function say(t) {
-    $('#msg').textContent = t;
+    var m = $('#msg');
+    m.textContent = t; m.classList.add('show');
     clearTimeout(msgT);
-    msgT = setTimeout(function () { $('#msg').textContent = ''; }, 2600);
+    msgT = setTimeout(function () { m.classList.remove('show'); }, 2200);
   }
-  var SEC_HTML =
-    '<div class="sec-head"><span class="idx"></span>' +
-    '<input class="sname" type="text" maxlength="40" aria-label="Section name">' +
-    '<span class="range"></span></div>' +
-    '<div class="sec-body"><div class="stepper">' +
-    '<button type="button" data-act="dec" aria-label="Shorter">−</button>' +
-    '<input class="ssec" type="number" inputmode="numeric" min="1" max="3600" aria-label="Seconds">' +
-    '<span>sec</span>' +
-    '<button type="button" data-act="inc" aria-label="Longer">+</button></div>' +
-    '<div class="acts">' +
-    '<button type="button" data-act="up" aria-label="Move up"><svg viewBox="0 0 24 24"><path d="m6 15 6-6 6 6"/></svg></button>' +
-    '<button type="button" data-act="down" aria-label="Move down"><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></button>' +
-    '<button type="button" data-act="dup" aria-label="Duplicate section"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg></button>' +
-    '<button type="button" data-act="del" aria-label="Delete section"><svg viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg></button>' +
-    '</div></div>' +
-    '<textarea class="snotes" rows="2" maxlength="300" placeholder="Sounds, tricks, ideas" aria-label="Notes"></textarea>';
 
-  function renderPicker() {
-    var sel = $('#pick');
-    sel.textContent = '';
-    state.routines.forEach(function (r) {
-      var o = document.createElement('option');
-      o.value = r.id; o.textContent = r.name || 'Untitled';
-      sel.appendChild(o);
-    });
-    sel.value = state.currentId;
-    $('#rname').value = cur().name;
-  }
-  function renderChips() {
-    var r = cur(), box = $('#tchips');
+  var openId = null;   /* the one expanded section */
+  var TARGETS = [60, 90, 120, 150, 200];
+  var ICO = {
+    up: '<path d="m6 15 6-6 6 6"/>',
+    down: '<path d="m6 9 6 6 6-6"/>',
+    copy: '<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/>',
+    del: '<path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/>'
+  };
+  function svg(n) { return '<svg class="i" viewBox="0 0 24 24" aria-hidden="true">' + ICO[n] + '</svg>'; }
+
+  /* ---------- header: name, timeline, totals, target ---------- */
+  function renderHead() {
+    var r = cur();
+    $('#rname').value = r.name;
+    $('#pickN').textContent = state.routines.length;
+    var box = $('#tchips');
     box.textContent = '';
-    [60, 90, 120, 150, 200].forEach(function (v) {
+    var custom = TARGETS.indexOf(r.target) < 0;
+    TARGETS.forEach(function (v) {
       var b = document.createElement('button');
-      b.type = 'button'; b.className = 'chip' + (r.target === v ? ' on' : '');
-      b.dataset.sec = v; b.textContent = v + ' sec';
+      b.type = 'button'; b.className = r.target === v ? 'on' : '';
+      b.dataset.sec = v; b.textContent = v + 's';
       box.appendChild(b);
     });
+    var inp = document.createElement('input');
+    inp.id = 'target'; inp.type = 'number'; inp.inputMode = 'numeric'; inp.min = 5; inp.max = 3600;
+    inp.placeholder = 'sec'; inp.setAttribute('aria-label', 'Custom target seconds');
+    inp.className = custom ? 'on' : ''; inp.value = custom ? r.target : '';
+    box.appendChild(inp);
+  }
+  function renderTL() {
+    var r = cur(), tl = $('#tl');
+    tl.textContent = '';
+    if (!r.sections.length) {
+      var n = document.createElement('div');
+      n.className = 'none'; n.textContent = 'NO SECTIONS YET';
+      tl.appendChild(n);
+      return;
+    }
+    r.sections.forEach(function (s, i) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.dataset.id = s.id; b.style.flexGrow = s.sec;
+      b.className = s.id === openId ? 'sel' : '';
+      b.textContent = i + 1;
+      b.setAttribute('aria-label', 'Section ' + (i + 1) + ': ' + (s.name || 'untitled') + ', ' + s.sec + ' seconds');
+      tl.appendChild(b);
+    });
+  }
+  function updateDerived() {
+    var r = cur(), t = totalOf(r), diff = r.target - t;
+    renderTL();
+    $('#tm').innerHTML = fmt(t) + ' <span>/ ' + fmt(r.target) + '</span>';
+    var b = $('#badge');
+    b.className = 'badge' + (diff === 0 ? '' : diff > 0 ? ' left' : ' over');
+    b.textContent = diff === 0 ? '● On target' : diff > 0 ? fmt(diff) + ' left' : fmt(-diff) + ' over';
+    var acc = 0;
+    r.sections.forEach(function (s, i) {
+      var el = document.querySelector('#list .sec[data-id="' + s.id + '"]');
+      if (!el) { acc += s.sec; return; }
+      var d = $('.dur', el); if (d) d.textContent = s.sec + 's';
+      var g = $('.range', el); if (g) g.textContent = fmt(acc) + ' - ' + fmt(acc + s.sec);
+      acc += s.sec;
+    });
+    var chips = document.querySelectorAll('#tchips button');
+    for (var i = 0; i < chips.length; i++) chips[i].classList.toggle('on', parseInt(chips[i].dataset.sec, 10) === r.target);
+    var ti = $('#target');
+    if (ti) {
+      var custom = TARGETS.indexOf(r.target) < 0;
+      ti.classList.toggle('on', custom);
+      if (document.activeElement !== ti) ti.value = custom ? r.target : '';
+    }
+  }
+
+  /* ---------- section rows ---------- */
+  function rowCollapsed(s, i) {
+    var el = document.createElement('div');
+    el.className = 'sec'; el.dataset.id = s.id;
+    el.innerHTML = '<button type="button" class="sec-hit" data-act="open" aria-expanded="false">' +
+      '<span class="num"></span><span class="nm"><b></b><small></small></span><span class="dur"></span>' +
+      '<svg class="i chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>';
+    $('.num', el).textContent = i + 1;
+    var b = $('.nm b', el);
+    b.textContent = s.name || 'Section ' + (i + 1);
+    if (!s.name) b.className = 'ph';
+    $('.nm small', el).textContent = s.notes ? s.notes.replace(/\s+/g, ' ') : 'No notes';
+    $('.dur', el).textContent = s.sec + 's';
+    return el;
+  }
+  function rowOpen(s, i, last) {
+    var el = document.createElement('div');
+    el.className = 'sec exp'; el.dataset.id = s.id;
+    el.innerHTML =
+      '<div class="eh"><span class="num"></span>' +
+      '<input class="sname" type="text" maxlength="40" aria-label="Section name">' +
+      '<button type="button" class="ib collapse" data-act="close" aria-label="Collapse section"><svg class="i" viewBox="0 0 24 24"><path d="m6 15 6-6 6 6"/></svg></button></div>' +
+      '<div class="step"><button type="button" class="sb" data-act="dec" aria-label="One second shorter">−</button>' +
+      '<div class="sv"><input class="ssec" type="number" inputmode="numeric" min="1" max="3600" aria-label="Seconds"><span>sec</span></div>' +
+      '<button type="button" class="sb" data-act="inc" aria-label="One second longer">+</button></div>' +
+      '<div class="range"></div>' +
+      '<textarea class="snotes" rows="2" maxlength="300" placeholder="Sounds, tricks, ideas" aria-label="Notes"></textarea>' +
+      '<div class="acts">' +
+      '<button type="button" data-act="up" aria-label="Move up">' + svg('up') + 'Up</button>' +
+      '<button type="button" data-act="down" aria-label="Move down">' + svg('down') + 'Down</button>' +
+      '<button type="button" data-act="dup" aria-label="Duplicate section">' + svg('copy') + 'Copy</button>' +
+      '<button type="button" class="d" data-act="del" aria-label="Delete section">' + svg('del') + 'Delete</button></div>';
+    $('.num', el).textContent = i + 1;
+    var nm = $('.sname', el); nm.value = s.name; nm.placeholder = 'Section ' + (i + 1);
+    $('.ssec', el).value = s.sec;
+    $('.snotes', el).value = s.notes;
+    if (i === 0) $('[data-act="up"]', el).disabled = true;
+    if (last) $('[data-act="down"]', el).disabled = true;
+    return el;
   }
   function renderList() {
     var r = cur(), box = $('#list');
+    if (openId && !r.sections.some(function (s) { return s.id === openId; })) openId = null;
     box.textContent = '';
     if (!r.sections.length) {
       var p = document.createElement('p');
-      p.className = 'empty'; p.textContent = 'No sections yet. Add your first one below.';
+      p.className = 'empty'; p.textContent = 'Add your first section below.';
       box.appendChild(p);
     }
     r.sections.forEach(function (s, i) {
-      var el = document.createElement('div');
-      el.className = 'sec'; el.dataset.id = s.id; el.innerHTML = SEC_HTML;
-      $('.idx', el).textContent = i + 1;
-      var nm = $('.sname', el); nm.value = s.name; nm.placeholder = 'Section ' + (i + 1);
-      $('.ssec', el).value = s.sec;
-      $('.snotes', el).value = s.notes;
-      box.appendChild(el);
+      box.appendChild(s.id === openId ? rowOpen(s, i, i === r.sections.length - 1) : rowCollapsed(s, i));
     });
     updateDerived();
   }
-  function updateDerived() {
-    var r = cur(), t = 0, els = document.querySelectorAll('#list .sec');
-    r.sections.forEach(function (s, i) {
-      var a = t; t += s.sec;
-      if (els[i]) $('.range', els[i]).textContent = fmt(a) + ' - ' + fmt(t);
-    });
-    var diff = r.target - t;
-    $('#fill').style.width = Math.min(100, r.target > 0 ? (t / r.target) * 100 : 0) + '%';
-    $('#meter').classList.toggle('over', diff < 0);
-    $('#meterText').textContent = fmt(t) + ' of ' + fmt(r.target) + ' · ' +
-      (diff === 0 ? 'on target' : diff > 0 ? fmt(diff) + ' left' : fmt(-diff) + ' over');
-  }
   function renderAll() {
-    renderPicker(); renderChips();
-    $('#target').value = cur().target;
+    openId = null;
+    renderHead();
     renderList();
   }
-
-  function secById(id) {
+  function secIndex(id) {
     var r = cur();
     for (var i = 0; i < r.sections.length; i++) if (r.sections[i].id === id) return i;
     return -1;
   }
   function swap(a, i, j) { var t = a[i]; a[i] = a[j]; a[j] = t; }
+  function reveal(id, focusName) {
+    var el = document.querySelector('#list .sec[data-id="' + id + '"]');
+    if (!el) return;
+    if (el.scrollIntoView) el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    if (focusName) { var n = $('.sname', el); if (n) n.focus({ preventScroll: true }); }
+  }
   function addSection(name) {
-    cur().sections.push({ id: uid(), name: name || '', sec: 8, notes: '' });
+    var s = { id: uid(), name: name || '', sec: 8, notes: '' };
+    cur().sections.push(s);
+    openId = s.id;
     renderList(); save();
-    var els = document.querySelectorAll('#list .sec');
-    var last = els[els.length - 1];
-    if (last && last.scrollIntoView) last.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    reveal(s.id, !name);
   }
 
   $('#list').addEventListener('click', function (e) {
     var b = e.target.closest('button[data-act]');
     if (!b) return;
-    var el = b.closest('.sec'), r = cur(), i = secById(el.dataset.id);
+    var el = b.closest('.sec'), r = cur(), i = secIndex(el.dataset.id);
     if (i < 0) return;
     var act = b.dataset.act, s = r.sections[i];
-    if (act === 'inc' || act === 'dec') {
+    if (act === 'open') { openId = s.id; renderList(); reveal(s.id, false); }
+    else if (act === 'close') { openId = null; renderList(); }
+    else if (act === 'inc' || act === 'dec') {
       s.sec = clamp(s.sec + (act === 'inc' ? 1 : -1), 1, 3600);
       $('.ssec', el).value = s.sec; updateDerived(); save();
     } else if (act === 'up' && i > 0) {
-      swap(r.sections, i, i - 1); renderList(); save();
+      swap(r.sections, i, i - 1); renderList(); save(); reveal(s.id, false);
     } else if (act === 'down' && i < r.sections.length - 1) {
-      swap(r.sections, i, i + 1); renderList(); save();
+      swap(r.sections, i, i + 1); renderList(); save(); reveal(s.id, false);
     } else if (act === 'dup') {
-      r.sections.splice(i + 1, 0, { id: uid(), name: s.name, sec: s.sec, notes: s.notes });
-      renderList(); save();
+      var c = { id: uid(), name: s.name, sec: s.sec, notes: s.notes };
+      r.sections.splice(i + 1, 0, c); openId = c.id;
+      renderList(); save(); reveal(c.id, false);
     } else if (act === 'del') {
-      Confirm.ask({ title: 'Delete this section?', message: '\u201c' + (s.name || 'Section ' + (i + 1)) + '\u201d will be removed from this routine.', confirmLabel: 'Delete' }).then(function (ok) {
+      Confirm.ask({ title: 'Delete this section?', message: '“' + (s.name || 'Section ' + (i + 1)) + '” will be removed from this routine.', confirmLabel: 'Delete' }).then(function (ok) {
         if (!ok) return;
         var k = r.sections.indexOf(s); if (k < 0) return;
         r.sections.splice(k, 1); renderList(); save();
@@ -333,10 +499,10 @@
   $('#list').addEventListener('input', function (e) {
     var t = e.target, el = t.closest('.sec');
     if (!el) return;
-    var i = secById(el.dataset.id);
+    var i = secIndex(el.dataset.id);
     if (i < 0) return;
     var s = cur().sections[i];
-    if (t.classList.contains('sname')) s.name = t.value;
+    if (t.classList.contains('sname')) { s.name = t.value; renderTL(); }
     else if (t.classList.contains('snotes')) s.notes = t.value;
     else if (t.classList.contains('ssec')) {
       var n = parseInt(t.value, 10);
@@ -347,26 +513,104 @@
   $('#list').addEventListener('focusout', function (e) {
     var t = e.target;
     if (t.classList && t.classList.contains('ssec')) {
-      var el = t.closest('.sec'), i = el ? secById(el.dataset.id) : -1;
+      var el = t.closest('.sec'), i = el ? secIndex(el.dataset.id) : -1;
       if (i >= 0) t.value = cur().sections[i].sec;
     }
   });
 
-  $('#pick').addEventListener('change', function () {
-    state.currentId = this.value; renderAll(); save();
+  /* timeline: tap a block to open that section */
+  $('#tl').addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-id]');
+    if (!b) return;
+    openId = openId === b.dataset.id ? null : b.dataset.id;
+    renderList();
+    if (openId) reveal(openId, false);
   });
-  $('#rname').addEventListener('input', function () {
-    var r = cur(); r.name = this.value;
-    var opts = $('#pick').options;
-    for (var i = 0; i < opts.length; i++) if (opts[i].value === r.id) opts[i].textContent = r.name || 'Untitled';
-    save();
+
+  /* ---------- name, target ---------- */
+  $('#rname').addEventListener('input', function () { cur().name = this.value; save(); });
+  $('#tchips').addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-sec]');
+    if (!b) return;
+    cur().target = parseInt(b.dataset.sec, 10);
+    updateDerived(); save();
   });
-  $('#tpl').addEventListener('click', function (e) {
+  $('#tchips').addEventListener('input', function (e) {
+    if (e.target.id !== 'target') return;
+    var n = parseInt(e.target.value, 10);
+    if (n >= 5) { cur().target = clamp(n, 5, 3600); updateDerived(); save(); }
+  });
+  $('#tchips').addEventListener('change', function (e) {
+    if (e.target.id !== 'target') return;
+    var custom = TARGETS.indexOf(cur().target) < 0;
+    e.target.value = custom ? cur().target : '';
+    updateDerived();
+  });
+  $('#quick').addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-name]');
+    if (b) addSection(b.dataset.name);
+  });
+  $('#add').addEventListener('click', function () { addSection(''); });
+
+  /* ---------- routines sheet ---------- */
+  var sheetOpen = false;
+  function renderSheet() {
+    var box = $('#rlist');
+    box.textContent = '';
+    state.routines.forEach(function (r) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'ri' + (r.id === state.currentId ? ' on' : '');
+      b.dataset.id = r.id;
+      var n = r.sections.length;
+      b.innerHTML = '<span class="rad"></span><span class="t"><b></b><small></small></span><span class="mini"></span>';
+      $('b', b).textContent = r.name || 'Untitled';
+      $('small', b).textContent = n + (n === 1 ? ' section' : ' sections') + ' · ' + fmt(totalOf(r));
+      var mini = $('.mini', b);
+      r.sections.forEach(function (s) {
+        var i = document.createElement('i'); i.style.flex = s.sec; mini.appendChild(i);
+      });
+      box.appendChild(b);
+    });
+    $('#tplRow').hidden = true;
+    $('#tplBtn').setAttribute('aria-expanded', 'false');
+  }
+  function openSheet() {
+    if (sheetOpen) return;
+    renderSheet();
+    sheetOpen = true;
+    $('#scrim').hidden = false; $('#sheet').hidden = false;
+    void $('#sheet').offsetWidth;
+    document.body.classList.add('sheet-on');
+    var on = $('#rlist .ri.on'); if (on) on.focus({ preventScroll: true });
+  }
+  function closeSheet() {
+    if (!sheetOpen) return;
+    sheetOpen = false;
+    document.body.classList.remove('sheet-on');
+    var done = function () { if (!sheetOpen) { $('#scrim').hidden = true; $('#sheet').hidden = true; } };
+    setTimeout(done, 280);
+  }
+  function pickRoutine(id) {
+    state.currentId = id; renderAll(); save(); closeSheet();
+  }
+  $('#pickBtn').addEventListener('click', openSheet);
+  $('#scrim').addEventListener('click', closeSheet);
+  $('#rlist').addEventListener('click', function (e) {
+    var b = e.target.closest('.ri');
+    if (b) pickRoutine(b.dataset.id);
+  });
+  $('#newR').addEventListener('click', function () {
+    var r = TPL.blank(); state.routines.push(r); pickRoutine(r.id);
+    var n = $('#rname'); n.focus(); n.select();
+  });
+  $('#tplBtn').addEventListener('click', function () {
+    var row = $('#tplRow'); row.hidden = !row.hidden;
+    this.setAttribute('aria-expanded', String(!row.hidden));
+  });
+  $('#tplRow').addEventListener('click', function (e) {
     var b = e.target.closest('button[data-tpl]');
     if (!b) return;
-    var r = TPL[b.dataset.tpl]();
-    state.routines.push(r); state.currentId = r.id;
-    this.open = false; renderAll(); save();
+    var r = TPL[b.dataset.tpl](); state.routines.push(r); pickRoutine(r.id);
   });
   $('#dupR').addEventListener('click', function () {
     var r = cur();
@@ -374,35 +618,20 @@
       id: uid(), name: (r.name + ' copy').slice(0, 60), target: r.target,
       sections: r.sections.map(function (s) { return { id: uid(), name: s.name, sec: s.sec, notes: s.notes }; })
     };
-    state.routines.push(c); state.currentId = c.id; renderAll(); save();
+    state.routines.push(c); pickRoutine(c.id);
   });
   $('#delR').addEventListener('click', function () {
     var rt = cur(), n = rt.sections.length;
-    Confirm.ask({ title: 'Delete this routine?', message: '\u201c' + (rt.name || 'Routine') + '\u201d and its ' + n + (n === 1 ? ' section' : ' sections') + ' will be deleted for good.', confirmLabel: 'Delete' }).then(function (ok) {
+    Confirm.ask({ title: 'Delete this routine?', message: '“' + (rt.name || 'Routine') + '” and its ' + n + (n === 1 ? ' section' : ' sections') + ' will be deleted for good.', confirmLabel: 'Delete' }).then(function (ok) {
       if (!ok) return;
       state.routines = state.routines.filter(function (x) { return x.id !== rt.id; });
       if (!state.routines.length) state.routines.push(TPL.wildcard());
       state.currentId = state.routines[0].id;
-      renderAll(); save();
+      renderAll(); save(); renderSheet();
     });
   });
-  $('#tchips').addEventListener('click', function (e) {
-    var b = e.target.closest('button[data-sec]');
-    if (!b) return;
-    cur().target = parseInt(b.dataset.sec, 10);
-    $('#target').value = cur().target; renderChips(); updateDerived(); save();
-  });
-  $('#target').addEventListener('input', function () {
-    var n = parseInt(this.value, 10);
-    if (n >= 5) { cur().target = clamp(n, 5, 3600); renderChips(); updateDerived(); save(); }
-  });
-  $('#target').addEventListener('change', function () { this.value = cur().target; });
-  $('#quick').addEventListener('click', function (e) {
-    var b = e.target.closest('button[data-name]');
-    if (b) addSection(b.dataset.name);
-  });
-  $('#add').addEventListener('click', function () { addSection(''); });
 
+  /* ---------- copy as text ---------- */
   function textOf(r) {
     var t = 0;
     var lines = [r.name + ' (' + fmt(totalOf(r)) + ' of ' + fmt(r.target) + ')'];
@@ -428,8 +657,9 @@
     else fallback();
   });
 
+  /* ---------- rehearsal ---------- */
   var run = null, ac = null, wl = null;
-  /* rehearsal options come from the Settings tab */
+  /* options come from the Settings tab */
   function opts() {
     var o = {};
     try { o = JSON.parse(localStorage.getItem('savior-settings-v1')) || {}; } catch (e) {}
@@ -456,14 +686,29 @@
   }
   function unlock() { try { if (wl) { wl.release(); wl = null; } } catch (e) {} }
 
-  function ui(label, time, notes, next, left, pct, urgent) {
-    $('#rehLabel').textContent = label;
-    $('#rehTime').textContent = time;
-    $('#rehTime').classList.toggle('urgent', !!urgent);
-    $('#rehNotes').textContent = notes;
-    $('#rehNext').textContent = next;
-    $('#rehLeft').textContent = left;
-    $('#rehBar').style.width = pct + '%';
+  var PAUSE_ICO = '<rect x="6" y="5" width="4.5" height="14" rx="1.2"/><rect x="13.5" y="5" width="4.5" height="14" rx="1.2"/>';
+  var PLAY_ICO = '<path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/>';
+  function pauseBtn(label) {
+    $('#rehPauseTxt').textContent = label;
+    $('#rehIco').innerHTML = label === 'Pause' ? PAUSE_ICO : PLAY_ICO;
+  }
+  /* v: {sn, label, time, notes, nn, next, left, arc (0..1), segs: index done, segFrac, urgent} */
+  function ui(v) {
+    $('#rehSn').textContent = v.sn;
+    $('#rehLabel').textContent = v.label;
+    $('#rehTime').textContent = v.time;
+    $('#rehTime').classList.toggle('urgent', !!v.urgent);
+    $('#rehRing').classList.toggle('urgent', !!v.urgent);
+    $('#rehNotes').textContent = v.notes;
+    $('#rehNn').textContent = v.nn;
+    $('#rehNext').textContent = v.next;
+    $('#rehLeft').textContent = v.left;
+    $('#rehArc').setAttribute('stroke-dasharray', (clamp(v.arc, 0, 1) * CIRC).toFixed(1) + ' 704');
+    $('#rehArc').style.opacity = v.arc > 0 ? 1 : 0;
+    var bars = document.querySelectorAll('#rehSegs i');
+    for (var i = 0; i < bars.length; i++) {
+      bars[i].style.width = (i < v.seg ? 100 : i === v.seg ? clamp(v.frac, 0, 1) * 100 : 0) + '%';
+    }
   }
   function stopRun() {
     if (run) clearInterval(run.timer);
@@ -480,18 +725,21 @@
     run.last = now;
     if (run.paused || run.done) return;
     run.pos += dt;
-    var p = run.pos;
+    var p = run.pos, M = run.segs.length;
     if (p < 0) {
       var n = Math.ceil(-p);
       if (run.whole !== n) { run.whole = n; beep(660, 0.12, 0.2); buzz(20); }
-      ui('Get ready', String(n), '', 'First: ' + run.segs[0].name, fmt(run.total) + ' total', 0, false);
+      ui({ sn: 'Get ready', label: 'First up', time: String(n), notes: '', nn: 1,
+           next: run.segs[0].name + ' · ' + (run.segs[0].end - run.segs[0].start) + 's', left: fmt(run.total) + ' total',
+           arc: 0, seg: -1, frac: 0, urgent: false });
       return;
     }
     if (p >= run.total) {
       run.done = true;
       beep(880, 0.9, 0.3); buzz([80, 60, 80]);
-      ui('Routine complete', fmt(run.total), '', 'Nice one', '0:00 left', 100, false);
-      $('#rehPause').textContent = 'Close';
+      ui({ sn: 'All ' + M + ' done', label: 'Routine complete', time: fmt(run.total), notes: '', nn: '✓',
+           next: 'Nice one', left: '0:00 left', arc: 1, seg: M, frac: 1, urgent: false });
+      pauseBtn('Close'); $('#rehSkip').hidden = true;
       unlock();
       return;
     }
@@ -502,9 +750,12 @@
       run.rem = rem;
       if (!changed && rem >= 1 && rem <= 3) beep(660, 0.1, 0.2);
     }
-    ui(sg.name, rem >= 60 ? fmt(rem) : String(rem), sg.notes,
-       i + 1 < run.segs.length ? 'Next: ' + run.segs[i + 1].name : 'Last section',
-       fmt(Math.ceil(run.total - p)) + ' left', (p / run.total) * 100, rem <= 3);
+    var frac = (p - sg.start) / (sg.end - sg.start), nx = run.segs[i + 1];
+    ui({ sn: 'Section ' + (i + 1) + ' of ' + M, label: sg.name, time: rem >= 60 ? fmt(rem) : String(rem), notes: sg.notes,
+         nn: nx ? i + 2 : '✓',
+         next: nx ? nx.name + ' · ' + (nx.end - nx.start) + 's' : 'Last section',
+         left: fmt(Math.ceil(run.total - p)) + ' left',
+         arc: frac, seg: i, frac: frac, urgent: rem <= 3 });
   }
   function startRehearse() {
     var r = cur();
@@ -520,22 +771,45 @@
     });
     cfg = opts();
     run = { segs: segs, total: t, pos: -cfg.countIn, last: performance.now(), paused: false, done: false, seg: -1, rem: null, whole: null };
+    var bars = $('#rehSegs'); bars.textContent = '';
+    segs.forEach(function (sg) {
+      var d = document.createElement('div'); d.style.flexGrow = sg.end - sg.start;
+      d.appendChild(document.createElement('i')); bars.appendChild(d);
+    });
     $('#rehName').textContent = r.name || 'Routine';
-    $('#rehPause').textContent = 'Pause';
+    pauseBtn('Pause'); $('#rehSkip').hidden = false;
     $('#reh').hidden = false;
     lock();
     run.timer = setInterval(tick, 100);
     tick();
   }
+  function skip() {
+    if (!run || run.done) return;
+    var nx = run.segs[run.seg + 1];
+    if (run.pos < 0) run.pos = 0;
+    else if (nx) run.pos = nx.start;
+    else run.pos = run.total;
+    run.last = performance.now(); run.paused = false; pauseBtn('Pause');
+    tick();
+  }
   $('#rehearse').addEventListener('click', startRehearse);
   $('#rehStop').addEventListener('click', stopRun);
+  $('#rehSkip').addEventListener('click', skip);
   $('#rehPause').addEventListener('click', function () {
     if (!run) return;
     if (run.done) { stopRun(); return; }
     run.paused = !run.paused;
-    this.textContent = run.paused ? 'Resume' : 'Pause';
+    pauseBtn(run.paused ? 'Resume' : 'Pause');
   });
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && run) stopRun(); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    if (run) stopRun(); else if (sheetOpen) closeSheet();
+  });
+  /* the shell tells us when this tab is left, so the sheet never lingers (Back button) */
+  window.addEventListener('message', function (e) {
+    if (e.origin !== location.origin) return;
+    if (e.data && e.data.type === 'hidden') closeSheet();
+  });
 
   renderAll();
 })();
