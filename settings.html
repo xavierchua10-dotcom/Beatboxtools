@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<script src="theme.js?v=20261108t"></script>
+<script src="theme.js?v=20261109a"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#14161a">
 <title>Settings</title>
-<link rel="stylesheet" href="fonts.css?v=20261108t">
-<link rel="stylesheet" href="theme.css?v=20261108t">
-<link rel="stylesheet" href="themes.css?v=20261108t">
+<link rel="stylesheet" href="fonts.css?v=20261109a">
+<link rel="stylesheet" href="theme.css?v=20261109a">
+<link rel="stylesheet" href="themes.css?v=20261109a">
 <style>
   .app{padding-top:16px}
   .card{margin-bottom:10px;padding:0}
@@ -102,13 +102,18 @@
   <section class="card">
     <div class="set"><span class="tx"><b>Voice notes</b><small>Stored on this device only.</small></span><span class="val" id="notes">…</span></div>
     <div class="set"><span class="tx"><b>Routines</b></span><span class="val" id="routines">…</span></div>
+    <div class="set col">
+      <span class="tx"><b>Back up</b><small>One file with your voice notes, routines, practice log and settings. Keep it safe, then restore it on a new phone or after clearing the browser.</small></span>
+      <div class="row wrap" style="gap:10px;margin-top:8px"><button id="bak" class="btn primary" type="button">Back up everything</button><button id="rst" class="btn" type="button">Restore</button></div>
+      <input id="rstFile" type="file" accept=".json,application/json" hidden>
+    </div>
     <div class="set col"><button id="wipe" class="btn danger wide" type="button" disabled>Delete all voice notes</button></div>
   </section>
   <p id="msg" class="msg" role="status" aria-live="polite"></p>
 
   <p class="about">BEATBOX TOOLS · BY SAVIOR<br>Everything saves on this device. Clearing site data removes it.</p>
 </main>
-<script src="confirm.js?v=20261108t"></script>
+<script src="confirm.js?v=20261109a"></script>
 <script>
 (function () {
   var $ = function (s) { return document.querySelector(s); };
@@ -210,6 +215,77 @@
       tx.onerror = function () { db.close(); $('#msg').textContent = 'Could not delete the notes.'; };
     }, function () { $('#msg').textContent = 'Could not delete the notes.'; });
   }
+
+  /* backup: every savior-* setting plus every voice note, in one .json file */
+  function b64(blob) {
+    return new Promise(function (res, rej) {
+      var r = new FileReader(); r.onload = function () { res(String(r.result).split(',')[1] || ''); }; r.onerror = function () { rej(r.error); }; r.readAsDataURL(blob);
+    });
+  }
+  function fromB64(str, type) {
+    var bin = atob(str), a = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) a[i] = bin.charCodeAt(i);
+    return new Blob([a], { type: type || 'audio/webm' });
+  }
+  function readAll(db, store) {
+    return new Promise(function (res, rej) { var q = db.transaction([store], 'readonly').objectStore(store).getAll(); q.onsuccess = function () { res(q.result); }; q.onerror = function () { rej(q.error); }; });
+  }
+  function say(t) { $('#msg').textContent = t; }
+  $('#bak').addEventListener('click', function () {
+    var btn = $('#bak'); btn.disabled = true; say('Making your backup…');
+    var local = {};
+    try { for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (k && k.indexOf('savior-') === 0) local[k] = localStorage.getItem(k); } } catch (e) {}
+    openDB().then(function (db) {
+      return Promise.all([readAll(db, 'meta'), readAll(db, 'blob')]).then(function (r) {
+        db.close();
+        var blobs = {}; r[1].forEach(function (b) { blobs[b.id] = b.blob; });
+        return Promise.all(r[0].map(function (m) {
+          var bl = blobs[m.id]; if (!bl) return null;
+          return b64(bl).then(function (d) { return { meta: m, type: bl.type, data: d }; });
+        }));
+      });
+    }).catch(function () { return []; }).then(function (notes) {
+      var out = { app: 'savior-beatbox-tools', version: 1, made: new Date().toISOString(), local: local, notes: notes.filter(Boolean) };
+      var file = new Blob([JSON.stringify(out)], { type: 'application/json' });
+      var d = new Date(), p = function (n) { return (n < 10 ? '0' : '') + n; };
+      var a = document.createElement('a'); a.href = URL.createObjectURL(file);
+      a.download = 'savior-beatbox-backup-' + d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + '.json';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
+      say('Backup saved: ' + out.notes.length + ' voice note' + (out.notes.length === 1 ? '' : 's') + ' and your settings. Look in your Downloads.');
+      btn.disabled = false;
+    });
+  });
+  $('#rst').addEventListener('click', function () { $('#rstFile').value = ''; $('#rstFile').click(); });
+  $('#rstFile').addEventListener('change', function () {
+    var f = this.files && this.files[0]; if (!f) return;
+    var rd = new FileReader();
+    rd.onerror = function () { say('Could not read that file.'); };
+    rd.onload = function () {
+      var data; try { data = JSON.parse(rd.result); } catch (e) {}
+      if (!data || data.app !== 'savior-beatbox-tools' || !data.local || !Array.isArray(data.notes)) { say('That is not a Beatbox Tools backup file.'); return; }
+      Confirm.ask({ title: 'Restore this backup?', message: 'Your routines, practice log and settings will be replaced by the backup. Its ' + data.notes.length + ' voice note' + (data.notes.length === 1 ? '' : 's') + ' will be added to the ones you have.', confirmLabel: 'Restore', danger: false }).then(function (ok) {
+        if (!ok) return;
+        say('Restoring…');
+        openDB().then(function (db) {
+          return new Promise(function (res, rej) {
+            var tx = db.transaction(['meta', 'blob'], 'readwrite');
+            data.notes.forEach(function (n) {
+              if (!n || !n.meta || !n.meta.id || typeof n.data !== 'string') return;
+              tx.objectStore('meta').put(n.meta); tx.objectStore('blob').put({ id: n.meta.id, blob: fromB64(n.data, n.type) });
+            });
+            tx.oncomplete = function () { db.close(); res(); }; tx.onerror = function () { db.close(); rej(tx.error); };
+          });
+        }).then(function () {
+          try { Object.keys(data.local).forEach(function (k) { if (k.indexOf('savior-') === 0 && typeof data.local[k] === 'string') localStorage.setItem(k, data.local[k]); }); } catch (e) {}
+          try { var bc = new BroadcastChannel('savior-voice'); bc.postMessage({ type: 'saved' }); bc.close(); } catch (e) {}
+          say('Restored. Reloading…');
+          setTimeout(function () { try { window.parent.location.reload(); } catch (e) { location.reload(); } }, 900);
+        }).catch(function () { say('Could not restore the backup.'); });
+      });
+    };
+    rd.readAsText(f);
+  });
 
   /* install: full screen app instead of a browser tab */
   function installUI() {
