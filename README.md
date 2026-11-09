@@ -31,3 +31,9 @@ Voice notes are stored in the browser's IndexedDB on the device. They never leav
 Open a page directly with `#voice`, `#history`, `#routine`, `#tools`, `#settings`, `#log`, `#loop`, `#pattern`, `#timing`, `#ladder`, `#tuner`, `#spectrum`, `#prompts`, `#metronome` or `#battle` on the end of the link.
 
 The look matches the SaviorFit Logger: near-black background, gold accent, Oswald headings, Inter body, JetBrains Mono numbers (fonts are self-hosted in `fonts/`). `theme.css` styles Record, History and Routine. `legacy.css` re-skins the metronome and battle pages, which come from the former `savior-audio` and `Saviortimer` repos and are otherwise unchanged (the metronome's colour-theme picker is hidden, since the app-wide accent colour in Settings replaces it).
+
+## Look (Logger style)
+- Header: ring logo, streak chip (opens the Practice log) and Settings.
+- Record: backdrop, rings around the mic, a Today card (minutes against goal, streak) and the newest note with a play button.
+- Tools: a This week card with daily bars, tools grouped as Rhythm, Ear & timing and Freestyle, and a LIVE border on running tools.
+- History: filter chips (All, Loops, This week), notes grouped by day, a LOOP tag on loop mixes.

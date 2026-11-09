@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<script src="theme.js?v=20261109b"></script>
+<script src="theme.js?v=20261109e"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Voice history by Savior</title>
-<link rel="stylesheet" href="fonts.css?v=20261109b">
-<link rel="stylesheet" href="theme.css?v=20261109b">
-<link rel="stylesheet" href="themes.css?v=20261109b">
+<link rel="stylesheet" href="fonts.css?v=20261109e">
+<link rel="stylesheet" href="theme.css?v=20261109e">
+<link rel="stylesheet" href="themes.css?v=20261109e">
 <style>
   .sum{margin:-6px 0 14px;text-align:center;color:var(--text-dim);font:400 12px var(--f-mono);min-height:16px}
   .note{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 12px 10px;margin-bottom:10px;transition:border-color .15s}
@@ -31,6 +31,14 @@
   .acts{display:flex;align-items:center;gap:6px;margin-top:8px}
   .acts .grow{flex:1}
   .chip{min-height:36px;padding:0 12px;font-size:12px}
+  .flt{display:flex;gap:8px;margin:0 0 14px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+  .flt::-webkit-scrollbar{display:none}
+  .fc{flex:none;height:32px;padding:0 12px;border-radius:9px;cursor:pointer;background:var(--panel-2);border:1px solid var(--line);color:var(--text-dim);font:600 12px var(--f-mono);letter-spacing:.04em;text-transform:uppercase}
+  .fc.on{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+  .day{margin:16px 2px 8px;font:500 10px var(--f-mono);letter-spacing:.2em;text-transform:uppercase;color:var(--text-faint)}
+  .day:first-child{margin-top:2px}
+  .tag{font:600 10px var(--f-mono);letter-spacing:.1em;padding:1px 7px;border-radius:6px;color:var(--accent-ink);border:1px solid rgba(var(--accent-rgb),.4);background:rgba(var(--accent-rgb),.1)}
+  .fempty{text-align:center;color:var(--text-dim);font-size:14px;padding:26px 0}
   .empty{text-align:center;color:var(--text-dim);padding:34px 12px}
   .empty p{margin:0 0 14px;font-size:14px;line-height:1.5}
   .err{color:var(--accent-2);text-align:center;font-size:14px;padding:20px 8px}
@@ -40,7 +48,13 @@
 <main class="app">
   <h1 class="page-title">Voice <span>history</span></h1>
   <p id="sum" class="sum"></p>
+  <div class="flt" id="flt" role="group" aria-label="Filter notes" hidden>
+    <button class="fc on" type="button" data-f="all">All</button>
+    <button class="fc" type="button" data-f="loop">Loops</button>
+    <button class="fc" type="button" data-f="week">This week</button>
+  </div>
   <div id="list"></div>
+  <p id="fempty" class="fempty" hidden>Nothing here yet.</p>
   <div id="empty" class="empty" hidden>
     <p>No voice notes yet. Record one and it shows up here.</p>
     <button id="goRec" class="btn primary" type="button">Record a note</button>
@@ -48,7 +62,7 @@
   <p id="err" class="err" hidden></p>
 </main>
 
-<script src="confirm.js?v=20261109b"></script>
+<script src="confirm.js?v=20261109e"></script>
 <script>
 (function () {
   'use strict';
@@ -130,18 +144,43 @@
 
   function speedLabel() { return (speed === 0.75 ? '0.75' : String(speed)) + '×'; }
 
+  var filter = 'all';
+  function dayLabel(t) {
+    var d = new Date(t), n = new Date(); d.setHours(0, 0, 0, 0); n.setHours(0, 0, 0, 0);
+    var diff = Math.round((n - d) / 86400000);
+    return diff === 0 ? 'Today' : diff === 1 ? 'Yesterday' : new Date(t).toLocaleDateString([], { day: 'numeric', month: 'short', year: diff > 300 ? 'numeric' : undefined });
+  }
+  $('#flt').addEventListener('click', function (e) {
+    var b = e.target.closest('.fc'); if (!b) return;
+    filter = b.dataset.f; renderList();
+  });
+
   function renderList() {
     var box = $('#list');
     box.textContent = '';
     $('#empty').hidden = metas.length > 0;
     var total = metas.reduce(function (a, m) { return a + (m.size || 0); }, 0);
     $('#sum').textContent = metas.length ? metas.length + (metas.length === 1 ? ' note' : ' notes') + ' · ' + fmtSize(total) : '';
-    metas.forEach(function (m) {
+    var isLoop = function (m) { return /^loop mix/i.test(m.name || ''); };
+    var weekAgo = Date.now() - 7 * 86400000;
+    var shown = metas.filter(function (m) { return filter === 'loop' ? isLoop(m) : filter === 'week' ? m.created >= weekAgo : true; });
+    var fl = $('#flt'); fl.hidden = !metas.length;
+    var cnt = { all: metas.length, loop: metas.filter(isLoop).length, week: metas.filter(function (m) { return m.created >= weekAgo; }).length };
+    Array.prototype.forEach.call(fl.querySelectorAll('.fc'), function (b) {
+      var f = b.dataset.f; b.classList.toggle('on', f === filter);
+      b.textContent = (f === 'all' ? 'All' : f === 'loop' ? 'Loops' : 'This week') + ' \u00b7 ' + cnt[f];
+    });
+    $('#fempty').hidden = !metas.length || shown.length > 0;
+    var lastDay = '';
+    shown.forEach(function (m) {
+      var dk = dayLabel(m.created);
+      if (dk !== lastDay) { var h = document.createElement('div'); h.className = 'day'; h.textContent = dk; box.appendChild(h); lastDay = dk; }
       var el = document.createElement('article');
       el.className = 'note'; el.dataset.id = m.id; el.innerHTML = NOTE_HTML;
       $('.nm', el).value = m.name;
       $('.when', el).textContent = new Date(m.created).toLocaleString([], { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
       $('.len', el).textContent = fmt(m.duration);
+      if (isLoop(m)) { var tg = document.createElement('span'); tg.className = 'tag'; tg.textContent = 'LOOP'; $('.meta', el).appendChild(tg); }
       $('.size', el).textContent = fmtSize(m.size || 0);
       $('.clock', el).textContent = '0:00 / ' + fmt(m.duration);
       var wv = $('.wv', el), peaks = m.peaks && m.peaks.length ? m.peaks : [];
