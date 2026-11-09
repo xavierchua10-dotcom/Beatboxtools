@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<script src="theme.js?v=20261109a"></script>
+<script src="theme.js?v=20261109b"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#14161a">
 <title>Settings</title>
-<link rel="stylesheet" href="fonts.css?v=20261109a">
-<link rel="stylesheet" href="theme.css?v=20261109a">
-<link rel="stylesheet" href="themes.css?v=20261109a">
+<link rel="stylesheet" href="fonts.css?v=20261109b">
+<link rel="stylesheet" href="theme.css?v=20261109b">
+<link rel="stylesheet" href="themes.css?v=20261109b">
 <style>
   .app{padding-top:16px}
   .card{margin-bottom:10px;padding:0}
@@ -105,15 +105,15 @@
     <div class="set col">
       <span class="tx"><b>Back up</b><small>One file with your voice notes, routines, practice log and settings. Keep it safe, then restore it on a new phone or after clearing the browser.</small></span>
       <div class="row wrap" style="gap:10px;margin-top:8px"><button id="bak" class="btn primary" type="button">Back up everything</button><button id="rst" class="btn" type="button">Restore</button></div>
-      <input id="rstFile" type="file" accept=".json,application/json" hidden>
+      <input id="rstFile" type="file" accept=".json,application/json,application/octet-stream,text/plain" hidden>
     </div>
     <div class="set col"><button id="wipe" class="btn danger wide" type="button" disabled>Delete all voice notes</button></div>
   </section>
   <p id="msg" class="msg" role="status" aria-live="polite"></p>
 
-  <p class="about">BEATBOX TOOLS · BY SAVIOR<br>Everything saves on this device. Clearing site data removes it.</p>
+  <p class="about"><a href="privacy.html" target="_blank" rel="noopener" style="color:var(--accent-ink)">Privacy policy</a><br><br>BEATBOX TOOLS · BY SAVIOR<br>Everything saves on this device. Clearing site data removes it.</p>
 </main>
-<script src="confirm.js?v=20261109a"></script>
+<script src="confirm.js?v=20261109b"></script>
 <script>
 (function () {
   var $ = function (s) { return document.querySelector(s); };
@@ -246,7 +246,7 @@
       });
     }).catch(function () { return []; }).then(function (notes) {
       var out = { app: 'savior-beatbox-tools', version: 1, made: new Date().toISOString(), local: local, notes: notes.filter(Boolean) };
-      var file = new Blob([JSON.stringify(out)], { type: 'application/json' });
+      var file = new Blob([JSON.stringify(out)], { type: 'application/octet-stream' });
       var d = new Date(), p = function (n) { return (n < 10 ? '0' : '') + n; };
       var a = document.createElement('a'); a.href = URL.createObjectURL(file);
       a.download = 'savior-beatbox-backup-' + d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + '.json';

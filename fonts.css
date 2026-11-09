@@ -9,3 +9,8 @@
 @font-face{font-family:'JetBrains Mono';font-weight:400;font-style:normal;font-display:swap;src:url(fonts/jetbrains-mono-latin-400-normal.woff2) format('woff2')}
 @font-face{font-family:'JetBrains Mono';font-weight:500;font-style:normal;font-display:swap;src:url(fonts/jetbrains-mono-latin-500-normal.woff2) format('woff2')}
 @font-face{font-family:'JetBrains Mono';font-weight:700;font-style:normal;font-display:swap;src:url(fonts/jetbrains-mono-latin-700-normal.woff2) format('woff2')}
+/* old names some pages still ask for, mapped to the fonts above so nothing loads from outside */
+@font-face{font-family:'Anton';font-weight:400;font-style:normal;font-display:swap;src:url(fonts/oswald-latin-700-normal.woff2) format('woff2')}
+@font-face{font-family:'Space Grotesk';font-weight:400;font-style:normal;font-display:swap;src:url(fonts/inter-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:'Space Grotesk';font-weight:500;font-style:normal;font-display:swap;src:url(fonts/inter-latin-500-normal.woff2) format('woff2')}
+@font-face{font-family:'Space Grotesk';font-weight:700;font-style:normal;font-display:swap;src:url(fonts/inter-latin-700-normal.woff2) format('woff2')}

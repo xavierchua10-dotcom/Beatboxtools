@@ -19,6 +19,7 @@ Savior's beatbox practice tools in one app, with a bottom tab bar.
 - Back button works like a normal phone app: it closes a popup first, then a tool or Settings screen, then goes from any tab to Record. On Record the first Back shows "Press back again to quit" and a second Back within 2 sec leaves the app (`popstate` handler in `index.html`).
 - Tabs slide left or right when you switch (`.stage.slide` in `index.html`; off with reduced motion).
 - **Settings** (gear in the top bar, opens full screen, `settings.html`): theme (Dark, Light or Auto) and accent colour (Default gold #f2b134, Orange, Rose, Mint, Blue, Violet, Cyan; stored in `savior-accent`, defined in `themes.css`, applied by `theme.js`), raw audio switch, rehearsal count-in (none, 3, 5 or 10 sec), beeps and vibration on or off, an Install button, how many voice notes and routines are saved, and delete all voice notes.
+- `privacy.html` is the privacy policy (linked at the bottom of Settings). Nothing loads from outside the app: fonts are self-hosted.
 - Back up everything (Settings > Your data) saves one `.json` file with all voice notes, routines, practice log and settings; Restore puts them back.
 
 It is an installable app (`manifest.webmanifest`, `sw.js`): install it from the browser menu (Install app / Add to Home screen) and it opens full screen with no browser bar. Settings has an Install button when the browser offers one. The service worker is network first, so updates always win and the cache only helps offline.
